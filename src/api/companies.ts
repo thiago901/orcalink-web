@@ -22,12 +22,12 @@ export interface CreateCompanyProps {
 // Company API functions
 export const getCompanies = async () => {
   const response = await api.get('/companies');
-  return response.data.result;
+  return response.data;
 };
 
 export const getCompanyById = async (id: string) => {
   const response = await api.get(`/companies/${id}`);
-  return response.data.result;
+  return response.data;
 };
 
 export const getCompaniesByOwnerId = async (ownerId: string) => {
@@ -39,5 +39,5 @@ export const getCompaniesByOwnerId = async (ownerId: string) => {
 
 export const createCompany = async (data: CreateCompanyProps) => {
   const response = await api.post('/companies', data);
-  return response.data.result;
+  return response.data;
 };

@@ -25,15 +25,15 @@ export interface CreateUserProps {
 // Auth API functions
 export const loginUser = async (data: AuthenticateUserProps) => {
   const response = await api.post('/sessions', data);
-  return response.data.result;
+  return response.data;
 };
 
 export const registerUser = async (data: CreateUserProps) => {
   const response = await api.post('/users', data);
-  return response.data.result;
+  return response.data;
 };
 
 export const forgotPassword = async (data: RecoverPasswordProps) => {
   const response = await api.post('/forgot-password', data);
-  return response.data.result;
+  return response.data;
 };
