@@ -1,12 +1,26 @@
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { MapPin, Mail, Phone, Building2, Loader2 } from 'lucide-react';
+import { MapPin, Mail, Phone, Calendar, Building2, Loader2, Filter, ArrowUpDown } from 'lucide-react';
 import { getCompanyById } from '../../api/companies';
 import { getCompanyServices } from '../../api/companyServices';
+import { getEstimateRequests } from '../../api/estimateRequests';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Select from '../../components/ui/Select';
+
+const RADIUS_OPTIONS = [
+  { value: '5000', label: '5 km' },
+  { value: '10000', label: '10 km' },
+  { value: '20000', label: '20 km' },
+  { value: '50000', label: '50 km' },
+];
 
 const CompanyDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const [activeTab, setActiveTab] = useState<'info' | 'requests'>('info');
+  const [radius, setRadius] = useState(10000);
+  const [sortBy, setSortBy] = useState<'date' | 'distance'>('date');
 
   const { data: company, isLoading: isLoadingCompany } = useQuery({
     queryKey: ['company', id],
@@ -18,6 +32,16 @@ const CompanyDetailPage = () => {
     queryKey: ['companyServices', id],
     queryFn: () => getCompanyServices(id!),
     enabled: !!id,
+  });
+
+  const { data: requests, isLoading: isLoadingRequests } = useQuery({
+    queryKey: ['estimateRequests', company?.address.latitude, company?.address.longitude, radius],
+    queryFn: () => getEstimateRequests({
+      latitude: company!.address.latitude,
+      longitude: company!.address.longitude,
+      radiusInMeters: radius,
+    }),
+    enabled: !!company?.address.latitude && !!company?.address.longitude,
   });
 
   if (isLoadingCompany || isLoadingServices) {
@@ -32,88 +56,230 @@ const CompanyDetailPage = () => {
     return (
       <div className="text-center py-8">
         <h3 className="text-lg font-medium mb-2">Empresa não encontrada</h3>
-        <p className="text-neutral-600">
+        <p className="text-neutral-600 dark:text-neutral-400">
           A empresa que você está procurando não existe ou foi removida.
         </p>
       </div>
     );
   }
 
+  const sortedRequests = requests?.sort((a, b) => {
+    if (sortBy === 'date') {
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }
+    // Distance sorting would be implemented here if the API provided distance info
+    return 0;
+  });
+
   return (
     <div className="space-y-6 fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-800">{company.name}</h1>
-        <p className="text-neutral-600">Detalhes da empresa</p>
+        <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-100">{company.name}</h1>
+        <p className="text-neutral-600 dark:text-neutral-400">Detalhes da empresa</p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
+      {/* Tabs */}
+      <div className="flex gap-4 border-b border-neutral-200 dark:border-neutral-700">
+        <button
+          onClick={() => setActiveTab('info')}
+          className={`pb-2 px-1 font-medium transition-colors ${
+            activeTab === 'info'
+              ? 'text-primary-600 border-b-2 border-primary-600 dark:text-primary-400 dark:border-primary-400'
+              : 'text-neutral-600 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200'
+          }`}
+        >
+          Informações
+        </button>
+        <button
+          onClick={() => setActiveTab('requests')}
+          className={`pb-2 px-1 font-medium transition-colors ${
+            activeTab === 'requests'
+              ? 'text-primary-600 border-b-2 border-primary-600 dark:text-primary-400 dark:border-primary-400'
+              : 'text-neutral-600 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200'
+          }`}
+        >
+          Orçamentos Disponíveis
+        </button>
+      </div>
+
+      {activeTab === 'info' ? (
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Informações da Empresa</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 text-2xl font-medium dark:bg-neutral-700 dark:text-primary-400">
+                      {company.name.charAt(0)}
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-medium dark:text-neutral-100">{company.name}</h4>
+                      <p className="text-neutral-500 dark:text-neutral-400">
+                        {company.address.city}, {company.address.state}
+                      </p>
+                    </div>
+                  </div>
+
+                  {company.about && (
+                    <div>
+                      <h4 className="font-medium mb-2 dark:text-neutral-100">Sobre</h4>
+                      <p className="text-neutral-600 dark:text-neutral-400">{company.about}</p>
+                    </div>
+                  )}
+
+                  <div>
+                    <h4 className="font-medium mb-2 dark:text-neutral-100">Endereço</h4>
+                    <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
+                      <MapPin size={18} />
+                      <span>
+                        {company.address.address}
+                        <br />
+                        {company.address.city}, {company.address.state} - {company.address.zip}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Serviços Oferecidos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {!services?.length ? (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4 dark:bg-neutral-700">
+                      <Building2 className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+                    </div>
+                    <h3 className="text-lg font-medium mb-2 dark:text-neutral-100">Nenhum serviço cadastrado</h3>
+                    <p className="text-neutral-600 dark:text-neutral-400">
+                      Esta empresa ainda não cadastrou seus serviços.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {services.map((service) => (
+                      <div
+                        key={service.id}
+                        className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700"
+                      >
+                        <h4 className="font-medium dark:text-neutral-100">{service.name}</h4>
+                        <p className="text-sm text-neutral-500 mt-1 dark:text-neutral-400">
+                          {service.category.name}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
           <Card>
             <CardHeader>
-              <CardTitle>Informações da Empresa</CardTitle>
+              <CardTitle>Status</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 text-2xl font-medium">
-                    {company.name.charAt(0)}
+                <div>
+                  <div className="text-2xl font-semibold text-neutral-800 dark:text-neutral-100">
+                    {services?.length || 0}
                   </div>
-                  <div>
-                    <h4 className="text-lg font-medium">{company.name}</h4>
-                    <p className="text-neutral-500">
-                      {company.address.city}, {company.address.state}
-                    </p>
-                  </div>
+                  <div className="text-sm text-neutral-500 dark:text-neutral-400">Serviços cadastrados</div>
                 </div>
 
-                {company.about && (
-                  <div>
-                    <h4 className="font-medium mb-2">Sobre</h4>
-                    <p className="text-neutral-600">{company.about}</p>
-                  </div>
-                )}
+                <div className="h-px bg-neutral-200 dark:bg-neutral-700" />
 
                 <div>
-                  <h4 className="font-medium mb-2">Endereço</h4>
-                  <div className="flex items-center gap-2 text-neutral-600">
-                    <MapPin size={18} />
-                    <span>
-                      {company.address.address}
-                      <br />
-                      {company.address.city}, {company.address.state} - {company.address.zip}
-                    </span>
+                  <h4 className="font-medium mb-2 dark:text-neutral-100">Última atualização</h4>
+                  <div className="text-neutral-600 dark:text-neutral-400">
+                    {new Date(company.updated_at).toLocaleDateString('pt-BR')}
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
-
+        </div>
+      ) : (
+        <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Serviços Oferecidos</CardTitle>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <CardTitle>Orçamentos Disponíveis</CardTitle>
+                <div className="flex gap-2">
+                  <Select
+                    value={radius.toString()}
+                    onChange={(e) => setRadius(Number(e.target.value))}
+                    options={RADIUS_OPTIONS}
+                  />
+                  <Button
+                    variant="outline"
+                    icon={<ArrowUpDown size={16} />}
+                    onClick={() => setSortBy(sortBy === 'date' ? 'distance' : 'date')}
+                  >
+                    {sortBy === 'date' ? 'Data' : 'Distância'}
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              {!services?.length ? (
+              {isLoadingRequests ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+                </div>
+              ) : !sortedRequests?.length ? (
                 <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Building2 className="w-8 h-8 text-primary-600" />
+                  <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4 dark:bg-neutral-700">
+                    <MapPin className="w-8 h-8 text-primary-600 dark:text-primary-400" />
                   </div>
-                  <h3 className="text-lg font-medium mb-2">Nenhum serviço cadastrado</h3>
-                  <p className="text-neutral-600">
-                    Esta empresa ainda não cadastrou seus serviços.
+                  <h3 className="text-lg font-medium mb-2 dark:text-neutral-100">Nenhum orçamento disponível</h3>
+                  <p className="text-neutral-600 dark:text-neutral-400">
+                    Não há solicitações de orçamento na sua região no momento.
                   </p>
                 </div>
               ) : (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {services.map((service) => (
+                <div className="space-y-4">
+                  {sortedRequests.map((request) => (
                     <div
-                      key={service.id}
-                      className="p-4 rounded-lg border border-neutral-200"
+                      key={request.id}
+                      className="p-4 rounded-lg border border-neutral-200 hover:border-primary-300 transition-colors dark:border-neutral-700 dark:hover:border-primary-600"
                     >
-                      <h4 className="font-medium">{service.name}</h4>
-                      <p className="text-sm text-neutral-500 mt-1">
-                        {service.category.name}
-                      </p>
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                        <div>
+                          <h4 className="font-medium dark:text-neutral-100">{request.name}</h4>
+                          <div className="flex items-center gap-2 mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                            <MapPin size={14} />
+                            <span>{request.address_city}, {request.address_state}</span>
+                          </div>
+                          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+                            {request.description}
+                          </p>
+                          <div className="mt-4 flex flex-wrap gap-4 text-sm text-neutral-500 dark:text-neutral-400">
+                            <div className="flex items-center gap-1">
+                              <Calendar size={14} />
+                              <span>
+                                {new Date(request.created_at).toLocaleDateString('pt-BR')}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <MapPin size={14} />
+                              <span>{request.footage}m²</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <Button>
+                            Enviar Proposta
+                          </Button>
+                          <Button variant="outline">
+                            Ver Detalhes
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -121,32 +287,7 @@ const CompanyDetailPage = () => {
             </CardContent>
           </Card>
         </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <div className="text-2xl font-semibold text-neutral-800">
-                  {services?.length || 0}
-                </div>
-                <div className="text-sm text-neutral-500">Serviços cadastrados</div>
-              </div>
-
-              <div className="h-px bg-neutral-200" />
-
-              <div>
-                <h4 className="font-medium mb-2">Última atualização</h4>
-                <div className="text-neutral-600">
-                  {new Date(company.updated_at).toLocaleDateString('pt-BR')}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      )}
     </div>
   );
 };
