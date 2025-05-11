@@ -1,12 +1,20 @@
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { MapPin, Phone, Mail, Calendar, FileText, Loader2 } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { MapPin, Phone, Mail, Calendar, FileText, Loader2, Check, X } from 'lucide-react';
 import { getEstimateRequestById } from '../../api/estimateRequests';
-import { getProposalsByEstimateId } from '../../api/proposals';
+import { getProposalsByEstimateId, approveProposal, rejectProposal } from '../../api/proposals';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import ProposalActionDialog from '../../components/proposals/ProposalActionDialog';
 
 const EstimateRequestDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const queryClient = useQueryClient();
+  const [selectedProposal, setSelectedProposal] = useState<any>(null);
+  const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
+  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+  const [isActionLoading, setIsActionLoading] = useState(false);
 
   const { data: request, isLoading: isLoadingRequest } = useQuery({
     queryKey: ['estimateRequest', id],
@@ -19,6 +27,36 @@ const EstimateRequestDetailPage = () => {
     queryFn: () => getProposalsByEstimateId(id!),
     enabled: !!id,
   });
+
+  const handleApprove = async () => {
+    if (!selectedProposal) return;
+    
+    setIsActionLoading(true);
+    try {
+      await approveProposal(selectedProposal.id);
+      queryClient.invalidateQueries(['proposals', id]);
+      setIsApproveDialogOpen(false);
+    } catch (error) {
+      console.error('Error approving proposal:', error);
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
+  const handleReject = async () => {
+    if (!selectedProposal) return;
+    
+    setIsActionLoading(true);
+    try {
+      await rejectProposal(selectedProposal.id);
+      queryClient.invalidateQueries(['proposals', id]);
+      setIsRejectDialogOpen(false);
+    } catch (error) {
+      console.error('Error rejecting proposal:', error);
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
 
   if (isLoadingRequest || isLoadingProposals) {
     return (
@@ -152,6 +190,31 @@ const EstimateRequestDetailPage = () => {
                           <div className="mt-2 text-sm font-medium px-2 py-1 rounded-full bg-primary-50 text-primary-700">
                             {proposal.status}
                           </div>
+                          {proposal.status === 'pending' && (
+                            <div className="mt-4 flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                icon={<X size={16} />}
+                                onClick={() => {
+                                  setSelectedProposal(proposal);
+                                  setIsRejectDialogOpen(true);
+                                }}
+                              >
+                                Recusar
+                              </Button>
+                              <Button
+                                size="sm"
+                                icon={<Check size={16} />}
+                                onClick={() => {
+                                  setSelectedProposal(proposal);
+                                  setIsApproveDialogOpen(true);
+                                }}
+                              >
+                                Aceitar
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -190,6 +253,25 @@ const EstimateRequestDetailPage = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Action Dialogs */}
+      <ProposalActionDialog
+        isOpen={isApproveDialogOpen}
+        onClose={() => setIsApproveDialogOpen(false)}
+        onConfirm={handleApprove}
+        title="Aceitar Proposta"
+        description="Tem certeza que deseja aceitar esta proposta? Esta ação não pode ser desfeita."
+        isLoading={isActionLoading}
+      />
+
+      <ProposalActionDialog
+        isOpen={isRejectDialogOpen}
+        onClose={() => setIsRejectDialogOpen(false)}
+        onConfirm={handleReject}
+        title="Recusar Proposta"
+        description="Tem certeza que deseja recusar esta proposta? Esta ação não pode ser desfeita."
+        isLoading={isActionLoading}
+      />
     </div>
   );
 };
