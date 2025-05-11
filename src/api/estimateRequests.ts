@@ -26,27 +26,27 @@ export interface GeolocationQuery {
 // Estimate Request API functions
 export const getEstimateRequests = async (params: GeolocationQuery) => {
   const response = await api.get('/estimate-requests', { params });
-  return response.data;
+  return response.data.result;
 };
 
 export const getEstimateRequestById = async (id: string) => {
   const response = await api.get(`/estimate-requests/${id}`);
-  return response.data;
+  return response.data.result;
 };
 
 export const getEstimateRequestsByUserId = async (userId: string) => {
   const response = await api.get(`/estimate-requests/user/${userId}`);
-  return response.data;
+  return response.data.result;
 };
 
 export const createEstimateRequest = async (data: CreateEstimateRequestProps) => {
   const response = await api.post('/estimate-requests', data);
-  return response.data;
+  return response.data.result;
 };
 
 export const getEstimateRequestFiles = async (requestId: string) => {
   const response = await api.get(`/estimate-requests/${requestId}/files`);
-  return response.data;
+  return response.data.result;
 };
 
 export const uploadEstimateRequestFiles = async (requestId: string, files: FormData) => {
@@ -55,5 +55,5 @@ export const uploadEstimateRequestFiles = async (requestId: string, files: FormD
       'Content-Type': 'multipart/form-data',
     },
   });
-  return response.data;
+  return response.data.result;
 };

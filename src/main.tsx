@@ -6,6 +6,8 @@ import { Toaster } from 'react-hot-toast';
 import App from './App';
 import './index.css';
 
+import { Providers } from './provider';
+
 // Create a client for React Query
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,8 +20,10 @@ const queryClient = new QueryClient({
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+      <Providers>
         <App />
         <Toaster 
           position="top-right"
@@ -34,7 +38,9 @@ createRoot(document.getElementById('root')!).render(
             },
           }}
         />
+        </Providers>
       </BrowserRouter>
     </QueryClientProvider>
+    
   </StrictMode>
 );

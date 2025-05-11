@@ -33,7 +33,8 @@ const CompanyDetailPage = () => {
     queryFn: () => getCompanyById(id!),
     enabled: !!id,
   });
-
+  
+  
   const { data: services, isLoading: isLoadingServices } = useQuery({
     queryKey: ['companyServices', id],
     queryFn: () => getCompanyServices(id!),
@@ -96,6 +97,7 @@ const CompanyDetailPage = () => {
     return proposals?.some(proposal => proposal.estimate_request_id === requestId);
   };
 
+
   return (
     <div className="space-y-6 fade-in">
       <div>
@@ -139,7 +141,105 @@ const CompanyDetailPage = () => {
 
       {activeTab === 'info' ? (
         <div className="grid gap-6 lg:grid-cols-3">
-          {/* Info content */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Informações da Empresa</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 text-2xl font-medium dark:bg-neutral-700 dark:text-primary-400">
+                      {company.name.charAt(0)}
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-medium dark:text-neutral-100">{company.name}</h4>
+                      <p className="text-neutral-500 dark:text-neutral-400">
+                        {company.address.city}, {company.address.state}
+                      </p>
+                    </div>
+                  </div>
+
+                  {company.about && (
+                    <div>
+                      <h4 className="font-medium mb-2 dark:text-neutral-100">Sobre</h4>
+                      <p className="text-neutral-600 dark:text-neutral-400">{company.about}</p>
+                    </div>
+                  )}
+
+                  <div>
+                    <h4 className="font-medium mb-2 dark:text-neutral-100">Endereço</h4>
+                    <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
+                      <MapPin size={18} />
+                      <span>
+                        {company.address.address}
+                        <br />
+                        {company.address.city}, {company.address.state} - {company.address.zip}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Serviços Oferecidos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {!services?.length ? (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4 dark:bg-neutral-700">
+                      <Building2 className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+                    </div>
+                    <h3 className="text-lg font-medium mb-2 dark:text-neutral-100">Nenhum serviço cadastrado</h3>
+                    <p className="text-neutral-600 dark:text-neutral-400">
+                      Esta empresa ainda não cadastrou seus serviços.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {services.map((service) => (
+                      <div
+                        key={service.id}
+                        className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700"
+                      >
+                        <h4 className="font-medium dark:text-neutral-100">{service.name}</h4>
+                        <p className="text-sm text-neutral-500 mt-1 dark:text-neutral-400">
+                          {service.category.name}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <div className="text-2xl font-semibold text-neutral-800 dark:text-neutral-100">
+                    {services?.length || 0}
+                  </div>
+                  <div className="text-sm text-neutral-500 dark:text-neutral-400">Serviços cadastrados</div>
+                </div>
+
+                <div className="h-px bg-neutral-200 dark:bg-neutral-700" />
+
+                <div>
+                  <h4 className="font-medium mb-2 dark:text-neutral-100">Última atualização</h4>
+                  <div className="text-neutral-600 dark:text-neutral-400">
+                    {new Date(company.updated_at).toLocaleDateString('pt-BR')}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       ) : activeTab === 'requests' ? (
         <div className="space-y-6">
@@ -221,7 +321,7 @@ const CompanyDetailPage = () => {
                                   setIsProposalFormOpen(true);
                                 }}
                               >
-                                Enviar Proposta
+                                Enviar Proposta Ini
                               </Button>
                             </>
                           ) : (
@@ -269,10 +369,12 @@ const CompanyDetailPage = () => {
                       <div className="flex justify-between items-start gap-4">
                         <div>
                           <h4 className="font-medium">
-                            {proposal.estimate_request.name}
+                            {/* {proposal.estimate_request.name} */}
+                            {'proposal.estimate_request.name'}
                           </h4>
                           <p className="text-sm text-neutral-500 mt-1">
-                            {proposal.estimate_request.address_city}, {proposal.estimate_request.address_state}
+                            {/* {proposal.estimate_request.address_city}, {proposal.estimate_request.address_state} */}
+                            Endereco
                           </p>
                           <p className="mt-2 text-neutral-600">
                             {proposal.description}
@@ -286,7 +388,7 @@ const CompanyDetailPage = () => {
                             }).format(proposal.amount)}
                           </div>
                           <div className="mt-2 text-sm font-medium px-2 py-1 rounded-full bg-primary-50 text-primary-700">
-                            {proposal.status}
+                          {proposal.approved_at ? "Aprovado": proposal.reject_at? "Rejeitado":"Pendente" }
                           </div>
                         </div>
                       </div>
@@ -298,7 +400,7 @@ const CompanyDetailPage = () => {
           </Card>
         </div>
       )}
-
+  
       {/* Dialogs */}
       <EstimateRequestDetailsDialog
         isOpen={isDetailsOpen}

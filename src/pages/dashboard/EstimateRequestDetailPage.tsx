@@ -27,6 +27,8 @@ const EstimateRequestDetailPage = () => {
     queryFn: () => getProposalsByEstimateId(id!),
     enabled: !!id,
   });
+console.log('proposals',proposals);
+
 
   const handleApprove = async () => {
     if (!selectedProposal) return;
@@ -174,23 +176,26 @@ const EstimateRequestDetailPage = () => {
                             <div>
                               <h4 className="font-medium">{proposal.company.name}</h4>
                               <p className="text-sm text-neutral-500">
-                                {proposal.company.address.city}, {proposal.company.address.state}
+                                {/* {proposal.company.address.city}, {proposal.company.address.state} */}
+                                Endereço
                               </p>
                             </div>
                           </div>
                           <p className="mt-3 text-neutral-600">{proposal.description}</p>
                         </div>
                         <div className="text-right">
-                          <div className="text-lg font-semibold text-neutral-800">
+                          <div className="text-lg font-semibold">
+                            
                             {new Intl.NumberFormat('pt-BR', {
                               style: 'currency',
                               currency: 'BRL',
                             }).format(proposal.amount)}
                           </div>
                           <div className="mt-2 text-sm font-medium px-2 py-1 rounded-full bg-primary-50 text-primary-700">
-                            {proposal.status}
+                            {proposal.approved_at ? "Aprovado": proposal.reject_at? "Rejeitado":"Pendente" }
                           </div>
-                          {proposal.status === 'pending' && (
+                          
+                          {(!proposal.approved_at || !proposal.reject_at )&& (
                             <div className="mt-4 flex gap-2">
                               <Button
                                 variant="outline"

@@ -19,6 +19,7 @@ const EstimateRequestDetailsDialog = ({
 }: EstimateRequestDetailsDialogProps) => {
   if (!request) return null;
 
+
   return (
     <Dialog
       isOpen={isOpen}

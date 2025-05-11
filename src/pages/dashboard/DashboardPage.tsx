@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../../stores/authStore';
 import { getEstimateRequestsByUserId } from '../../api/estimateRequests';
 import { getCompaniesByOwnerId } from '../../api/companies';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
+// import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { Plus, ArrowRight, Loader2 } from 'lucide-react';
 
@@ -83,7 +83,7 @@ const DashboardPage = () => {
           <CardHeader>
             <CardTitle>Orçamentos Recentes</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             {isLoadingRequests ? (
               <div className="flex justify-center py-8">
                 <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
@@ -100,9 +100,9 @@ const DashboardPage = () => {
                         <h4 className="font-medium">{request.name}</h4>
                         <p className="text-sm text-neutral-500 mt-1">{request.address_city}, {request.address_state}</p>
                       </div>
-                      <div className="text-sm font-medium px-2 py-1 rounded-full bg-primary-50 text-primary-700">
+                      <Chip color='primary'>
                         {request.proposals?.length || 0} propostas
-                      </div>
+                      </Chip>
                     </div>
                     <div className="mt-4 flex justify-end">
                       <Link to={`/dashboard/estimate-requests/${request.id}`}>
@@ -135,7 +135,7 @@ const DashboardPage = () => {
                 </Link>
               </div>
             )}
-          </CardContent>
+          </CardBody>
         </Card>
 
         {/* Location Status or Companies */}
@@ -144,7 +144,7 @@ const DashboardPage = () => {
             <CardHeader>
               <CardTitle>Minhas Empresas</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardBody>
               {isLoadingCompanies ? (
                 <div className="flex justify-center py-8">
                   <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
@@ -187,14 +187,14 @@ const DashboardPage = () => {
                   </div>
                 </div>
               )}
-            </CardContent>
+            </CardBody>
           </Card>
         ) : (
           <Card>
             <CardHeader>
               <CardTitle>Sua Localização</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardBody>
               {geolocationError ? (
                 <div className="p-4 bg-error-50 text-error-700 rounded-md">
                   <p>{geolocationError}</p>
@@ -220,7 +220,7 @@ const DashboardPage = () => {
                   </p>
                 </div>
               )}
-            </CardContent>
+            </CardBody>
           </Card>
         )}
       </div>
@@ -230,5 +230,7 @@ const DashboardPage = () => {
 
 // Import inside the component to avoid circular dependency
 import { Building2 } from 'lucide-react';
+import { Card, CardBody, CardHeader, Chip } from '@heroui/react';
+import { CardTitle } from '../../components/ui/Card';
 
 export default DashboardPage;

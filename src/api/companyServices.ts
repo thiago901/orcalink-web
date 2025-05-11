@@ -9,15 +9,15 @@ export interface CreateCompanyServiceProps {
 // Company Services API functions
 export const getCompanyServices = async (companyId: string) => {
   const response = await api.get(`/companies-services/${companyId}`);
-  return response.data;
+  return response.data.result;
 };
 
 export const createCompanyService = async (data: CreateCompanyServiceProps) => {
   const response = await api.post('/companies-services', data);
-  return response.data;
+  return response.data.result;
 };
 
 export const getCompanyCategories = async () => {
   const response = await api.get('/companies-categories');
-  return response.data;
+  return response.data.result;
 };
