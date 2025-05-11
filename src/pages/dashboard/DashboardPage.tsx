@@ -4,9 +4,16 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../../stores/authStore';
 import { getEstimateRequestsByUserId } from '../../api/estimateRequests';
 import { getCompaniesByOwnerId } from '../../api/companies';
-// import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
+
+import { Building2 } from 'lucide-react';
+import { Button, Card, CardBody, CardHeader, Chip, Listbox, ListboxItem } from '@heroui/react';
+import { CardTitle } from '../../components/ui/Card';
+import { Title } from '../../components/ui/Title';
+
+import { Text } from '../../components/ui/Text';
+
 import { Plus, ArrowRight, Loader2 } from 'lucide-react';
+
 
 const DashboardPage = () => {
   const { user } = useAuthStore();
@@ -54,25 +61,24 @@ const DashboardPage = () => {
     <div className="space-y-8 fade-in">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-800">Dashboard</h1>
-          <p className="text-neutral-600">
+          <Title>Dashboard</Title>
+          <Text className="text-neutral-600">
             Bem-vindo de volta, {user?.name?.split(' ')[0] || 'Usuário'}!
-          </p>
+          </Text>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-2">
-          <Link to="/dashboard/estimate-requests/new">
-            <Button icon={<Plus size={18} />}>
+         <Button as={Link} to="/dashboard/estimate-requests/new" startContent={<Plus size={18} />} color='primary'>
               Solicitar Orçamento
-            </Button>
-          </Link>
+          </Button>
+     
           
           {(companies?.length > 0) && (
-            <Link to="/dashboard/companies">
-              <Button variant="outline" icon={<Building2 size={18} />}>
+            
+              <Button as={Link}  startContent={<Building2 size={18} />} to="/dashboard/companies">
                 Minhas Empresas
               </Button>
-            </Link>
+            
           )}
         </div>
       </div>
@@ -90,34 +96,27 @@ const DashboardPage = () => {
               </div>
             ) : estimateRequests?.length > 0 ? (
               <div className="space-y-4">
+                <Listbox aria-label="Actions" >
                 {estimateRequests.slice(0, 3).map((request) => (
-                  <div 
+                  <ListboxItem 
                     key={request.id}
-                    className="p-4 rounded-md border border-neutral-200 hover:border-primary-300 hover:shadow-sm transition-all"
+                    href={`/dashboard/estimate-requests/${request.id}`}
+                    
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <h4 className="font-medium">{request.name}</h4>
-                        <p className="text-sm text-neutral-500 mt-1">{request.address_city}, {request.address_state}</p>
+                        <Text>{request.name}</Text>
                       </div>
                       <Chip color='primary'>
                         {request.proposals?.length || 0} propostas
                       </Chip>
                     </div>
-                    <div className="mt-4 flex justify-end">
-                      <Link to={`/dashboard/estimate-requests/${request.id}`}>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="text-primary-600"
-                          icon={<ArrowRight size={16} />}
-                        >
-                          Ver detalhes
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
+              
+                  </ListboxItem>
                 ))}
+             
+                </Listbox>
+                
                 
                 <div className="text-center pt-2">
                   <Link to="/dashboard/estimate-requests" className="text-primary-600 hover:text-primary-700 font-medium">
@@ -129,7 +128,7 @@ const DashboardPage = () => {
               <div className="text-center py-8">
                 <p className="text-neutral-500 mb-4">Você ainda não tem nenhum orçamento solicitado.</p>
                 <Link to="/dashboard/estimate-requests/new">
-                  <Button icon={<Plus size={18} />}>
+                  <Button startContent={<Plus size={18} />}>
                     Solicitar Orçamento
                   </Button>
                 </Link>
@@ -150,35 +149,32 @@ const DashboardPage = () => {
                   <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="flex flex-col h-full">
+                  <div className='flex-1'>
+                  <Listbox >
                   {companies.slice(0, 3).map((company) => (
-                    <div 
+                    <ListboxItem 
                       key={company.id}
-                      className="p-4 rounded-md border border-neutral-200 hover:border-primary-300 hover:shadow-sm transition-all"
+                      href={`/dashboard/companies/${company.id}`}
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-medium shrink-0">
                           {company.name.charAt(0)}
                         </div>
-                        <div>
+                        <div className='flex-1'>
                           <h4 className="font-medium">{company.name}</h4>
-                          <p className="text-sm text-neutral-500">{company.address?.city}, {company.address?.state}</p>
+                        </div>
+                        <div>
+                          <ArrowRight size={16}/>
                         </div>
                       </div>
-                      <div className="mt-4 flex justify-end">
-                        <Link to={`/dashboard/companies/${company.id}`}>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-primary-600"
-                            icon={<ArrowRight size={16} />}
-                          >
-                            Gerenciar
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
+                     
+                    </ListboxItem>
                   ))}
+                    
+                  </Listbox>
+                  </div>
+                
                   
                   <div className="text-center pt-2">
                     <Link to="/dashboard/companies" className="text-primary-600 hover:text-primary-700 font-medium">
@@ -228,9 +224,6 @@ const DashboardPage = () => {
   );
 };
 
-// Import inside the component to avoid circular dependency
-import { Building2 } from 'lucide-react';
-import { Card, CardBody, CardHeader, Chip } from '@heroui/react';
-import { CardTitle } from '../../components/ui/Card';
+
 
 export default DashboardPage;
