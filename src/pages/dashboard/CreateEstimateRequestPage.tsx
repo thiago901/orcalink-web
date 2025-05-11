@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { useAuthStore } from '../../stores/authStore';
-import { createEstimateRequest, CreateEstimateRequestProps } from '../../api/estimateRequests';
+import { createEstimateRequest, CreateEstimateRequestProps, uploadEstimateRequestFiles } from '../../api/estimateRequests';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import Textarea from '../../components/ui/Textarea';
 import Button from '../../components/ui/Button';
+import FileUpload from '../../components/ui/FileUpload';
 import { MapPin, Phone, Mail, Ruler, FileText } from 'lucide-react';
 
 const CreateEstimateRequestPage = () => {
@@ -16,6 +17,7 @@ const CreateEstimateRequestPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [position, setPosition] = useState<GeolocationPosition | null>(null);
   const [geolocationError, setGeolocationError] = useState<string | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const {
     register,
@@ -61,6 +63,17 @@ const CreateEstimateRequestPage = () => {
       };
 
       const response = await createEstimateRequest(requestData);
+
+      // Upload files if any are selected
+      if (selectedFiles.length > 0) {
+        const formData = new FormData();
+        selectedFiles.forEach(file => {
+          formData.append('files', file);
+        });
+
+        await uploadEstimateRequestFiles(response.id, formData);
+      }
+
       toast.success('Solicitação de orçamento criada com sucesso!');
       navigate(`/dashboard/estimate-requests/${response.id}`);
     } catch (error) {
@@ -121,6 +134,18 @@ const CreateEstimateRequestPage = () => {
                   },
                 })}
               />
+
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                  Arquivos do projeto (opcional)
+                </label>
+                <FileUpload
+                  onFilesSelected={setSelectedFiles}
+                  maxFiles={5}
+                  maxSizeInMB={10}
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                />
+              </div>
             </CardContent>
           </Card>
 
