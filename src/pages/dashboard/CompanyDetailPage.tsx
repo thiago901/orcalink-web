@@ -6,22 +6,24 @@ import { getCompanyById } from '../../api/companies';
 import { getCompanyServices } from '../../api/companyServices';
 import { getEstimateRequests } from '../../api/estimateRequests';
 import { getProposalsByCompanyId } from '../../api/proposals';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
-import Select from '../../components/ui/Select';
+
+
+
 import ProposalForm from '../../components/proposals/ProposalForm';
 import EstimateRequestDetailsDialog from '../../components/proposals/EstimateRequestDetailsDialog';
+import { Button, Card, CardBody, CardHeader, Listbox, ListboxItem, Select, SelectItem, Tab, Tabs } from '@heroui/react';
+import { Subtitle } from '../../components/ui/Subtitle';
 
 const RADIUS_OPTIONS = [
-  { value: '5000', label: '5 km' },
-  { value: '10000', label: '10 km' },
-  { value: '20000', label: '20 km' },
-  { value: '50000', label: '50 km' },
+  { key: '5000', label: '5 km' },
+  { key: '10000', label: '10 km' },
+  { key: '20000', label: '20 km' },
+  { key: '50000', label: '50 km' },
 ];
 
 const CompanyDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const [activeTab, setActiveTab] = useState<'info' | 'requests' | 'proposals'>('info');
+  
   const [radius, setRadius] = useState(10000);
   const [sortBy, setSortBy] = useState<'date' | 'distance'>('date');
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
@@ -60,7 +62,7 @@ const CompanyDetailPage = () => {
   if (isLoadingCompany || isLoadingServices) {
     return (
       <div className="flex justify-center py-8">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+        <Loader2 className="w-8 h-8 animate-spin " />
       </div>
     );
   }
@@ -96,65 +98,28 @@ const CompanyDetailPage = () => {
   const hasSubmittedProposal = (requestId: string) => {
     return proposals?.some(proposal => proposal.estimate_request_id === requestId);
   };
+console.log('request',sortedRequests);
 
 
-  return (
-    <div className="space-y-6 fade-in">
-      <div>
-        <h1 className="text-2xl font-bold text-neutral-800">{company.name}</h1>
-        <p className="text-neutral-600">Detalhes da empresa</p>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-4 border-b border-neutral-200">
-        <button
-          onClick={() => setActiveTab('info')}
-          className={`pb-2 px-1 font-medium transition-colors ${
-            activeTab === 'info'
-              ? 'text-primary-600 border-b-2 border-primary-600'
-              : 'text-neutral-600 hover:text-neutral-800'
-          }`}
-        >
-          Informações
-        </button>
-        <button
-          onClick={() => setActiveTab('requests')}
-          className={`pb-2 px-1 font-medium transition-colors ${
-            activeTab === 'requests'
-              ? 'text-primary-600 border-b-2 border-primary-600'
-              : 'text-neutral-600 hover:text-neutral-800'
-          }`}
-        >
-          Orçamentos Disponíveis
-        </button>
-        <button
-          onClick={() => setActiveTab('proposals')}
-          className={`pb-2 px-1 font-medium transition-colors ${
-            activeTab === 'proposals'
-              ? 'text-primary-600 border-b-2 border-primary-600'
-              : 'text-neutral-600 hover:text-neutral-800'
-          }`}
-        >
-          Propostas Enviadas
-        </button>
-      </div>
-
-      {activeTab === 'info' ? (
+return (
+  <div>
+    <Tabs>
+      <Tab key="informations" title="Informações">
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Informações da Empresa</CardTitle>
+                <Subtitle>Informações da Empresa</Subtitle>
               </CardHeader>
-              <CardContent>
+              <CardBody>
                 <div className="space-y-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 text-2xl font-medium dark:bg-neutral-700 dark:text-primary-400">
+                    <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center  text-2xl font-medium ">
                       {company.name.charAt(0)}
                     </div>
                     <div>
-                      <h4 className="text-lg font-medium dark:text-neutral-100">{company.name}</h4>
-                      <p className="text-neutral-500 dark:text-neutral-400">
+                      <h4 className="text-lg font-medium ">{company.name}</h4>
+                      <p >
                         {company.address.city}, {company.address.state}
                       </p>
                     </div>
@@ -162,14 +127,14 @@ const CompanyDetailPage = () => {
 
                   {company.about && (
                     <div>
-                      <h4 className="font-medium mb-2 dark:text-neutral-100">Sobre</h4>
-                      <p className="text-neutral-600 dark:text-neutral-400">{company.about}</p>
+                      <h4 className="font-medium mb-2">Sobre</h4>
+                      <p>{company.about}</p>
                     </div>
                   )}
 
                   <div>
-                    <h4 className="font-medium mb-2 dark:text-neutral-100">Endereço</h4>
-                    <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
+                    <h4 className="font-medium mb-2 ">Endereço</h4>
+                    <div className="flex items-center gap-2 ">
                       <MapPin size={18} />
                       <span>
                         {company.address.address}
@@ -179,21 +144,21 @@ const CompanyDetailPage = () => {
                     </div>
                   </div>
                 </div>
-              </CardContent>
+              </CardBody>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Serviços Oferecidos</CardTitle>
+                <Subtitle>Serviços Oferecidos</Subtitle>
               </CardHeader>
-              <CardContent>
+              <CardBody>
                 {!services?.length ? (
                   <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4 dark:bg-neutral-700">
-                      <Building2 className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+                    <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4 ">
+                      <Building2 className="w-8 h-8 " />
                     </div>
-                    <h3 className="text-lg font-medium mb-2 dark:text-neutral-100">Nenhum serviço cadastrado</h3>
-                    <p className="text-neutral-600 dark:text-neutral-400">
+                    <h3 className="text-lg font-medium mb-2 ">Nenhum serviço cadastrado</h3>
+                    <p >
                       Esta empresa ainda não cadastrou seus serviços.
                     </p>
                   </div>
@@ -202,157 +167,169 @@ const CompanyDetailPage = () => {
                     {services.map((service) => (
                       <div
                         key={service.id}
-                        className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700"
+                        className="p-4 rounded-lg border border-neutral-200 "
                       >
-                        <h4 className="font-medium dark:text-neutral-100">{service.name}</h4>
-                        <p className="text-sm text-neutral-500 mt-1 dark:text-neutral-400">
+                        <h4 className="font-medium ">{service.name}</h4>
+                        <p className="text-sm  mt-1 ">
                           {service.category.name}
                         </p>
                       </div>
                     ))}
                   </div>
                 )}
-              </CardContent>
+              </CardBody>
             </Card>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle>Status</CardTitle>
+              <Subtitle>Status</Subtitle>
             </CardHeader>
-            <CardContent>
+            <CardBody>
               <div className="space-y-4">
                 <div>
-                  <div className="text-2xl font-semibold text-neutral-800 dark:text-neutral-100">
+                  <div className="text-2xl font-semibold">
                     {services?.length || 0}
                   </div>
-                  <div className="text-sm text-neutral-500 dark:text-neutral-400">Serviços cadastrados</div>
+                  <div className="text-sm ">Serviços cadastrados</div>
                 </div>
 
-                <div className="h-px bg-neutral-200 dark:bg-neutral-700" />
+                <div className="h-px " />
 
                 <div>
-                  <h4 className="font-medium mb-2 dark:text-neutral-100">Última atualização</h4>
-                  <div className="text-neutral-600 dark:text-neutral-400">
-                    {new Date(company.updated_at).toLocaleDateString('pt-BR')}
+                  <h4 className="font-medium mb-2 ">Última atualização</h4>
+                  <div className="">
+                    {/* {new Date(company.updated_at).toLocaleDateString('pt-BR')} */}
+                    {new Date().toLocaleDateString('pt-BR')}
                   </div>
                 </div>
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
         </div>
-      ) : activeTab === 'requests' ? (
+      </Tab>
+      <Tab key="available-requests" title="Orçamentos Disponíveis">
         <div className="space-y-6">
           <Card>
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <CardTitle>Orçamentos Disponíveis</CardTitle>
-                <div className="flex gap-2">
-                  <Select
-                    value={radius.toString()}
-                    onChange={(e) => setRadius(Number(e.target.value))}
-                    options={RADIUS_OPTIONS}
-                  />
+                <Subtitle>Orçamentos Disponíveis</Subtitle>
+                <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
+                  <Select defaultSelectedKeys={[RADIUS_OPTIONS[0].key]} label="Select filter">
+                    {RADIUS_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.key}>{opt.label}</SelectItem>
+                    ))}
+                  </Select>
+         
                   <Button
-                    variant="outline"
-                    icon={<ArrowUpDown size={16} />}
-                    onClick={() => setSortBy(sortBy === 'date' ? 'distance' : 'date')}
+                    variant="ghost"
+                    startContent={<ArrowUpDown size={16} />}
+                    onPress={() => setSortBy(sortBy === 'date' ? 'distance' : 'date')}
                   >
                     {sortBy === 'date' ? 'Data' : 'Distância'}
                   </Button>
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardBody>
               {isLoadingRequests ? (
                 <div className="flex justify-center py-8">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+                  <Loader2 className="w-8 h-8 animate-spin " />
                 </div>
               ) : !sortedRequests?.length ? (
                 <div className="text-center py-8">
                   <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MapPin className="w-8 h-8 text-primary-600" />
+                    <MapPin className="w-8 h-8 " />
                   </div>
                   <h3 className="text-lg font-medium mb-2">Nenhum orçamento disponível</h3>
-                  <p className="text-neutral-600">
+                  <p className="">
                     Não há solicitações de orçamento na sua região no momento.
                   </p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {sortedRequests.map((request) => (
-                    <div
-                      key={request.id}
-                      className="p-4 rounded-lg border border-neutral-200 hover:border-primary-300 transition-colors"
-                    >
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                        <div>
-                          <h4 className="font-medium">{request.name}</h4>
-                          <div className="flex items-center gap-2 mt-1 text-sm text-neutral-500">
-                            <MapPin size={14} />
-                            <span>{request.address_city}, {request.address_state}</span>
-                          </div>
-                          <p className="mt-2 text-sm text-neutral-600">
-                            {request.description}
-                          </p>
-                          <div className="mt-4 flex flex-wrap gap-4 text-sm text-neutral-500">
-                            <div className="flex items-center gap-1">
-                              <Calendar size={14} />
-                              <span>
-                                {new Date(request.created_at).toLocaleDateString('pt-BR')}
-                              </span>
+                  <Listbox  >
+                    
+                      {sortedRequests.map((request,index) => (
+                        <ListboxItem
+                          key={request.id}
+                          showDivider={sortedRequests.length-1!==index}
+                         
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                            <div>
+                              <h4 className="font-medium">{request.name}</h4>
+                              <div className="flex items-center gap-2 mt-1 text-sm ">
+                                <MapPin size={14} />
+                                <span>{request.address_city}, {request.address_state}</span>
+                              </div>
+                              <p className="mt-2 text-sm text-neutral-600">
+                                
+                                {request.description.slice(0,150)}
+                              </p>
+                              <div className="mt-4 flex flex-wrap gap-4 text-sm ">
+                                <div className="flex items-center gap-1">
+                                  <Calendar size={14} />
+                                  <span>
+                                    {new Date(request.created_at).toLocaleDateString('pt-BR')}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <MapPin size={14} />
+                                  <span>{request.footage}m²</span>
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-1">
-                              <MapPin size={14} />
-                              <span>{request.footage}m²</span>
+                            <div className="flex flex-col gap-2">
+                              {!hasSubmittedProposal(request.id) ? (
+                                <>
+                                  <Button onPress={() => handleViewDetails(request)} color='primary' variant='ghost'>
+                                    Ver Detalhes
+                                  </Button>
+                                  <Button
+                                    
+                                    color='primary'
+                                    onPress={() => {
+                                      setSelectedRequest(request);
+                                      setIsProposalFormOpen(true);
+                                    }}
+                                  >
+                                    Enviar Proposta
+                                  </Button>
+                                </>
+                              ) : (
+                                <Button variant="ghost" disabled color='success'>
+                                  Proposta Enviada
+                                </Button>
+                              )}
                             </div>
                           </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                          {!hasSubmittedProposal(request.id) ? (
-                            <>
-                              <Button onClick={() => handleViewDetails(request)}>
-                                Ver Detalhes
-                              </Button>
-                              <Button
-                                variant="outline"
-                                onClick={() => {
-                                  setSelectedRequest(request);
-                                  setIsProposalFormOpen(true);
-                                }}
-                              >
-                                Enviar Proposta Ini
-                              </Button>
-                            </>
-                          ) : (
-                            <Button variant="outline" disabled>
-                              Proposta Enviada
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                        </ListboxItem>
+                      ))}
+                    
+                  </Listbox>
+             
                 </div>
               )}
-            </CardContent>
+            </CardBody>
           </Card>
         </div>
-      ) : (
+      </Tab>
+      <Tab key="proposals-sent" title="Propostas Enviadas">
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Propostas Enviadas</CardTitle>
+              <Subtitle>Propostas Enviadas</Subtitle>
             </CardHeader>
-            <CardContent>
+            <CardBody>
               {isLoadingProposals ? (
                 <div className="flex justify-center py-8">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+                  <Loader2 className="w-8 h-8 animate-spin " />
                 </div>
               ) : !proposals?.length ? (
                 <div className="text-center py-8">
                   <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FileText className="w-8 h-8 text-primary-600" />
+                    <FileText className="w-8 h-8 " />
                   </div>
                   <h3 className="text-lg font-medium mb-2">Nenhuma proposta enviada</h3>
                   <p className="text-neutral-600">
@@ -372,7 +349,7 @@ const CompanyDetailPage = () => {
                             {/* {proposal.estimate_request.name} */}
                             {'proposal.estimate_request.name'}
                           </h4>
-                          <p className="text-sm text-neutral-500 mt-1">
+                          <p className="text-sm  mt-1">
                             {/* {proposal.estimate_request.address_city}, {proposal.estimate_request.address_state} */}
                             Endereco
                           </p>
@@ -387,7 +364,7 @@ const CompanyDetailPage = () => {
                               currency: 'BRL',
                             }).format(proposal.amount)}
                           </div>
-                          <div className="mt-2 text-sm font-medium px-2 py-1 rounded-full bg-primary-50 text-primary-700">
+                          <div className="mt-2 text-sm font-medium px-2 py-1 rounded-full bg-primary-50 ">
                           {proposal.approved_at ? "Aprovado": proposal.reject_at? "Rejeitado":"Pendente" }
                           </div>
                         </div>
@@ -396,13 +373,13 @@ const CompanyDetailPage = () => {
                   ))}
                 </div>
               )}
-            </CardContent>
+            </CardBody>
           </Card>
         </div>
-      )}
-  
-      {/* Dialogs */}
-      <EstimateRequestDetailsDialog
+      </Tab>
+    </Tabs>
+     {/* Dialogs */}
+     <EstimateRequestDetailsDialog
         isOpen={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}
         request={selectedRequest}
@@ -420,8 +397,9 @@ const CompanyDetailPage = () => {
           setSelectedRequest(null);
         }}
       />
-    </div>
-  );
+  </div>
+)
+ 
 };
 
 export default CompanyDetailPage;
