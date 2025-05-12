@@ -14,6 +14,7 @@ import {
   Sun,
   Moon
 } from 'lucide-react';
+import { Card } from '@heroui/react';
 
 const DashboardLayout = () => {
   const { user, logout } = useAuthStore();
@@ -139,8 +140,10 @@ const DashboardLayout = () => {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 p-4 overflow-y-auto bg-neutral-50 dark:bg-neutral-900">
-          <Outlet />
+        <main className="flex-1 flex overflow-y-auto">
+         <Card radius='none' className='p-4 overflow-y-auto flex-1'>
+            <Outlet />
+         </Card>
         </main>
       </div>
     </div>

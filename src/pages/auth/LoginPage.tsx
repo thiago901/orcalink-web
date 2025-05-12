@@ -5,8 +5,8 @@ import { toast } from 'react-hot-toast';
 import { Mail, Lock, LogIn } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { AuthenticateUserProps } from '../../api/auth';
-import Input from '../../components/ui/Input';
-import Button from '../../components/ui/Button';
+import { Button, Card, CardBody, CardHeader, Input } from '@heroui/react';
+
 
 const LoginPage = () => {
   const { login ,isAuthenticated} = useAuthStore();
@@ -40,23 +40,24 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-50 p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary-700">OrçaFacil</h1>
-          <p className="text-neutral-600 mt-2">
-            Faça login para acessar sua conta
-          </p>
-        </div>
-
-        <div className="bg-white p-8 rounded-lg shadow-sm border border-neutral-200">
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <Card className="w-full max-w-md shadow-lg">
+        
+        <CardHeader>
+          <div className="my-0 mx-auto text-center">
+            <h1 className="text-3xl font-bold text-primary-700">OrçaFacil</h1>
+            <p className="text-neutral-600 mt-1">Faça login para acessar sua conta</p>
+          </div>
+        </CardHeader>
+        <CardBody className="px-6 pb-6 pt-2">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <Input
               label="Email"
               type="email"
-              icon={<Mail size={18} />}
+              startContent={<Mail size={18} />}
               placeholder="seu@email.com"
-              error={errors.email?.message}
+              errorMessage={errors.email?.message}
+              isInvalid={!!errors.email?.message}
               {...register('email', {
                 required: 'Email é obrigatório',
                 pattern: {
@@ -69,9 +70,11 @@ const LoginPage = () => {
             <Input
               label="Senha"
               type="password"
-              icon={<Lock size={18} />}
+              startContent={<Lock size={18} />}
+              errorMessage={errors.password?.message}
+              isInvalid={!!errors.password?.message}
               placeholder="••••••••"
-              error={errors.password?.message}
+              
               {...register('password', {
                 required: 'Senha é obrigatória',
                 minLength: {
@@ -93,8 +96,9 @@ const LoginPage = () => {
             <Button
               type="submit"
               isLoading={isLoading}
-              icon={<LogIn size={18} />}
+              startContent={<LogIn size={18} />}
               className="w-full"
+              color='primary'
             >
               Entrar
             </Button>
@@ -111,8 +115,8 @@ const LoginPage = () => {
               </Link>
             </p>
           </div>
-        </div>
-      </div>
+        </CardBody>
+      </Card>
     </div>
   );
 };

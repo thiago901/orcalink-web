@@ -4,12 +4,16 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { useAuthStore } from '../../stores/authStore';
 import { createEstimateRequest, CreateEstimateRequestProps, uploadEstimateRequestFiles } from '../../api/estimateRequests';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
-import Input from '../../components/ui/Input';
-import Textarea from '../../components/ui/Textarea';
-import Button from '../../components/ui/Button';
+
+
+
+
 import FileUpload from '../../components/ui/FileUpload';
 import { MapPin, Phone, Mail, Ruler, FileText } from 'lucide-react';
+import { Title } from '../../components/ui/Title';
+import { Text } from '../../components/ui/Text';
+import { Subtitle } from '../../components/ui/Subtitle';
+import { Button, Card, CardBody, CardHeader, Input, Textarea } from '@heroui/react';
 
 const CreateEstimateRequestPage = () => {
   const navigate = useNavigate();
@@ -57,6 +61,7 @@ const CreateEstimateRequestPage = () => {
     try {
       const requestData = {
         ...data,
+        footage:Number(data.footage),
         user_id: user?.id,
         lat: position.coords.latitude.toString(),
         long: position.coords.longitude.toString(),
@@ -86,22 +91,23 @@ const CreateEstimateRequestPage = () => {
   return (
     <div className="space-y-6 fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-800">Nova Solicitação</h1>
-        <p className="text-neutral-600">Preencha os dados para solicitar orçamentos</p>
+        <Title >Nova Solicitação</Title>
+        <Text className="text-neutral-600">Preencha os dados para solicitar orçamentos</Text>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Informações do Projeto</CardTitle>
+              <Subtitle>Informações do Projeto</Subtitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardBody className="space-y-4">
               <Input
                 label="Nome do projeto"
-                icon={<FileText size={18} />}
+                startContent={<FileText size={18} />}
                 placeholder="Ex: Reforma do banheiro"
-                error={errors.name?.message}
+                errorMessage={errors.name?.message}
+                isInvalid={!!errors.name?.message}
                 {...register('name', {
                   required: 'Nome do projeto é obrigatório',
                   minLength: {
@@ -114,7 +120,8 @@ const CreateEstimateRequestPage = () => {
               <Textarea
                 label="Descrição"
                 placeholder="Descreva os detalhes do seu projeto..."
-                error={errors.description?.message}
+                errorMessage={errors.description?.message}
+                isInvalid={!!errors.description?.message}
                 {...register('description', {
                   required: 'Descrição é obrigatória',
                 })}
@@ -123,9 +130,10 @@ const CreateEstimateRequestPage = () => {
               <Input
                 label="Metragem (m²)"
                 type="number"
-                icon={<Ruler size={18} />}
+                startContent={<Ruler size={18} />}
                 placeholder="Ex: 50"
-                error={errors.footage?.message}
+                errorMessage={errors.footage?.message}
+                isInvalid={!!errors.footage?.message}
                 {...register('footage', {
                   required: 'Metragem é obrigatória',
                   min: {
@@ -146,20 +154,21 @@ const CreateEstimateRequestPage = () => {
                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                 />
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Endereço</CardTitle>
+              <Subtitle>Endereço</Subtitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardBody className="space-y-4">
               <div className="grid sm:grid-cols-2 gap-4">
                 <Input
                   label="CEP"
-                  icon={<MapPin size={18} />}
+                  startContent={<MapPin size={18} />}
                   placeholder="00000-000"
-                  error={errors.address_postal_code?.message}
+                  errorMessage={errors.address_postal_code?.message}
+                  isInvalid={!!errors.address_postal_code?.message}
                   {...register('address_postal_code', {
                     required: 'CEP é obrigatório',
                   })}
@@ -168,7 +177,8 @@ const CreateEstimateRequestPage = () => {
                 <Input
                   label="Estado"
                   placeholder="Ex: SP"
-                  error={errors.address_state?.message}
+                  errorMessage={errors.address_state?.message}
+                  isInvalid={!!errors.address_state?.message}
                   {...register('address_state', {
                     required: 'Estado é obrigatório',
                   })}
@@ -178,7 +188,8 @@ const CreateEstimateRequestPage = () => {
               <Input
                 label="Cidade"
                 placeholder="Ex: São Paulo"
-                error={errors.address_city?.message}
+                errorMessage={errors.address_city?.message}
+                isInvalid={!!errors.address_city?.message}
                 {...register('address_city', {
                   required: 'Cidade é obrigatória',
                 })}
@@ -187,7 +198,8 @@ const CreateEstimateRequestPage = () => {
               <Input
                 label="Bairro"
                 placeholder="Ex: Centro"
-                error={errors.address_neighborhood?.message}
+                errorMessage={errors.address_neighborhood?.message}
+                isInvalid={!!errors.address_neighborhood?.message}
                 {...register('address_neighborhood', {
                   required: 'Bairro é obrigatório',
                 })}
@@ -197,7 +209,8 @@ const CreateEstimateRequestPage = () => {
                 <Input
                   label="Rua"
                   placeholder="Ex: Rua Principal"
-                  error={errors.address_street?.message}
+                  errorMessage={errors.address_street?.message}
+                  isInvalid={!!errors.address_street?.message}
                   {...register('address_street', {
                     required: 'Rua é obrigatória',
                   })}
@@ -206,7 +219,8 @@ const CreateEstimateRequestPage = () => {
                 <Input
                   label="Número"
                   placeholder="Ex: 123"
-                  error={errors.address_number?.message}
+                  errorMessage={errors.address_number?.message}
+                  isInvalid={!!errors.address_number?.message}
                   {...register('address_number', {
                     required: 'Número é obrigatório',
                   })}
@@ -217,9 +231,9 @@ const CreateEstimateRequestPage = () => {
                 <div className="mt-4">
                   <Button
                     type="button"
-                    variant="outline"
-                    icon={<MapPin size={18} />}
-                    onClick={getCurrentPosition}
+                    variant="ghost"
+                    startContent={<MapPin size={18} />}
+                    onPress={getCurrentPosition}
                   >
                     Usar minha localização atual
                   </Button>
@@ -228,21 +242,22 @@ const CreateEstimateRequestPage = () => {
                   )}
                 </div>
               )}
-            </CardContent>
+            </CardBody>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Contato</CardTitle>
+              <Subtitle>Contato</Subtitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardBody className="space-y-4">
               <div className="grid sm:grid-cols-2 gap-4">
                 <Input
                   label="Email"
                   type="email"
-                  icon={<Mail size={18} />}
+                  startContent={<Mail size={18} />}
                   placeholder="seu@email.com"
-                  error={errors.email?.message}
+                  errorMessage={errors.email?.message}
+                  isInvalid={!!errors.email?.message}
                   {...register('email', {
                     required: 'Email é obrigatório',
                     pattern: {
@@ -254,9 +269,10 @@ const CreateEstimateRequestPage = () => {
 
                 <Input
                   label="Telefone"
-                  icon={<Phone size={18} />}
+                  startContent={<Phone size={18} />}
                   placeholder="(00) 00000-0000"
-                  error={errors.phone?.message}
+                  errorMessage={errors.phone?.message}
+                  isInvalid={!!errors.phone?.message}
                   {...register('phone', {
                     required: 'Telefone é obrigatório',
                     minLength: {
@@ -270,13 +286,14 @@ const CreateEstimateRequestPage = () => {
                   })}
                 />
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
 
           <div className="flex justify-end">
             <Button
               type="submit"
               isLoading={isLoading}
+              color='primary'
             >
               Solicitar orçamentos
             </Button>

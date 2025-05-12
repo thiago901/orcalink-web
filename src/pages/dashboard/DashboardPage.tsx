@@ -7,9 +7,10 @@ import { getCompaniesByOwnerId } from '../../api/companies';
 
 import { Building2 } from 'lucide-react';
 import { Button, Card, CardBody, CardHeader, Chip, Listbox, ListboxItem } from '@heroui/react';
-import { CardTitle } from '../../components/ui/Card';
+
 import { Title } from '../../components/ui/Title';
 
+import { Subtitle } from '../../components/ui/Subtitle';
 import { Text } from '../../components/ui/Text';
 
 import { Plus, ArrowRight, Loader2 } from 'lucide-react';
@@ -62,7 +63,7 @@ const DashboardPage = () => {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <Title>Dashboard</Title>
-          <Text className="text-neutral-600">
+          <Text>
             Bem-vindo de volta, {user?.name?.split(' ')[0] || 'Usuário'}!
           </Text>
         </div>
@@ -87,7 +88,7 @@ const DashboardPage = () => {
         {/* Recent Estimate Requests */}
         <Card>
           <CardHeader>
-            <CardTitle>Orçamentos Recentes</CardTitle>
+            <Subtitle>Orçamentos Recentes</Subtitle>
           </CardHeader>
           <CardBody>
             {isLoadingRequests ? (
@@ -141,7 +142,7 @@ const DashboardPage = () => {
         {companies?.length > 0 ? (
           <Card>
             <CardHeader>
-              <CardTitle>Minhas Empresas</CardTitle>
+              <Subtitle>Minhas Empresas</Subtitle>
             </CardHeader>
             <CardBody>
               {isLoadingCompanies ? (
@@ -188,7 +189,7 @@ const DashboardPage = () => {
         ) : (
           <Card>
             <CardHeader>
-              <CardTitle>Sua Localização</CardTitle>
+              <Subtitle>Sua Localização</Subtitle>
             </CardHeader>
             <CardBody>
               {geolocationError ? (

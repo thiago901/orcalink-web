@@ -43,6 +43,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const response = await loginUser({ email, password });
+          
           const { token } = response;
           
           // Decode token to get user info

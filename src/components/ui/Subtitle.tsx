@@ -7,7 +7,7 @@ type SubtitleProps = {
 
 export function Subtitle({ children, className = "" }: SubtitleProps) {
   return (
-    <h2 className={`text-xl font-semibold text-gray-300 ${className}`}>
+    <h2 className={`text-xl font-semibold ${className}`}>
       {children}
     </h2>
   );

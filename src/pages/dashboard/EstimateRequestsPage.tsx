@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+
 import { Plus, Loader2, MapPin, Calendar } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { getEstimateRequestsByUserId } from '../../api/estimateRequests';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
+
+
+import { Button, Card, CardBody, CardHeader, Divider, Link, Listbox, ListboxItem } from '@heroui/react';
+import { Subtitle } from '../../components/ui/Subtitle';
 
 const EstimateRequestsPage = () => {
   const { user } = useAuthStore();
@@ -19,29 +21,30 @@ const EstimateRequestsPage = () => {
     <div className="space-y-6 fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-800">Orçamentos</h1>
+          <h1 className="text-2xl font-bold ">Orçamentos</h1>
           <p className="text-neutral-600">Gerencie suas solicitações de orçamento</p>
         </div>
 
-        <Link to="/dashboard/estimate-requests/new">
-          <Button icon={<Plus size={18} />}>
+  
+          <Button startContent={<Plus size={18} />} color='primary' as={Link} href="/dashboard/estimate-requests/new">
             Novo Orçamento
           </Button>
-        </Link>
+       
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Solicitações</CardTitle>
+        <CardHeader >
+          <Subtitle>Solicitações</Subtitle>
         </CardHeader>
-        <CardContent>
+          <Divider/>
+        <CardBody className='p-0'>
           {isLoading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
             </div>
           ) : !requests?.length ? (
             <div className="text-center py-8">
-              <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16  rounded-full flex items-center justify-center mx-auto mb-4">
                 <MapPin className="w-8 h-8 text-primary-600" />
               </div>
               <h3 className="text-lg font-medium mb-2">Nenhum orçamento solicitado</h3>
@@ -49,30 +52,31 @@ const EstimateRequestsPage = () => {
                 Você ainda não tem nenhuma solicitação de orçamento.
                 Crie uma agora mesmo!
               </p>
-              <Link to="/dashboard/estimate-requests/new">
-                <Button icon={<Plus size={18} />}>
+              
+                <Button as={Link} startContent={<Plus size={18} />} color='primary' href="/dashboard/estimate-requests/new">
                   Solicitar Orçamento
                 </Button>
-              </Link>
+              
             </div>
           ) : (
             <div className="space-y-4">
-              {requests.map((request) => (
-                <Link
+              <Listbox >
+               {requests.map((request) => (
+                <ListboxItem
                   key={request.id}
-                  to={`/dashboard/estimate-requests/${request.id}`}
-                  className="block"
+                  href={`/dashboard/estimate-requests/${request.id}`}
+                  
                 >
-                  <div className="p-4 rounded-lg border border-neutral-200 hover:border-primary-300 hover:shadow-sm transition-all">
+                  <div className="py-2">
                     <div className="flex justify-between items-start gap-4">
                       <div>
                         <h4 className="font-medium">{request.name}</h4>
                         <div className="flex items-center gap-2 mt-1 text-sm text-neutral-500">
                           <MapPin size={14} />
-                          <span>{request.address_city}, {request.address_state}</span>
+                          <span>{request.address.city}, {request.address.state}</span>
                         </div>
                       </div>
-                      <div className="text-sm font-medium px-2 py-1 rounded-full bg-primary-50 text-primary-700">
+                      <div className="text-sm font-medium px-2 py-1 rounded-full text-primary-700">
                         {request.proposals?.length || 0} propostas
                       </div>
                     </div>
@@ -88,11 +92,14 @@ const EstimateRequestsPage = () => {
                       </div>
                     </div>
                   </div>
-                </Link>
+                  {/* <Divider className='mt-2' /> */}
+                </ListboxItem>
               ))}
+              </Listbox>
+            
             </div>
           )}
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

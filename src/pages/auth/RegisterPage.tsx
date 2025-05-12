@@ -1,11 +1,18 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { Mail, Lock, User, Phone, UserPlus } from 'lucide-react';
 import { registerUser, CreateUserProps } from '../../api/auth';
-import Input from '../../components/ui/Input';
-import Button from '../../components/ui/Button';
+
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Input,
+  Link,
+} from '@heroui/react';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -31,23 +38,24 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-50 p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary-700">OrçaFacil</h1>
-          <p className="text-neutral-600 mt-2">
-            Crie sua conta para começar
-          </p>
-        </div>
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader>
+          <div className="my-0 mx-auto text-center">
+            <h1 className="text-3xl font-bold text-primary-700">OrçaFacil</h1>
+            <p className="text-neutral-600 mt-1">Crie sua conta para começar</p>
+          </div>
+        </CardHeader>
 
-        <div className="bg-white p-8 rounded-lg shadow-sm border border-neutral-200">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <CardBody className="px-6 pb-6 pt-2">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Input
               label="Nome completo"
               type="text"
-              icon={<User size={18} />}
+              startContent={<User size={18} />}
               placeholder="Seu nome completo"
-              error={errors.name?.message}
+              errorMessage={errors.name?.message}
+              isInvalid={!!errors.name?.message}
               {...register('name', {
                 required: 'Nome é obrigatório',
                 minLength: {
@@ -60,9 +68,10 @@ const RegisterPage = () => {
             <Input
               label="Email"
               type="email"
-              icon={<Mail size={18} />}
+              startContent={<Mail size={18} />}
               placeholder="seu@email.com"
-              error={errors.email?.message}
+              errorMessage={errors.email?.message}
+              isInvalid={!!errors.email?.message}
               {...register('email', {
                 required: 'Email é obrigatório',
                 pattern: {
@@ -75,9 +84,10 @@ const RegisterPage = () => {
             <Input
               label="Telefone"
               type="tel"
-              icon={<Phone size={18} />}
+              startContent={<Phone size={18} />}
               placeholder="(00) 00000-0000"
-              error={errors.phone?.message}
+              errorMessage={errors.phone?.message}
+              isInvalid={!!errors.phone?.message}
               {...register('phone', {
                 required: 'Telefone é obrigatório',
                 minLength: {
@@ -90,9 +100,10 @@ const RegisterPage = () => {
             <Input
               label="Senha"
               type="password"
-              icon={<Lock size={18} />}
+              startContent={<Lock size={18} />}
               placeholder="••••••••"
-              error={errors.password?.message}
+              errorMessage={errors.password?.message}
+              isInvalid={!!errors.password?.message}
               {...register('password', {
                 required: 'Senha é obrigatória',
                 minLength: {
@@ -105,8 +116,9 @@ const RegisterPage = () => {
             <Button
               type="submit"
               isLoading={isLoading}
-              icon={<UserPlus size={18} />}
+              startContent={<UserPlus size={18} />}
               className="w-full"
+              color="primary"
             >
               Criar conta
             </Button>
@@ -116,15 +128,15 @@ const RegisterPage = () => {
             <p className="text-neutral-600">
               Já tem uma conta?{' '}
               <Link
-                to="/login"
+                href="/login"
                 className="text-primary-600 hover:text-primary-700 font-medium"
               >
                 Faça login
               </Link>
             </p>
           </div>
-        </div>
-      </div>
+        </CardBody>
+      </Card>
     </div>
   );
 };
