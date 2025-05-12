@@ -1,9 +1,20 @@
 import api from './axios';
 
 export interface CreateCompanyServiceProps {
-  name: string;
-  category_id: string;
-  company_id: string;
+  name:string;
+  owner_id:string;
+  avatar:string;
+  about:string;
+  address: {
+    name:string
+    city:string
+    country:string
+    state:string
+    zip:string
+    address:string
+    latitude:number
+    longitude:number
+  }
 }
 
 // Company Services API functions

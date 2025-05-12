@@ -4,9 +4,15 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { MapPin, Phone, Mail, Calendar, FileText, Loader2, Check, X } from 'lucide-react';
 import { getEstimateRequestById } from '../../api/estimateRequests';
 import { getProposalsByEstimateId, approveProposal, rejectProposal } from '../../api/proposals';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
+
+
 import ProposalActionDialog from '../../components/proposals/ProposalActionDialog';
+import { Title } from '../../components/ui/Title';
+
+import { Text } from '../../components/ui/Text';
+import { Accordion, AccordionItem, Button, Card, CardBody, CardHeader, Chip } from '@heroui/react';
+import { Subtitle } from '../../components/ui/Subtitle';
+import ImageGallery from '../../components/image-gallery';
 
 const EstimateRequestDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -78,21 +84,22 @@ console.log('proposals',proposals);
       </div>
     );
   }
-
+  console.log('request?.estimate_request_files',request?.estimate_request_files);
+  
   return (
     <div className="space-y-6 fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-800">{request.name}</h1>
-        <p className="text-neutral-600">Detalhes da solicitação de orçamento</p>
+        <Title >{request.name}</Title>
+        <Text>Detalhes da solicitação de orçamento</Text>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Informações do Projeto</CardTitle>
+              <Subtitle>Informações do Projeto</Subtitle>
             </CardHeader>
-            <CardContent>
+            <CardBody>
               <div className="space-y-4">
                 <div>
                   <h4 className="font-medium mb-2">Descrição</h4>
@@ -109,9 +116,9 @@ console.log('proposals',proposals);
                   <div className="flex items-center gap-2 text-neutral-600">
                     <MapPin size={18} />
                     <span>
-                      {request.address_street}, {request.address_number} - {request.address_neighborhood}
+                      {request.address.street}, {request.address.number} - {request.address.neighborhood}
                       <br />
-                      {request.address_city}, {request.address_state} - {request.address_postal_code}
+                      {request.address.city}, {request.address.state} - {request.address.postal_code}
                     </span>
                   </div>
                 </div>
@@ -142,14 +149,20 @@ console.log('proposals',proposals);
                   </div>
                 </div>
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
-
+          
+            <Accordion variant="splitted" className='p-0'>
+              <AccordionItem key="1" aria-label="Imagens enviadas" title="Imagens">
+                <ImageGallery images={request?.estimate_request_files}/>
+              </AccordionItem>
+            </Accordion>
+          
           <Card>
             <CardHeader>
-              <CardTitle>Propostas Recebidas</CardTitle>
+              <Subtitle>Propostas Recebidas</Subtitle>
             </CardHeader>
-            <CardContent>
+            <CardBody>
               {!proposals?.length ? (
                 <div className="text-center py-8">
                   <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -165,7 +178,7 @@ console.log('proposals',proposals);
                   {proposals.map((proposal) => (
                     <div
                       key={proposal.id}
-                      className="p-4 rounded-lg border border-neutral-200"
+                      className="p-4"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div>
@@ -181,27 +194,36 @@ console.log('proposals',proposals);
                               </p>
                             </div>
                           </div>
-                          <p className="mt-3 text-neutral-600">{proposal.description}</p>
+                          <Text className="mt-2">{proposal.description}</Text>
                         </div>
-                        <div className="text-right">
-                          <div className="text-lg font-semibold">
-                            
+                     
+                          <div className="flex gap-2">
+                           
+                           <Subtitle>
                             {new Intl.NumberFormat('pt-BR', {
-                              style: 'currency',
-                              currency: 'BRL',
-                            }).format(proposal.amount)}
+                                style: 'currency',
+                                currency: 'BRL',
+                              }).format(proposal.amount)}
+
+                           </Subtitle>
+                           <Chip color={proposal.approved_at ? "success": proposal.reject_at? "danger":"warning" } size='sm'>
+                              {proposal.approved_at ? "Aprovado": proposal.reject_at? "Rejeitado":"Pendente" }
+                            </Chip>
                           </div>
-                          <div className="mt-2 text-sm font-medium px-2 py-1 rounded-full bg-primary-50 text-primary-700">
-                            {proposal.approved_at ? "Aprovado": proposal.reject_at? "Rejeitado":"Pendente" }
-                          </div>
+                         
                           
-                          {(!proposal.approved_at || !proposal.reject_at )&& (
+                        
+                       
+                      </div>
+                      <div className='flex justify-end'>
+                        {(!proposal.approved_at && !proposal.reject_at )&& (
                             <div className="mt-4 flex gap-2">
                               <Button
-                                variant="outline"
+                                variant="ghost"
                                 size="sm"
-                                icon={<X size={16} />}
-                                onClick={() => {
+                                startContent={<X size={16} />}
+                                color='danger'
+                                onPress={() => {
                                   setSelectedProposal(proposal);
                                   setIsRejectDialogOpen(true);
                                 }}
@@ -210,8 +232,9 @@ console.log('proposals',proposals);
                               </Button>
                               <Button
                                 size="sm"
-                                icon={<Check size={16} />}
-                                onClick={() => {
+                                color='success'
+                                startContent={<Check size={16} />}
+                                onPress={() => {
                                   setSelectedProposal(proposal);
                                   setIsApproveDialogOpen(true);
                                 }}
@@ -220,21 +243,20 @@ console.log('proposals',proposals);
                               </Button>
                             </div>
                           )}
-                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
-            </CardContent>
+            </CardBody>
           </Card>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Status</CardTitle>
+            <Subtitle>Status</Subtitle>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="space-y-4">
               <div>
                 <div className="text-2xl font-semibold text-neutral-800">
@@ -250,12 +272,12 @@ console.log('proposals',proposals);
                 <div className="flex items-center gap-2 text-neutral-600">
                   <Calendar size={18} />
                   <span>
-                    {new Date(request.updated_at).toLocaleDateString('pt-BR')}
+                    {new Date(request.updated_at ?? request.created_at).toLocaleDateString('pt-BR')}
                   </span>
                 </div>
               </div>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
 

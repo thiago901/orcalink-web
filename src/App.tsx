@@ -17,6 +17,9 @@ import ProposalsPage from './pages/dashboard/ProposalsPage';
 import ProposalDetailPage from './pages/dashboard/ProposalDetailPage';
 import PageNotFound from './pages/PageNotFound';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import CreateCompanyPage from './pages/dashboard/CreateCompanyPage';
+import CompanyEstimateRequestDetailPage from './pages/dashboard/CompanyEstimateRequestDetailPage';
+import JobDetailPage from './pages/dashboard/JobDetailPage';
 
 function App() {
   const { checkAuth } = useAuthStore();
@@ -43,10 +46,13 @@ function App() {
         <Route index element={<DashboardPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="estimate-requests" element={<EstimateRequestsPage />} />
-        <Route path="estimate-requests/new" element={<CreateEstimateRequestPage />} />
+        <Route path="estimate-requests/new" element={<CreateEstimateRequestPage />}  />
         <Route path="estimate-requests/:id" element={<EstimateRequestDetailPage />} />
         <Route path="companies" element={<CompaniesPage />} />
+        <Route path="companies/new" element={<CreateCompanyPage />}  />
         <Route path="companies/:id" element={<CompanyDetailPage />} />
+        <Route path="companies/:id/estimate_request/:estimate_id" element={<CompanyEstimateRequestDetailPage />} />
+        <Route path="companies/jobs/:id" element={<JobDetailPage />} />
         <Route path="proposals" element={<ProposalsPage />} />
         <Route path="proposals/:id" element={<ProposalDetailPage />} />
       </Route>

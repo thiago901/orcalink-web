@@ -4,9 +4,12 @@ import { toast } from 'react-hot-toast';
 import { User, Mail, Phone, Camera } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { updateUser, UpdateUserProps } from '../../api/users';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
-import Input from '../../components/ui/Input';
-import Button from '../../components/ui/Button';
+
+
+import { Title } from '../../components/ui/Title';
+import { Text } from '../../components/ui/Text';
+import { Button, Card, CardBody, CardHeader, Input } from '@heroui/react';
+import { Subtitle } from '../../components/ui/Subtitle';
 
 const ProfilePage = () => {
   const { user, logout } = useAuthStore();
@@ -40,16 +43,16 @@ const ProfilePage = () => {
   return (
     <div className="space-y-6 fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-800">Perfil</h1>
-        <p className="text-neutral-600">Gerencie suas informações pessoais</p>
+        <Title >Perfil</Title>
+        <Text >Gerencie suas informações pessoais</Text>
       </div>
 
       <div className="grid gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Informações Pessoais</CardTitle>
+            <Subtitle>Informações Pessoais</Subtitle>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className="relative">
@@ -72,8 +75,9 @@ const ProfilePage = () => {
               <div className="grid gap-4 sm:grid-cols-2">
                 <Input
                   label="Nome completo"
-                  icon={<User size={18} />}
-                  error={errors.name?.message}
+                  startContent={<User size={18} />}
+                  errorMessage={errors.name?.message}
+                  isInvalid={!!errors.name?.message}
                   {...register('name', {
                     required: 'Nome é obrigatório',
                     minLength: {
@@ -86,8 +90,9 @@ const ProfilePage = () => {
                 <Input
                   label="Email"
                   type="email"
-                  icon={<Mail size={18} />}
-                  error={errors.email?.message}
+                  startContent={<Mail size={18} />}
+                  errorMessage={errors.email?.message}
+                  isInvalid={!!errors.email?.message}
                   {...register('email', {
                     required: 'Email é obrigatório',
                     pattern: {
@@ -101,20 +106,21 @@ const ProfilePage = () => {
               <div className="flex justify-end gap-2">
                 <Button
                   type="button"
-                  variant="outline"
-                  onClick={() => logout()}
+                  variant="ghost"
+                  onPress={() => logout()}
                 >
                   Sair
                 </Button>
                 <Button
                   type="submit"
                   isLoading={isLoading}
+                  color='primary'
                 >
                   Salvar alterações
                 </Button>
               </div>
             </form>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
     </div>

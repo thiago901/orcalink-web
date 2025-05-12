@@ -11,8 +11,10 @@ import { getProposalsByCompanyId } from '../../api/proposals';
 
 import ProposalForm from '../../components/proposals/ProposalForm';
 import EstimateRequestDetailsDialog from '../../components/proposals/EstimateRequestDetailsDialog';
-import { Button, Card, CardBody, CardHeader, Listbox, ListboxItem, Select, SelectItem, Tab, Tabs } from '@heroui/react';
+import { Button, Card, CardBody, CardHeader, Chip, Link, Listbox, ListboxItem, Select, SelectItem, Tab, Tabs } from '@heroui/react';
 import { Subtitle } from '../../components/ui/Subtitle';
+import { Text } from '../../components/ui/Text';
+import { getJobsByCompany } from '../../api/jobs-service';
 
 const RADIUS_OPTIONS = [
   { key: '5000', label: '5 km' },
@@ -35,6 +37,13 @@ const CompanyDetailPage = () => {
     queryFn: () => getCompanyById(id!),
     enabled: !!id,
   });
+
+  const { data: jobs, isLoading: isLoadingJobs } = useQuery({
+    queryKey: ['jobs', id],
+    queryFn: () => getJobsByCompany(id!),
+    enabled: !!id,
+  });
+  
   
   
   const { data: services, isLoading: isLoadingServices } = useQuery({
@@ -58,6 +67,7 @@ const CompanyDetailPage = () => {
     queryFn: () => getProposalsByCompanyId(id!),
     enabled: !!id,
   });
+console.log('jobsjobsjobsjobs',jobs);
 
   if (isLoadingCompany || isLoadingServices) {
     return (
@@ -85,10 +95,7 @@ const CompanyDetailPage = () => {
     return 0;
   });
 
-  const handleViewDetails = (request: any) => {
-    setSelectedRequest(request);
-    setIsDetailsOpen(true);
-  };
+
 
   const handleSubmitProposal = () => {
     setIsDetailsOpen(false);
@@ -98,7 +105,6 @@ const CompanyDetailPage = () => {
   const hasSubmittedProposal = (requestId: string) => {
     return proposals?.some(proposal => proposal.estimate_request_id === requestId);
   };
-console.log('request',sortedRequests);
 
 
 return (
@@ -254,6 +260,8 @@ return (
                         <ListboxItem
                           key={request.id}
                           showDivider={sortedRequests.length-1!==index}
+                          as={Link}
+                          href={`/dashboard/companies/${id}/estimate_request/${request.id}`}
                          
                         >
                           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
@@ -261,7 +269,7 @@ return (
                               <h4 className="font-medium">{request.name}</h4>
                               <div className="flex items-center gap-2 mt-1 text-sm ">
                                 <MapPin size={14} />
-                                <span>{request.address_city}, {request.address_state}</span>
+                                <span>{request.address.city}, {request.address.state}</span>
                               </div>
                               <p className="mt-2 text-sm text-neutral-600">
                                 
@@ -280,29 +288,7 @@ return (
                                 </div>
                               </div>
                             </div>
-                            <div className="flex flex-col gap-2">
-                              {!hasSubmittedProposal(request.id) ? (
-                                <>
-                                  <Button onPress={() => handleViewDetails(request)} color='primary' variant='ghost'>
-                                    Ver Detalhes
-                                  </Button>
-                                  <Button
-                                    
-                                    color='primary'
-                                    onPress={() => {
-                                      setSelectedRequest(request);
-                                      setIsProposalFormOpen(true);
-                                    }}
-                                  >
-                                    Enviar Proposta
-                                  </Button>
-                                </>
-                              ) : (
-                                <Button variant="ghost" disabled color='success'>
-                                  Proposta Enviada
-                                </Button>
-                              )}
-                            </div>
+                          
                           </div>
                         </ListboxItem>
                       ))}
@@ -341,7 +327,7 @@ return (
                   {proposals.map((proposal) => (
                     <div
                       key={proposal.id}
-                      className="p-4 rounded-lg border border-neutral-200"
+                      className="p-4 rounded-lg "
                     >
                       <div className="flex justify-between items-start gap-4">
                         <div>
@@ -353,24 +339,90 @@ return (
                             {/* {proposal.estimate_request.address_city}, {proposal.estimate_request.address_state} */}
                             Endereco
                           </p>
-                          <p className="mt-2 text-neutral-600">
+                          <Text className="mt-2">
                             {proposal.description}
-                          </p>
+                          </Text>
                         </div>
                         <div className="text-right">
-                          <div className="text-lg font-semibold text-neutral-800">
+                          <Subtitle>
                             {new Intl.NumberFormat('pt-BR', {
                               style: 'currency',
                               currency: 'BRL',
                             }).format(proposal.amount)}
-                          </div>
-                          <div className="mt-2 text-sm font-medium px-2 py-1 rounded-full bg-primary-50 ">
-                          {proposal.approved_at ? "Aprovado": proposal.reject_at? "Rejeitado":"Pendente" }
-                          </div>
+                          </Subtitle>
+                          <Chip className="mt-2" color={proposal.approved_at ? "success": proposal.reject_at? "danger":"warning" }>
+                            {proposal.approved_at ? "Aprovado": proposal.reject_at? "Rejeitado":"Pendente" }
+                          </Chip>
                         </div>
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+            </CardBody>
+          </Card>
+        </div>
+      </Tab>
+      <Tab key="jobs" title="Trabalhos confirmados">
+      <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <Subtitle>Trabalhos confirmados</Subtitle>
+               
+              </div>
+            </CardHeader>
+            <CardBody>
+              {isLoadingRequests ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-8 h-8 animate-spin " />
+                </div>
+              ) : !jobs?.length ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MapPin className="w-8 h-8 " />
+                  </div>
+                  <h3 className="text-lg font-medium mb-2">Nenhum orçamento disponível</h3>
+                  <p className="">
+                    Não há solicitações de orçamento na sua região no momento.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <Listbox  >
+                    
+                      {jobs.map((request,index) => (
+                        <ListboxItem
+                          key={request.id}
+                          showDivider={sortedRequests.length-1!==index}
+                          as={Link}
+                          href={`/dashboard/companies/${id}/estimate_request/${request.id}`}
+                         
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                            <div>
+                              <h4 className="font-medium">{request.name ||'FAKE NAME'}</h4>
+                          
+                              <p className="mt-2 text-sm text-neutral-600">
+                                
+                                {'FAKE Descrição '}
+                              </p>
+                              <div className="mt-4 flex flex-wrap gap-4 text-sm ">
+                                <div className="flex items-center gap-1">
+                                  <Calendar size={14} />
+                                  <span>
+                                    {new Date(request.created_at).toLocaleDateString('pt-BR')}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          
+                          </div>
+                        </ListboxItem>
+                      ))}
+                    
+                  </Listbox>
+             
                 </div>
               )}
             </CardBody>

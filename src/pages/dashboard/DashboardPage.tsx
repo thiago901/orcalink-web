@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../../stores/authStore';
 import { getEstimateRequestsByUserId } from '../../api/estimateRequests';
 import { getCompaniesByOwnerId } from '../../api/companies';
 
 import { Building2 } from 'lucide-react';
-import { Button, Card, CardBody, CardHeader, Chip, Listbox, ListboxItem } from '@heroui/react';
+import { Button, Card, CardBody, CardHeader, Chip, Link, Listbox, ListboxItem } from '@heroui/react';
 
 import { Title } from '../../components/ui/Title';
 
@@ -69,14 +69,14 @@ const DashboardPage = () => {
         </div>
         
         <div className="flex flex-col sm:flex-row gap-2">
-         <Button as={Link} to="/dashboard/estimate-requests/new" startContent={<Plus size={18} />} color='primary'>
+         <Button as={Link} href="/dashboard/estimate-requests/new" startContent={<Plus size={18} />} color='primary'>
               Solicitar Orçamento
           </Button>
      
           
           {(companies?.length > 0) && (
             
-              <Button as={Link}  startContent={<Building2 size={18} />} to="/dashboard/companies">
+              <Button as={Link}  startContent={<Building2 size={18} />} href="/dashboard/companies">
                 Minhas Empresas
               </Button>
             
@@ -120,7 +120,7 @@ const DashboardPage = () => {
                 
                 
                 <div className="text-center pt-2">
-                  <Link to="/dashboard/estimate-requests" className="text-primary-600 hover:text-primary-700 font-medium">
+                  <Link href="/dashboard/estimate-requests" className="text-primary-600 hover:text-primary-700 font-medium">
                     Ver todos os orçamentos
                   </Link>
                 </div>
@@ -128,11 +128,11 @@ const DashboardPage = () => {
             ) : (
               <div className="text-center py-8">
                 <p className="text-neutral-500 mb-4">Você ainda não tem nenhum orçamento solicitado.</p>
-                <Link to="/dashboard/estimate-requests/new">
-                  <Button startContent={<Plus size={18} />}>
+                
+                  <Button startContent={<Plus size={18} />} as={Link} href="/dashboard/estimate-requests/new">
                     Solicitar Orçamento
                   </Button>
-                </Link>
+                
               </div>
             )}
           </CardBody>
@@ -178,7 +178,7 @@ const DashboardPage = () => {
                 
                   
                   <div className="text-center pt-2">
-                    <Link to="/dashboard/companies" className="text-primary-600 hover:text-primary-700 font-medium">
+                    <Link href="/dashboard/companies" className="text-primary-600 hover:text-primary-700 font-medium">
                       Ver todas as empresas
                     </Link>
                   </div>

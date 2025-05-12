@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { isAuthenticated } = useAuthStore();
   const location = useLocation();
-  console.log('isAuthenticated',isAuthenticated);
+  
   
   if (!isAuthenticated) {
     // Redirect to login page with the return url

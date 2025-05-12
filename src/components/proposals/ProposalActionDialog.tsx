@@ -1,5 +1,6 @@
-import Dialog from '../ui/Dialog';
-import Button from '../ui/Button';
+
+
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@heroui/react';
 
 interface ProposalActionDialogProps {
   isOpen: boolean;
@@ -18,27 +19,37 @@ const ProposalActionDialog = ({
   description,
   isLoading,
 }: ProposalActionDialogProps) => {
+  const { onOpenChange} = useDisclosure();
   return (
-    <Dialog
+    <Modal 
+      onOpenChange={onOpenChange}
       isOpen={isOpen}
       onClose={onClose}
       title={title}
-      footer={
-        <>
-          <Button variant="outline" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button
-            onClick={onConfirm}
-            isLoading={isLoading}
-          >
-            Confirmar
-          </Button>
-        </>
-      }
+     
     >
-      <p className="text-neutral-600">{description}</p>
-    </Dialog>
+      <ModalContent>
+        {(onClose) => (
+         <>
+          <ModalHeader className="flex flex-col gap-1">Confirmar Ação</ModalHeader>
+          <ModalBody className="flex flex-col gap-1">{description}</ModalBody>
+          
+           <ModalFooter>
+           <Button variant="ghost" onPress={onClose} color='danger'>
+              Cancelar
+            </Button>
+            <Button
+              onPress={onConfirm}
+              isLoading={isLoading}
+              color='primary'
+            >
+              Confirmar
+            </Button>
+           </ModalFooter>
+         </>
+        )}
+      </ModalContent>
+    </Modal>
   );
 };
 

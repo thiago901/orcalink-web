@@ -1,10 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+
 import { Plus, Loader2, Building2 } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { getCompaniesByOwnerId } from '../../api/companies';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
+import { Button, Card, CardBody, CardHeader, Link } from '@heroui/react';
+import { Subtitle } from '../../components/ui/Subtitle';
+import { Title } from '../../components/ui/Title';
+import { Text } from '../../components/ui/Text';
+
+
 
 
 const CompaniesPage = () => {
@@ -21,22 +25,22 @@ const CompaniesPage = () => {
     <div className="space-y-6 fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-800">Empresas</h1>
-          <p className="text-neutral-600">Gerencie suas empresas cadastradas</p>
+          <Title >Empresas</Title>
+          <Text >Gerencie suas empresas cadastradas</Text>
         </div>
 
-        <Link to="/dashboard/companies/new">
-          <Button icon={<Plus size={18} />}>
+        
+          <Button startContent={<Plus size={18} />} color='primary' as={Link} href="/dashboard/companies/new">
             Nova Empresa
           </Button>
-        </Link>
+        
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Minhas Empresas</CardTitle>
+          <Subtitle>Minhas Empresas</Subtitle>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           {isLoading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
@@ -51,18 +55,18 @@ const CompaniesPage = () => {
                 Você ainda não tem nenhuma empresa cadastrada.
                 Cadastre uma agora mesmo!
               </p>
-              <Link to="/dashboard/companies/new">
-                <Button icon={<Plus size={18} />}>
+              
+                <Button startContent={<Plus size={18} />} color='primary' as={Link} href="/dashboard/companies/new">
                   Cadastrar Empresa
                 </Button>
-              </Link>
+              
             </div>
           ) : (
             <div className="space-y-4">
               {companies.map((company) => (
                 <Link
                   key={company.id}
-                  to={`/dashboard/companies/${company.id}`}
+                  href={`/dashboard/companies/${company.id}`}
                   className="block"
                 >
                   <div className="p-4 rounded-lg border border-neutral-200 hover:border-primary-300 hover:shadow-sm transition-all">
@@ -82,7 +86,7 @@ const CompaniesPage = () => {
               ))}
             </div>
           )}
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

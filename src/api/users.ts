@@ -6,6 +6,7 @@ export interface UpdateUserProps {
   email?: string;
   password?: string;
   avatar?: string;
+  
 }
 
 // User API functions

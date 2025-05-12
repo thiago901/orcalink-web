@@ -40,7 +40,9 @@ const ProposalForm = ({
   const onSubmit = async (data: CreateProposalProps) => {
     setIsLoading(true);
     try {
+      
       data.estimate_request_id = estimateRequestId
+      console.log("------------",data);
       
       await createProposal(data);
       toast.success('Proposta enviada com sucesso!');

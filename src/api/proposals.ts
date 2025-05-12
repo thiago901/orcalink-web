@@ -1,6 +1,7 @@
 import api from './axios';
 
 export interface CreateProposalProps {
+  
   amount: number;
   company_id: string;
   description: string;
@@ -31,7 +32,7 @@ export const getProposalsByEstimateId = async (estimateId: string) => {
 };
 
 export const createProposal = async (data: CreateProposalProps) => {
-  const response = await api.post('/proposals', {...data,amount:Number(data.amount)});
+  const response = await api.post('/proposals', {...data,amount:Number(data.amount),name:"OLaskjdklashdjkashkjdhaskjhdk"});
   return response.data.result;
 };
 
