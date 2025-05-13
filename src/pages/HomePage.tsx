@@ -1,10 +1,67 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
-import { Building2, ClipboardList, ShieldCheck, BarChart } from 'lucide-react';
-import Button from '../components/ui/Button';
+import { Building2, ClipboardList, ShieldCheck, BarChart, Search, MapPin, Star, Filter } from 'lucide-react';
+import { Button, Card, CardBody, CardHeader, Input, Select, SelectItem } from '@heroui/react';
+
+const CATEGORIES = [
+  { key: 'painting', label: 'Pintura' },
+  { key: 'electrical', label: 'Elétrica' },
+  { key: 'plumbing', label: 'Hidráulica' },
+  { key: 'construction', label: 'Construção' },
+];
+
+const LOCATIONS = [
+  { key: 'indoor', label: 'Ambiente Interno' },
+  { key: 'outdoor', label: 'Ambiente Externo' },
+];
+
+const SORT_OPTIONS = [
+  { key: 'newest', label: 'Mais Recentes' },
+  { key: 'rating', label: 'Melhor Avaliados' },
+  { key: 'distance', label: 'Mais Próximos' },
+];
+
+const FEATURED_SERVICES = [
+  {
+    id: '1',
+    title: 'Pintura Residencial Profissional',
+    description: 'Serviço completo de pintura com acabamento premium e garantia de 2 anos. Atendemos toda região metropolitana.',
+    company: 'PinturasPro LTDA',
+    isVerified: true,
+    rating: 4.8,
+    tags: ['Pintura', 'Residencial', 'Premium'],
+    image: 'https://images.pexels.com/photos/8005397/pexels-photo-8005397.jpeg',
+  },
+  {
+    id: '2',
+    title: 'Instalação e Manutenção Elétrica',
+    description: 'Serviços elétricos residenciais e comerciais. Profissionais certificados e material de primeira linha.',
+    company: 'Eletrotec Serviços',
+    isVerified: true,
+    rating: 4.9,
+    tags: ['Elétrica', 'Manutenção', '24h'],
+    image: 'https://images.pexels.com/photos/8005415/pexels-photo-8005415.jpeg',
+  },
+  {
+    id: '3',
+    title: 'Reforma Completa de Banheiros',
+    description: 'Transforme seu banheiro com nossa equipe especializada. Projetos personalizados e execução impecável.',
+    company: 'Reformas Express',
+    isVerified: false,
+    rating: 4.7,
+    tags: ['Reforma', 'Banheiro', 'Design'],
+    image: 'https://images.pexels.com/photos/8005425/pexels-photo-8005425.jpeg',
+  },
+];
 
 const HomePage = () => {
   const { isAuthenticated } = useAuthStore();
+  const [searchParams, setSearchParams] = useState({
+    category: '',
+    location: '',
+    sort: 'newest',
+  });
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -22,10 +79,10 @@ const HomePage = () => {
             ) : (
               <>
                 <Link to="/login">
-                  <Button variant="outline">Entrar</Button>
+                  <Button variant="ghost">Entrar</Button>
                 </Link>
                 <Link to="/register">
-                  <Button>Cadastrar</Button>
+                  <Button color="primary">Cadastrar</Button>
                 </Link>
               </>
             )}
@@ -33,47 +90,156 @@ const HomePage = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-24">
-        <div className="container mx-auto px-4 flex flex-col items-center text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in">
-            Solicite orçamentos e <br className="hidden md:block" /> encontre profissionais qualificados
-          </h1>
-          <p className="text-lg md:text-xl mb-10 max-w-2xl opacity-90 animate-fade-in">
-            Compare propostas, escolha a melhor opção e economize tempo e dinheiro
-            com a nossa plataforma exclusiva de orçamentos.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 animate-fade-in">
-            <Link to="/register">
-              <Button 
-                variant="secondary" 
-                size="lg" 
-                className="w-full sm:w-auto bg-white text-primary-700 hover:bg-neutral-100"
+      {/* Search Section */}
+      <section className="bg-gradient-to-br from-primary-600 to-primary-800 py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center text-white mb-8">
+            <h2 className="text-4xl font-bold mb-4">Encontre o Serviço Ideal</h2>
+            <p className="text-lg opacity-90">Compare orçamentos e encontre os melhores profissionais da sua região</p>
+          </div>
+
+          <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <Select 
+                label="Categoria"
+                placeholder="Selecione uma categoria"
+                value={searchParams.category}
+                onChange={(value) => setSearchParams(prev => ({ ...prev, category: value }))}
               >
-                Criar uma conta
+                {CATEGORIES.map(cat => (
+                  <SelectItem key={cat.key} value={cat.key}>{cat.label}</SelectItem>
+                ))}
+              </Select>
+
+              <Select
+                label="Localização"
+                placeholder="Tipo de ambiente"
+                value={searchParams.location}
+                onChange={(value) => setSearchParams(prev => ({ ...prev, location: value }))}
+              >
+                {LOCATIONS.map(loc => (
+                  <SelectItem key={loc.key} value={loc.key}>{loc.label}</SelectItem>
+                ))}
+              </Select>
+
+              <Input
+                type="text"
+                label="Cidade"
+                placeholder="Digite sua cidade"
+                startContent={<MapPin size={18} />}
+              />
+
+              <Select
+                label="Ordenar por"
+                value={searchParams.sort}
+                onChange={(value) => setSearchParams(prev => ({ ...prev, sort: value }))}
+              >
+                {SORT_OPTIONS.map(opt => (
+                  <SelectItem key={opt.key} value={opt.key}>{opt.label}</SelectItem>
+                ))}
+              </Select>
+            </div>
+
+            <div className="mt-6 flex justify-center">
+              <Button
+                color="primary"
+                size="lg"
+                startContent={<Search size={20} />}
+              >
+                Buscar Serviços
               </Button>
-            </Link>
-            {isAuthenticated ? (
-              <Link to="/dashboard/estimate-requests/new">
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="w-full sm:w-auto border-white text-white hover:bg-primary-700"
-                >
-                  Solicitar Orçamento
-                </Button>
-              </Link>
-            ) : (
-              <Link to="/login">
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="w-full sm:w-auto border-white text-white hover:bg-primary-700"
-                >
-                  Entrar na plataforma
-                </Button>
-              </Link>
-            )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Services */}
+      <section className="py-16 bg-neutral-50">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center mb-8">
+            <h3 className="text-2xl font-bold">Serviços em Destaque</h3>
+            <Button
+              variant="ghost"
+              startContent={<Filter size={18} />}
+            >
+              Filtrar
+            </Button>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {FEATURED_SERVICES.map((service) => (
+              <Card key={service.id} className="overflow-hidden">
+                <img
+                  src={service.image}
+                  alt={service.title}
+                  className="w-full h-48 object-cover"
+                />
+                <CardBody className="p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h4 className="font-semibold text-lg mb-2">{service.title}</h4>
+                      <p className="text-neutral-600 text-sm mb-3 line-clamp-2">
+                        {service.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="font-medium">{service.company}</span>
+                    {service.isVerified && (
+                      <ShieldCheck size={16} className="text-primary-600" />
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="flex items-center text-yellow-400">
+                      <Star size={16} fill="currentColor" />
+                      <span className="ml-1 text-sm font-medium">{service.rating}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      {service.tags.map((tag, index) => (
+                        <span
+                          key={index}
+                          className="px-2 py-1 bg-primary-50 text-primary-700 text-xs rounded-full"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      as={Link}
+                      to={`/services/${service.id}`}
+                      color="primary"
+                      className="flex-1"
+                    >
+                      Ver Detalhes
+                    </Button>
+                    <Button
+                      as={Link}
+                      to={`/companies/${service.id}`}
+                      variant="ghost"
+                      className="flex-1"
+                    >
+                      Perfil da Empresa
+                    </Button>
+                  </div>
+                </CardBody>
+              </Card>
+            ))}
+          </div>
+
+          <div className="text-center mt-8">
+            <Button
+              size="lg"
+              variant="ghost"
+              as={Link}
+              to="/services"
+            >
+              Ver Todos os Serviços
+            </Button>
           </div>
         </div>
       </section>
@@ -84,7 +250,6 @@ const HomePage = () => {
           <h2 className="text-3xl font-bold text-center mb-12">Como funciona</h2>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Feature 1 */}
             <div className="flex flex-col items-center text-center p-6">
               <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mb-4">
                 <ClipboardList className="w-8 h-8 text-primary-600" />
@@ -95,7 +260,6 @@ const HomePage = () => {
               </p>
             </div>
             
-            {/* Feature 2 */}
             <div className="flex flex-col items-center text-center p-6">
               <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mb-4">
                 <Building2 className="w-8 h-8 text-primary-600" />
@@ -106,7 +270,6 @@ const HomePage = () => {
               </p>
             </div>
             
-            {/* Feature 3 */}
             <div className="flex flex-col items-center text-center p-6">
               <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mb-4">
                 <ShieldCheck className="w-8 h-8 text-primary-600" />
@@ -117,7 +280,6 @@ const HomePage = () => {
               </p>
             </div>
             
-            {/* Feature 4 */}
             <div className="flex flex-col items-center text-center p-6">
               <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mb-4">
                 <BarChart className="w-8 h-8 text-primary-600" />
@@ -142,6 +304,7 @@ const HomePage = () => {
             <Link to="/register">
               <Button 
                 size="lg" 
+                color="primary"
                 className="w-full sm:w-auto"
               >
                 Criar uma conta
@@ -150,7 +313,7 @@ const HomePage = () => {
             {isAuthenticated ? (
               <Link to="/dashboard">
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="lg" 
                   className="w-full sm:w-auto"
                 >
@@ -160,7 +323,7 @@ const HomePage = () => {
             ) : (
               <Link to="/login">
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="lg" 
                   className="w-full sm:w-auto"
                 >
