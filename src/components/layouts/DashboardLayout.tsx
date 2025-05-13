@@ -40,7 +40,6 @@ const DashboardLayout = () => {
     { to: '/dashboard/profile', icon: <User size={20} />, label: 'Perfil' },
     { to: '/dashboard/estimate-requests', icon: <ClipboardList size={20} />, label: 'Orçamentos' },
     { to: '/dashboard/companies', icon: <Building2 size={20} />, label: 'Empresas' },
-    { to: '/dashboard/proposals', icon: <FileText size={20} />, label: 'Propostas' },
   ];
 
   const NavItem = ({ to, icon, label }: { to: string; icon: JSX.Element; label: string }) => (

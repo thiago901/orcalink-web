@@ -39,7 +39,7 @@ const JobDetailPage = () => {
   if (!request) {
     return (
       <div className="text-center py-8">
-        <h3 className="text-lg font-medium mb-2">Orçamento não encontrado</h3>
+        <h3 className="text-lg font-medium mb-2">Trabalho não encontrado</h3>
         <p className="text-neutral-600">
           O orçamento que você está procurando não existe ou foi removido.
         </p>

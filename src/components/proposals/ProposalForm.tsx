@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { createProposal, CreateProposalProps } from '../../api/proposals';
-import Dialog from '../ui/Dialog';
-import Input from '../ui/Input';
-import Textarea from '../ui/Textarea';
-import Button from '../ui/Button';
+
+
+
+
+import DialogV2 from '../ui/Dialog-v2';
+import { Button, Input, Textarea } from '@heroui/react';
 
 interface ProposalFormProps {
   isOpen: boolean;
@@ -42,7 +44,7 @@ const ProposalForm = ({
     try {
       
       data.estimate_request_id = estimateRequestId
-      console.log("------------",data);
+      
       
       await createProposal(data);
       toast.success('Proposta enviada com sucesso!');
@@ -57,19 +59,20 @@ const ProposalForm = ({
   };
 
   return (
-    <Dialog
+    <DialogV2
       isOpen={isOpen}
       onClose={onClose}
       title="Enviar Proposta"
       footer={
         <>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="ghost" onPress={onClose}>
             Cancelar
           </Button>
           <Button
             type="submit"
             form="proposal-form"
             isLoading={isLoading}
+            color='primary'
           >
             Enviar Proposta
           </Button>
@@ -82,7 +85,8 @@ const ProposalForm = ({
           type="number"
           step="0.01"
           placeholder="0,00"
-          error={errors.amount?.message}
+          errorMessage={errors.amount?.message}
+          isInvalid={!!errors.amount?.message}
           {...register('amount', {
             required: 'Valor é obrigatório',
             min: {
@@ -95,7 +99,8 @@ const ProposalForm = ({
         <Textarea
           label="Descrição da proposta"
           placeholder="Descreva os detalhes da sua proposta..."
-          error={errors.description?.message}
+          errorMessage={errors.description?.message}
+          isInvalid={!!errors.description?.message}
           {...register('description', {
             required: 'Descrição é obrigatória',
             minLength: {
@@ -108,7 +113,7 @@ const ProposalForm = ({
         <input type="hidden" {...register('company_id')} />
         <input type="hidden" {...register('estimate_request_id')} />
       </form>
-    </Dialog>
+    </DialogV2>
   );
 };
 

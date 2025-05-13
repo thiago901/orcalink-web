@@ -31,7 +31,7 @@ const ProposalActionDialog = ({
       <ModalContent>
         {(onClose) => (
          <>
-          <ModalHeader className="flex flex-col gap-1">Confirmar Ação</ModalHeader>
+          <ModalHeader className="flex flex-col gap-1">{title}</ModalHeader>
           <ModalBody className="flex flex-col gap-1">{description}</ModalBody>
           
            <ModalFooter>

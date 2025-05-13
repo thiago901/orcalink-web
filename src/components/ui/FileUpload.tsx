@@ -1,6 +1,7 @@
 import { ChangeEvent, useRef, useState } from 'react';
-import { Upload, X, FileText, AlertCircle } from 'lucide-react';
-import Button from './Button';
+import { Upload, X, FileText, AlertCircle, Car } from 'lucide-react';
+
+import { Button, Card, CardBody } from '@heroui/react';
 
 interface FileUploadProps {
   onFilesSelected: (files: File[]) => void;
@@ -127,33 +128,39 @@ const FileUpload = ({
       )}
 
       {selectedFiles.length > 0 && (
-        <div className="space-y-2">
+        <>
           {selectedFiles.map((file, index) => (
-            <div
-              key={`${file.name}-${index}`}
-              className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg border border-neutral-200"
-            >
-              <div className="flex items-center gap-3">
-                <FileText className="w-5 h-5 text-neutral-400" />
-                <div>
-                  <p className="text-sm font-medium text-neutral-700 truncate">
-                    {file.name}
-                  </p>
-                  <p className="text-xs text-neutral-500">
-                    {(file.size / 1024 / 1024).toFixed(2)} MB
-                  </p>
+           <Card>
+              <CardBody
+                key={`${file.name}-${index}`}
+                
+              >
+                <div className='flex'>
+                  <div className="flex flex-1 items-center gap-3">
+                    <FileText className="w-5 h-5 text-neutral-400" />
+                    <div>
+                      <p className="text-sm font-medium text-neutral-700 truncate">
+                        {file.name}
+                      </p>
+                      <p className="text-xs text-neutral-500">
+                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onPress={() => removeFile(index)}
+                    isIconOnly
+                  >
+                    <X size={16} />
+                  </Button>
                 </div>
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => removeFile(index)}
-                icon={<X size={16} />}
-              />
-            </div>
+              </CardBody>
+           </Card>
           ))}
-        </div>
+        </>
       )}
     </div>
   );

@@ -396,7 +396,7 @@ return (
                           key={request.id}
                           showDivider={sortedRequests.length-1!==index}
                           as={Link}
-                          href={`/dashboard/companies/${id}/estimate_request/${request.id}`}
+                          href={`/dashboard/companies/jobs/${request.id}`}
                          
                         >
                           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
