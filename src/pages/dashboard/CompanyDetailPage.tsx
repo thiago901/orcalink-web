@@ -67,7 +67,6 @@ const CompanyDetailPage = () => {
     queryFn: () => getProposalsByCompanyId(id!),
     enabled: !!id,
   });
-console.log('jobsjobsjobsjobs',jobs);
 
   if (isLoadingCompany || isLoadingServices) {
     return (

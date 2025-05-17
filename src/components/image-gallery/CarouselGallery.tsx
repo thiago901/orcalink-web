@@ -187,13 +187,13 @@ const CarouselGallery: React.FC<CarouselGalleryProps> = ({
       {images.length > 1 && (
         <div 
           ref={thumbnailsRef}
-          className="flex space-x-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+          className="flex space-x-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 "
         >
           {images.map((image, index) => (
             <div
               key={image.id}
               data-thumbnail
-              className={`relative flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-md overflow-hidden 
+              className={`relative flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-md overflow-hidden 
                 cursor-pointer transition-all duration-200 
                 ${index === currentIndex ? 'ring-2 ring-blue-500 opacity-100' : 'opacity-70 hover:opacity-100'}`}
               onClick={() => navigateToImage(index)}

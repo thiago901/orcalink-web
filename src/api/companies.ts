@@ -18,10 +18,26 @@ export interface CreateCompanyProps {
   about: string | null;
   address: Address;
 }
+export interface Company {
+  result:{
+    id: string;
+    name: string;
+    owner_id: string;
+    avatar?: string;
+    about: string | null;
+    address: Address;
+    ratting: number;
+    services: {
+      id: string,
+      name: string,
+      category_id: string
+    }[]
+  }[]
+}
 
 // Company API functions
 export const getCompanies = async () => {
-  const response = await api.get('/companies');
+  const response = await api.get<Company>('/companies');
   return response.data.result;
 };
 
@@ -31,7 +47,7 @@ export const getCompanyById = async (id: string) => {
 };
 
 export const getCompaniesByOwnerId = async (ownerId: string) => {
-  console.log('respo',ownerId);
+  
   const response = await api.get(`/companies/owner/${ownerId}`);
   
   return response.data.result;

@@ -20,6 +20,13 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import CreateCompanyPage from './pages/dashboard/CreateCompanyPage';
 import CompanyEstimateRequestDetailPage from './pages/dashboard/CompanyEstimateRequestDetailPage';
 import JobDetailPage from './pages/dashboard/JobDetailPage';
+import { UserLayout } from './components/layouts/UserLayout';
+import { Posts } from './pages/user/posts';
+import { Companies } from './pages/user/companies';
+import { MyBudgetsPage } from './pages/user/my-budgets';
+import { MyBudgetsCreatePage } from './pages/user/my-budgets-create';
+import { MyBudgetsDetailPage } from './pages/user/my-budgets-detail';
+import { Partners } from './pages/user/partners';
 
 function App() {
   const { checkAuth } = useAuthStore();
@@ -32,11 +39,24 @@ function App() {
   return (
     <Routes>
       {/* Public routes */}
-      <Route path="/" element={<HomePage />} />
+      
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       
+      <Route path='/' element={
+        
+          <UserLayout/>
+        
+      }>
+        <Route index path="/" element={<HomePage />} />
+        <Route element={<Posts/>}  path='posts'/>
+        <Route element={<Companies/>}  path='companies/:id'/>
+        <Route element={<MyBudgetsPage/>}  path='my-budgets'/>
+        <Route element={<MyBudgetsCreatePage/>}  path='my-budgets/new'/>
+        <Route element={<MyBudgetsDetailPage/>}  path='my-budgets/:id'/>
+        <Route element={<Partners/>}  path='partners'/>
+      </Route>
       {/* Protected routes */}
       <Route path="/dashboard" element={
         <ProtectedRoute>

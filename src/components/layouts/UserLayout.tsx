@@ -1,0 +1,147 @@
+import {
+  Avatar,
+  Button,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+  Link,
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarItem,
+} from "@heroui/react";
+
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../stores/authStore";
+import { useCallback, useEffect } from "react";
+import { useThemeStore } from "../../stores/themeStore";
+import { Moon, Sun } from "lucide-react";
+
+const navbarItems = [
+  { label: "Inicial", href: "/" },
+  { label: "Meus orçamentos", href: "/my-budgets" },
+  { label: "Parceiros", href: "/partners" },
+];
+export const UserLayout = () => {
+  const { isAuthenticated, user, logout } = useAuthStore();
+  const { theme, toggleTheme } = useThemeStore();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const pathname = location.pathname;
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
+
+  const handleLogout = useCallback(() => {
+    logout();
+    navigate("/");
+  }, [logout, navigate]);
+  const isActive = useCallback(
+    (href: string) => {
+      if (href === "/") {
+        return pathname === "/";
+      }
+      return pathname.startsWith(href);
+    },
+    [pathname]
+  );
+  return (
+    <div>
+      <header>
+        <Navbar>
+          <NavbarBrand>
+            <div className="flex items-center justify-between h-16 px-4  ">
+              <Link href="/" className="flex items-center">
+                <h1 className="text-xl font-bold text-primary-700 dark:text-primary-400">
+                  OrçaFacil
+                </h1>
+              </Link>
+            </div>
+          </NavbarBrand>
+          <NavbarContent className="hidden sm:flex gap-4" justify="center">
+            {navbarItems.map((item, index) => (
+              <NavbarItem
+                key={index}
+                isActive={isActive(item.href)}
+                hidden={item.href === "/my-budgets" && !isAuthenticated}
+              >
+                <Link
+                  color={isActive(item.href) ? "primary" : "foreground"}
+                  href={item.href}
+                  aria-current={isActive(item.href) ? "page" : undefined}
+                >
+                  {item.label}
+                </Link>
+              </NavbarItem>
+            ))}
+          </NavbarContent>
+          {isAuthenticated ? (
+            <NavbarContent as="div" justify="end">
+              <Button onPress={toggleTheme} isIconOnly={true} variant="light">
+                {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+              </Button>
+              <Dropdown placement="bottom-end">
+                <DropdownTrigger>
+                  <Avatar
+                    isBordered
+                    as="button"
+                    className="transition-transform"
+                    color="secondary"
+                    name={user?.name.toLocaleUpperCase()}
+                    size="sm"
+                    src={user?.avatar}
+                    showFallback
+                  />
+                </DropdownTrigger>
+                <DropdownMenu aria-label="Profile Actions" variant="flat">
+                  <DropdownItem key="profile" className="h-14 gap-2">
+                    <p className="font-semibold">Logado como:</p>
+                    <p className="font-semibold">{user?.email}</p>
+                  </DropdownItem>
+                  <DropdownItem key="settings">Perfil</DropdownItem>
+                  
+                  <DropdownItem key="configurations">
+                    Configurations
+                  </DropdownItem>
+
+                  <DropdownItem
+                    key="logout"
+                    color="danger"
+                    onPress={handleLogout}
+                  >
+                    Sair
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            </NavbarContent>
+          ) : (
+            <NavbarContent justify="end">
+              <Button onPress={toggleTheme} isIconOnly={true} variant="light">
+                {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+              </Button>
+              <NavbarItem className="hidden lg:flex">
+                <Link href="/login">Login</Link>
+              </NavbarItem>
+              <NavbarItem>
+                <Button
+                  as={Link}
+                  color="primary"
+                  href="/register"
+                  variant="flat"
+                >
+                  Sign Up
+                </Button>
+              </NavbarItem>
+           
+            </NavbarContent>
+          )}
+        </Navbar>
+      </header>
+      <main className="">
+        <Outlet />
+      </main>
+    </div>
+  );
+};

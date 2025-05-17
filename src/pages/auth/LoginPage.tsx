@@ -15,7 +15,7 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Get the return URL from location state or default to dashboard
-  const from = location.state?.from?.pathname || '/dashboard';
+  const from = location.state?.from?.pathname || '/';
   if(isAuthenticated){
     navigate(from, { replace: true });
   }
@@ -31,7 +31,7 @@ const LoginPage = () => {
     try {
       await login(data.email, data.password);
       toast.success('Login realizado com sucesso!');
-      navigate(from, { replace: true });
+      // navigate(from, { replace: true });
     } catch (error) {
       toast.error('Falha ao realizar login. Verifique suas credenciais.');
     } finally {
