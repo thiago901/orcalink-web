@@ -3,8 +3,10 @@ import {
   Button,
   Card,
   CardBody,
+  CardFooter,
   Chip,
   Input,
+  Link,
   Select,
   SelectItem,
 } from "@heroui/react";
@@ -126,7 +128,7 @@ export function Partners() {
           <Card key={index} className="p-0 overflow-hidden shadow-md group">
             <div className="relative">
               <img
-                src="https://i.pravatar.cc/300?img=1"
+                src={company.avatar}
                 alt={company.name}
                 className="w-full h-48 object-cover"
               />
@@ -140,7 +142,7 @@ export function Partners() {
                 {company.name}
               </h3>
 
-              <p className="text-sm text-neutral-600">{company.about}</p>
+              <p className="text-sm text-neutral-600">{company.about?.slice(0,300)}</p>
 
               <p className="text-xs text-neutral-400 mt-2">
                 <div className="flex gap-1">
@@ -159,6 +161,17 @@ export function Partners() {
                 </div>
               </div>
             </CardBody>
+            <CardFooter>
+              <Button
+                as={Link}
+                color="primary"
+                size="sm"
+                className="w-full"
+                href={`/partners/${company.id}`}  
+              >
+                Ver Detalhes
+              </Button>
+            </CardFooter>
           </Card>
         ))}
       </div>

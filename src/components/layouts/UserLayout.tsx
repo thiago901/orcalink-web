@@ -17,6 +17,8 @@ import { useAuthStore } from "../../stores/authStore";
 import { useCallback, useEffect } from "react";
 import { useThemeStore } from "../../stores/themeStore";
 import { Moon, Sun } from "lucide-react";
+import { getCompaniesByOwnerId } from "../../api/companies";
+import { useQuery } from "@tanstack/react-query";
 
 const navbarItems = [
   { label: "Inicial", href: "/" },
@@ -29,6 +31,12 @@ export const UserLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const pathname = location.pathname;
+
+  const { data: companies, isLoading} = useQuery({
+    queryKey: ['companies', user?.id],
+    queryFn: () => getCompaniesByOwnerId(user?.id || ''),
+    enabled: !!user?.id,
+  });
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -101,10 +109,19 @@ export const UserLayout = () => {
                     <p className="font-semibold">{user?.email}</p>
                   </DropdownItem>
                   <DropdownItem key="settings">Perfil</DropdownItem>
-                  
                   <DropdownItem key="configurations">
                     Configurations
                   </DropdownItem>
+                  {!!companies && companies?.length > 0 ? (
+                    <DropdownItem key="my-companies" href="/dashboard">
+                      Acessar dashboard
+                    </DropdownItem>
+                  ):
+                  <DropdownItem key="company" href="/company/new">
+                    Criar empresa
+                  </DropdownItem>
+                  }
+                  
 
                   <DropdownItem
                     key="logout"

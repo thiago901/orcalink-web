@@ -5,6 +5,9 @@ export interface CreateCompanyServiceProps {
   owner_id:string;
   avatar:string;
   about:string;
+  phone:string;
+  email:string;
+  website?:string;
   address: {
     name:string
     city:string
