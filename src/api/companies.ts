@@ -16,6 +16,9 @@ export interface CreateCompanyProps {
   owner_id: string;
   avatar?: string;
   about: string | null;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
   address: Address;
 }
 
@@ -27,10 +30,15 @@ export interface Company {
   about: string | null;
   address: Address;
   ratting: number;
+  created_at:Date;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
   services: {
     id: string,
     name: string,
     category_id: string
+    category_name: string
   }[]
 }
 export interface Response<T=unknown> {
@@ -38,8 +46,17 @@ export interface Response<T=unknown> {
 }
 
 // Company API functions
-export const getCompanies = async () => {
-  const response = await api.get<Response<Company[]>>('/companies');
+export type GetCompaniesFilters={
+  categories?: string[];
+}
+export const getCompanies = async ({categories}:GetCompaniesFilters) => {
+  
+  
+  const query = 'categories=' + categories?.join('&categories=')
+  
+  const response = await api.get<Response<Company[]>>(`/companies?${query}`,{
+  
+  });
   return response.data.result;
 };
 

@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useNavigate } from "react-router-dom";
+
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../stores/authStore";
@@ -23,7 +23,7 @@ import { FileText, MapPin } from "lucide-react";
 import FileUpload from "../../components/ui/FileUpload";
 
 export function CompanyCreateForm() {
-  const navigate = useNavigate();
+  
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [position, setPosition] = useState<GeolocationPosition | null>(null);

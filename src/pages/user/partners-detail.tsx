@@ -189,9 +189,9 @@ export function PartnersDetail() {
         </div>
 
         <CardBody className="pt-16 text-center">
-          <p className="text-sm text-muted-foreground">{company?.name}</p>
+          <p className="text-sm text-muted-foreground">Empresa</p>
           <h2 className="text-xl font-bold">{company?.name}</h2>
-          <p className="text-sm text-blue-500">Bandung | Joined Mar 2023</p>
+          {/* <p className="text-sm text-blue-500">Bandung | Joined {company?.created_at}</p> */}
           <p className="text-sm text-muted-foreground mt-4">{company?.about}</p>
         </CardBody>
       </Card>
@@ -200,34 +200,37 @@ export function PartnersDetail() {
           <Tabs className="">
             <Tab title="Sobre">
               <div className="mt-6 text-left space-y-4">
-                <div className="flex items-center gap-2">
+                {company?.website && (
+
+                  <div className="flex items-center gap-2">
                   <Globe className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm">www.fakeSite.com</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm">Fake@mail.com</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm">+55 (11) 94026-0283</span>
-                </div>
+                  <span className="text-sm">{company?.website}</span>
+                  </div>
+                )}
+                {
+                  company?.email && (
+                    <div className="flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm">{company.email}</span>
+                  </div>
+                  )
+                }
+                {company?.phone && (
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm">{company.phone}</span>
+                  </div>
+                )}
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                {[
-                  "UI Designer",
-                  "UX Designer",
-                  "Design System",
-                  "Product",
-                  "Successfull",
-                ].map((tag) => (
-                  <span
-                    key={tag}
-                    className="bg-gray-100 text-sm text-gray-700 px-3 py-1 rounded-full"
+                {company && company.services.map((service) => (
+                  <Chip
+                    key={service.id}
+                    
                   >
-                    {tag}
-                  </span>
+                    {service.category_name}
+                  </Chip>
                 ))}
               </div>
             </Tab>
