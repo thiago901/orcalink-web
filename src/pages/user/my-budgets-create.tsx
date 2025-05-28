@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
@@ -16,6 +16,7 @@ import { Subtitle } from '../../components/ui/Subtitle';
 import { Button, Card, CardBody, CardHeader, Input, Textarea } from '@heroui/react';
 import { FiFileText } from 'react-icons/fi';
 import { CiMail, CiMapPin, CiPhone, CiRuler } from 'react-icons/ci';
+import { searchByZipCode } from '../../utils/search-zip-address';
 
 export function MyBudgetsCreatePage() {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ export function MyBudgetsCreatePage() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<CreateEstimateRequestProps>({
     defaultValues: {
@@ -54,10 +56,10 @@ export function MyBudgetsCreatePage() {
   };
 
   const onSubmit = async (data: CreateEstimateRequestProps) => {
-    if (!position) {
-      toast.error('É necessário permitir o acesso à sua localização');
-      return;
-    }
+    // if (!position) {
+    //   toast.error('É necessário permitir o acesso à sua localização');
+    //   return;
+    // }
 
     setIsLoading(true);
     try {
@@ -65,8 +67,10 @@ export function MyBudgetsCreatePage() {
         ...data,
         footage:Number(data.footage),
         user_id: user?.id,
-        lat: position.coords.latitude.toString(),
-        long: position.coords.longitude.toString(),
+        // lat: position.coords.latitude.toString(),
+        // long: position.coords.longitude.toString(),
+        lat: '-23.6528084',
+        long: '-46.7440400'
       };
 
       const response = await createEstimateRequest(requestData);
@@ -90,7 +94,18 @@ export function MyBudgetsCreatePage() {
       setIsLoading(false);
     }
   };
-
+ const handleSearchZip = useCallback(
+    async (e: React.FocusEvent<HTMLInputElement>) => {
+      const {logradouro,estado,uf,bairro} = await searchByZipCode(e.target.value)
+      setValue("address_state", uf, { shouldDirty: true, shouldTouch: true });
+      setValue("address_city", estado, { shouldDirty: true, shouldTouch: true });
+      setValue("address_neighborhood", bairro, { shouldDirty: true, shouldTouch: true });
+      setValue("address_street", logradouro, { shouldDirty: true, shouldTouch: true });
+      
+      
+    },
+    [setValue]
+  );
   return (
     <div className="space-y-6 fade-in max-w-6xl mx-auto px-4 py-6">
       <div>
@@ -175,10 +190,12 @@ export function MyBudgetsCreatePage() {
                   {...register('address_postal_code', {
                     required: 'CEP é obrigatório',
                   })}
+                  onBlur={handleSearchZip}
                 />
 
                 <Input
                   label="Estado"
+                  isDisabled
                   placeholder="Ex: SP"
                   errorMessage={errors.address_state?.message}
                   isInvalid={!!errors.address_state?.message}
@@ -191,6 +208,7 @@ export function MyBudgetsCreatePage() {
               <Input
                 label="Cidade"
                 placeholder="Ex: São Paulo"
+                isDisabled
                 errorMessage={errors.address_city?.message}
                 isInvalid={!!errors.address_city?.message}
                 {...register('address_city', {
@@ -200,6 +218,7 @@ export function MyBudgetsCreatePage() {
 
               <Input
                 label="Bairro"
+                isDisabled
                 placeholder="Ex: Centro"
                 errorMessage={errors.address_neighborhood?.message}
                 isInvalid={!!errors.address_neighborhood?.message}
@@ -211,6 +230,7 @@ export function MyBudgetsCreatePage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <Input
                   label="Rua"
+                  isDisabled
                   placeholder="Ex: Rua Principal"
                   errorMessage={errors.address_street?.message}
                   isInvalid={!!errors.address_street?.message}
@@ -230,7 +250,7 @@ export function MyBudgetsCreatePage() {
                 />
               </div>
 
-              {!position && (
+              {/* {!position && (
                 <div className="mt-4">
                   <Button
                     type="button"
@@ -244,7 +264,7 @@ export function MyBudgetsCreatePage() {
                     <p className="mt-2 text-sm text-error-500">{geolocationError}</p>
                   )}
                 </div>
-              )}
+              )} */}
             </CardBody>
           </Card>
 
