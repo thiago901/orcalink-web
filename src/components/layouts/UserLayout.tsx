@@ -114,6 +114,9 @@ export const UserLayout = () => {
                   <DropdownItem key="bugets" href="my-budgets">
                     Meus orçamentos
                   </DropdownItem>
+                  <DropdownItem key="partners" href="/partners">
+                    Parceiros
+                  </DropdownItem>
                   {!!companies && companies?.length > 0 ? (
                     <DropdownItem key="my-companies" href="/dashboard">
                       Acessar dashboard
