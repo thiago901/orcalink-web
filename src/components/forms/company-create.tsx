@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../stores/authStore";
 
@@ -8,7 +8,6 @@ import { Title } from "../../components/ui/Title";
 import { Text } from "../../components/ui/Text";
 import { Subtitle } from "../../components/ui/Subtitle";
 import {
-  
   Button,
   Card,
   CardBody,
@@ -18,14 +17,18 @@ import {
   Tooltip,
 } from "@heroui/react";
 
-import { createCompany, CreateCompanyProps, uploadCompanyImage } from "../../api/companies";
+import {
+  createCompany,
+  CreateCompanyProps,
+  uploadCompanyImage,
+} from "../../api/companies";
 
 import FileUpload from "../../components/ui/FileUpload";
 import { FiFileText } from "react-icons/fi";
 import { CiMapPin } from "react-icons/ci";
+import { searchByZipCode } from "../../utils/search-zip-address";
 
 export function CompanyCreateForm() {
-  
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [position, setPosition] = useState<GeolocationPosition | null>(null);
@@ -36,6 +39,8 @@ export function CompanyCreateForm() {
   const {
     register,
     handleSubmit,
+    setValue,
+    control,
     formState: { errors },
   } = useForm<CreateCompanyProps>({
     defaultValues: {},
@@ -58,28 +63,25 @@ export function CompanyCreateForm() {
       setGeolocationError("Geolocalização não é suportada pelo seu navegador.");
     }
   };
-  const uploadImage= useCallback(async()=>{
-    
-    
+  const uploadImage = useCallback(async () => {
     if (!companyId) {
       toast.error("Crie a empresa antes de fazer o upload da imagem");
       return;
     }
-    console.log('companyId', selectedFiles[0]);
+    console.log("companyId", selectedFiles[0]);
     if (selectedFiles.length > 0) {
-        const formData = new FormData();
-        formData.append('file', selectedFiles[0]);
+      const formData = new FormData();
+      formData.append("file", selectedFiles[0]);
 
-        await uploadCompanyImage(companyId,formData)
+      await uploadCompanyImage(companyId, formData);
       // Call your upload API here
     }
-
-  },[companyId, selectedFiles])
+  }, [companyId, selectedFiles]);
   const onSubmit = async (data: CreateCompanyProps) => {
-    if (!position) {
-      toast.error("É necessário permitir o acesso à sua localização");
-      return;
-    }
+    // if (!position) {
+    //   toast.error("É necessário permitir o acesso à sua localização");
+    //   return;
+    // }
 
     setIsLoading(true);
     try {
@@ -89,8 +91,8 @@ export function CompanyCreateForm() {
           ...data.address,
           name: data.name,
           country: "Brasil",
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
+          // latitude: position.coords.latitude,
+          // longitude: position.coords.longitude,
         },
         owner_id: user?.id as string,
       };
@@ -98,16 +100,24 @@ export function CompanyCreateForm() {
       const response = await createCompany(requestData);
       setCompanyId(response.id);
       toast.success("Empresa criada com sucesso!");
-    //   navigate(`/dashboard/companies/${response.id}`);
+      //   navigate(`/dashboard/companies/${response.id}`);
     } catch (error) {
       toast.error("Erro ao criar empresa");
-      console.log('error',error);
-      
+      console.log("error", error);
     } finally {
       setIsLoading(false);
     }
   };
-
+  const handleSearchZip = useCallback(
+    async (e: React.FocusEvent<HTMLInputElement>) => {
+      const {logradouro,estado,uf} = await searchByZipCode(e.target.value)
+      setValue("address.address", logradouro, { shouldDirty: true, shouldTouch: true });
+      setValue("address.city", estado, { shouldDirty: true, shouldTouch: true });
+      setValue("address.state", uf, { shouldDirty: true, shouldTouch: true });
+      
+    },
+    [setValue]
+  );
   return (
     <div>
       <div>
@@ -138,7 +148,9 @@ export function CompanyCreateForm() {
                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                     />
                     <Tooltip content="Salvar imagem apenas após criar a empresa">
-                      <Button disabled={!companyId} onPress={uploadImage}>Salvar</Button>
+                      <Button disabled={!companyId} onPress={uploadImage}>
+                        Salvar
+                      </Button>
                     </Tooltip>
                   </div>
                 </div>
@@ -158,14 +170,21 @@ export function CompanyCreateForm() {
                     })}
                   />
 
-                  <Textarea
-                    label="Descrição"
-                    placeholder="Descreva sobre sua empresa"
-                    errorMessage={errors.about?.message}
-                    isInvalid={!!errors.about?.message}
-                    {...register("about", {
-                      required: "Descrição é obrigatória",
-                    })}
+                  <Controller
+                    name="about"
+                    control={control}
+                    rules={{ required: "Descrição é obrigatória" }}
+                    render={({ field }) => (
+                      <Textarea
+                        {...field}
+                        value={field.value ?? ""} // <- aqui é o fix
+                        label="Descrição"
+                        
+                        placeholder="Descreva sobre sua empresa"
+                        errorMessage={errors.about?.message}
+                        isInvalid={!!errors.about?.message}
+                      />
+                    )}
                   />
                 </div>
               </div>
@@ -236,11 +255,13 @@ export function CompanyCreateForm() {
                   {...register("address.zip", {
                     required: "CEP é obrigatório",
                   })}
+                  onBlur={handleSearchZip}
                 />
 
                 <Input
                   label="Estado"
                   placeholder="Ex: SP"
+                  isDisabled
                   errorMessage={errors.address?.state?.message}
                   isInvalid={!!errors.address?.state?.message}
                   {...register("address.state", {
@@ -251,6 +272,7 @@ export function CompanyCreateForm() {
 
               <Input
                 label="Cidade"
+                isDisabled
                 placeholder="Ex: São Paulo"
                 errorMessage={errors.address?.city?.message}
                 isInvalid={!!errors.address?.city?.message}
@@ -261,6 +283,7 @@ export function CompanyCreateForm() {
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <Input
+                  isDisabled
                   label="Rua"
                   placeholder="Ex: Rua Principal"
                   errorMessage={errors.address?.address?.message}
@@ -271,7 +294,7 @@ export function CompanyCreateForm() {
                 />
               </div>
 
-              {!position && (
+              {/* {!position && (
                 <div className="mt-4">
                   <Button
                     type="button"
@@ -287,12 +310,17 @@ export function CompanyCreateForm() {
                     </p>
                   )}
                 </div>
-              )}
+              )} */}
             </CardBody>
           </Card>
 
           <div className="flex justify-end">
-            <Button type="submit" isLoading={isLoading} color="primary" isDisabled={!!companyId}>
+            <Button
+              type="submit"
+              isLoading={isLoading}
+              color="primary"
+              isDisabled={!!companyId}
+            >
               Criar empresa
             </Button>
           </div>
