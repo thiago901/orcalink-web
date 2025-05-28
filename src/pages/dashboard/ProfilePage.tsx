@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
-import { User, Mail, Phone, Camera } from 'lucide-react';
+
 import { useAuthStore } from '../../stores/authStore';
 import { updateUser, UpdateUserProps } from '../../api/users';
 
@@ -10,6 +10,7 @@ import { Title } from '../../components/ui/Title';
 import { Text } from '../../components/ui/Text';
 import { Button, Card, CardBody, CardHeader, Input } from '@heroui/react';
 import { Subtitle } from '../../components/ui/Subtitle';
+import { CiCamera, CiMail, CiUser } from 'react-icons/ci';
 
 const ProfilePage = () => {
   const { user, logout } = useAuthStore();
@@ -63,7 +64,7 @@ const ProfilePage = () => {
                     type="button"
                     className="absolute bottom-0 right-0 p-1.5 rounded-full bg-white border border-neutral-200 text-neutral-700 hover:text-primary-600 transition-colors"
                   >
-                    <Camera size={16} />
+                    <CiCamera size={16} />
                   </button>
                 </div>
                 <div>
@@ -75,7 +76,7 @@ const ProfilePage = () => {
               <div className="grid gap-4 sm:grid-cols-2">
                 <Input
                   label="Nome completo"
-                  startContent={<User size={18} />}
+                  startContent={<CiUser size={18} />}
                   errorMessage={errors.name?.message}
                   isInvalid={!!errors.name?.message}
                   {...register('name', {
@@ -90,7 +91,7 @@ const ProfilePage = () => {
                 <Input
                   label="Email"
                   type="email"
-                  startContent={<Mail size={18} />}
+                  startContent={<CiMail size={18} />}
                   errorMessage={errors.email?.message}
                   isInvalid={!!errors.email?.message}
                   {...register('email', {

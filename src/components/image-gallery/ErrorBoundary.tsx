@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertOctagon } from 'lucide-react';
+import { FiAlertOctagon } from 'react-icons/fi';
+
 
 interface Props {
   children: ReactNode;
@@ -32,7 +33,7 @@ class ErrorBoundary extends Component<Props, State> {
       
       return (
         <div className="flex flex-col items-center justify-center p-6 bg-red-50 rounded-lg text-red-700 h-full min-h-[200px]">
-          <AlertOctagon className="w-10 h-10 mb-3 text-red-500" />
+          <FiAlertOctagon className="w-10 h-10 mb-3 text-red-500" />
           <h3 className="text-lg font-medium">Something went wrong</h3>
           <p className="text-sm text-red-600">
             {this.state.error?.message || 'There was an error displaying the gallery'}

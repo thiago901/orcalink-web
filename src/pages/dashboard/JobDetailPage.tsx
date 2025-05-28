@@ -1,9 +1,6 @@
 
 import { useParams } from 'react-router-dom';
 import { useQuery} from '@tanstack/react-query';
-import { MapPin, Phone, Mail, Calendar,  Loader2 } from 'lucide-react';
-
-
 
 
 import { Title } from '../../components/ui/Title';
@@ -13,6 +10,8 @@ import { Accordion, AccordionItem, Card, CardBody, CardHeader } from '@heroui/re
 import { Subtitle } from '../../components/ui/Subtitle';
 import ImageGallery from '../../components/image-gallery';
 import { getJobById } from '../../api/jobs-service';
+import { FiLoader } from 'react-icons/fi';
+import { CiCalendar, CiMail, CiMapPin, CiPhone } from 'react-icons/ci';
 
 
 const JobDetailPage = () => {
@@ -31,7 +30,7 @@ const JobDetailPage = () => {
   if (isLoadingRequest) {
     return (
       <div className="flex justify-center py-8">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+        <FiLoader className="w-8 h-8 animate-spin text-primary-500" />
       </div>
     );
   }
@@ -76,7 +75,7 @@ const JobDetailPage = () => {
                 <div>
                   <h4 className="font-medium mb-2">Endereço</h4>
                   <div className="flex items-center gap-2 text-neutral-600">
-                    <MapPin size={18} />
+                    <CiMapPin size={18} />
                     <span>
                       {request.estimate_request.address.street}, {request.estimate_request.address.number} - {request.estimate_request.address.neighborhood}
                       <br />
@@ -90,11 +89,11 @@ const JobDetailPage = () => {
                     <h4 className="font-medium mb-2">Contato</h4>
                     <div className="space-y-2 text-neutral-600">
                       <div className="flex items-center gap-2">
-                        <Phone size={18} />
+                        <CiPhone size={18} />
                         <span>{request.estimate_request.phone}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Mail size={18} />
+                        <CiMail size={18} />
                         <span>{request.estimate_request.email}</span>
                       </div>
                     </div>
@@ -103,7 +102,7 @@ const JobDetailPage = () => {
                   <div>
                     <h4 className="font-medium mb-2">Data da solicitação</h4>
                     <div className="flex items-center gap-2 text-neutral-600">
-                      <Calendar size={18} />
+                      <CiCalendar size={18} />
                       <span>
                         {new Date(request.estimate_request.created_at).toLocaleDateString('pt-BR')}
                       </span>
@@ -146,7 +145,7 @@ const JobDetailPage = () => {
               <div>
                 <h4 className="font-medium mb-2">Última atualização</h4>
                 <div className="flex items-center gap-2 text-neutral-600">
-                  <Calendar size={18} />
+                  <CiCalendar size={18} />
                   <span>
                     {new Date(request.estimate_request.updated_at ?? request.estimate_request.created_at).toLocaleDateString('pt-BR')}
                   </span>

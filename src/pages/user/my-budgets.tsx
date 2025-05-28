@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { Plus, Loader2, MapPin, Calendar } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { getEstimateRequestsByUserId } from '../../api/estimateRequests';
 
@@ -14,6 +13,9 @@ import {
 } from '@heroui/react';
 import { Title } from '../../components/ui/Title';
 import { Text } from '../../components/ui/Text';
+import { FiLoader } from 'react-icons/fi';
+import { CiCalendar, CiMapPin } from 'react-icons/ci';
+import { FaPlus } from 'react-icons/fa6';
 
 export function MyBudgetsPage() {
   const { user } = useAuthStore();
@@ -39,12 +41,12 @@ export function MyBudgetsPage() {
         <CardBody className="p-0">
           {isLoading ? (
             <div className="flex justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin text-primary-500" />
+              <FiLoader className="w-6 h-6 animate-spin text-primary-500" />
             </div>
           ) : !requests?.length ? (
             <div className="text-center py-12 px-6">
               <div className="w-14 h-14 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <MapPin className="w-6 h-6" />
+                <CiMapPin className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-semibold mb-1">
                 Nenhum orçamento encontrado
@@ -56,7 +58,7 @@ export function MyBudgetsPage() {
                 as={Link}
                 href="/my-budgets/new"
                 color="primary"
-                startContent={<Plus size={16} />}
+                startContent={<FaPlus size={16} />}
               >
                 Solicitar Orçamento
               </Button>
@@ -77,7 +79,7 @@ export function MyBudgetsPage() {
                           {request.name}
                         </h4>
                         <div className="flex items-center gap-1 text-sm text-neutral-500 mt-1">
-                          <MapPin size={14} />
+                          <CiMapPin size={14} />
                           <span>{request.address.city}, {request.address.state}</span>
                         </div>
                       </div>
@@ -91,7 +93,7 @@ export function MyBudgetsPage() {
                     </p>
 
                     <div className="mt-3 flex items-center gap-2 text-sm text-neutral-500">
-                      <Calendar size={14} />
+                      <CiCalendar size={14} />
                       <span>{new Date(request.created_at).toLocaleDateString('pt-BR')}</span>
                     </div>
                   </div>
@@ -103,7 +105,7 @@ export function MyBudgetsPage() {
                 as={Link}
                 href="/my-budgets/new"
                 color="primary"
-                startContent={<Plus size={16} />}
+                startContent={<FaPlus size={16} />}
               >
                 Solicitar Orçamento
               </Button>

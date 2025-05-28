@@ -8,7 +8,7 @@ import { Title } from "../../components/ui/Title";
 import { Text } from "../../components/ui/Text";
 import { Subtitle } from "../../components/ui/Subtitle";
 import {
-  avatar,
+  
   Button,
   Card,
   CardBody,
@@ -19,8 +19,10 @@ import {
 } from "@heroui/react";
 import { CreateCompanyServiceProps } from "../../api/companyServices";
 import { createCompany, uploadCompanyImage } from "../../api/companies";
-import { FileText, MapPin } from "lucide-react";
+
 import FileUpload from "../../components/ui/FileUpload";
+import { FiFileText } from "react-icons/fi";
+import { CiMapPin } from "react-icons/ci";
 
 export function CompanyCreateForm() {
   
@@ -141,7 +143,7 @@ export function CompanyCreateForm() {
                 <div className="flex-1 ml-4 flex flex-col gap-4">
                   <Input
                     label="Nome da empresa"
-                    startContent={<FileText size={18} />}
+                    startContent={<FiFileText size={18} />}
                     placeholder="Ex: Reforma LTDA"
                     errorMessage={errors.name?.message}
                     isInvalid={!!errors.name?.message}
@@ -188,7 +190,7 @@ export function CompanyCreateForm() {
               />
               <Input
                 label="E-mail"
-                startContent={<FileText size={18} />}
+                startContent={<FiFileText size={18} />}
                 placeholder="john@mail.com"
                 errorMessage={errors.email?.message}
                 isInvalid={!!errors.email?.message}
@@ -203,7 +205,7 @@ export function CompanyCreateForm() {
               />
               <Input
                 label="Site"
-                startContent={<FileText size={18} />}
+                startContent={<FiFileText size={18} />}
                 placeholder="https://www.seusite.com"
                 errorMessage={errors.website?.message}
                 isInvalid={!!errors.website?.message}
@@ -225,7 +227,7 @@ export function CompanyCreateForm() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <Input
                   label="CEP"
-                  startContent={<MapPin size={18} />}
+                  startContent={<CiMapPin size={18} />}
                   placeholder="00000-000"
                   errorMessage={errors.address?.zip?.message}
                   isInvalid={!!errors.address?.zip?.message}
@@ -272,7 +274,7 @@ export function CompanyCreateForm() {
                   <Button
                     type="button"
                     variant="ghost"
-                    startContent={<MapPin size={18} />}
+                    startContent={<CiMapPin size={18} />}
                     onPress={getCurrentPosition}
                   >
                     Usar minha localização atual

@@ -1,5 +1,6 @@
 import React, { ButtonHTMLAttributes } from 'react';
-import { Loader2 } from 'lucide-react';
+import { FiLoader } from 'react-icons/fi';
+
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
@@ -46,7 +47,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {isLoading ? (
           <>
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <FiLoader className="w-4 h-4 animate-spin" />
             <span>{children}</span>
           </>
         ) : (

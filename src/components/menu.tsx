@@ -1,11 +1,11 @@
 import { useDisclosure } from '@heroui/modal';
 import { Button } from '@heroui/button';
-import { FaOpensuse } from 'react-icons/fa6';
+import { FaBuilding, FaClipboardList, FaOpensuse, FaUser } from 'react-icons/fa6';
 import { useLocation } from 'react-router-dom';
 import clsx from 'clsx';
 import { Link } from '@heroui/link';
-import { MdOutlineKeyboardBackspace } from 'react-icons/md';
-import { Building2, ClipboardList, Home, User } from 'lucide-react';
+import { MdHome, MdOutlineKeyboardBackspace } from 'react-icons/md';
+
 
 
 export const Menu = () => {
@@ -13,10 +13,10 @@ export const Menu = () => {
     const location = useLocation();
     // const { user, logout } = useAuthStore();
     const navItems = [
-        { href: '/dashboard', icon: <Home size={20} />, label: 'Dashboard' },
-        { href: '/dashboard/profile', icon: <User size={20} />, label: 'Perfil' },
-        { href: '/dashboard/estimate-requests', icon: <ClipboardList size={20} />, label: 'Orçamentos' },
-        { href: '/dashboard/companies', icon: <Building2 size={20} />, label: 'Empresas' },
+        { href: '/dashboard', icon: <MdHome size={20} />, label: 'Dashboard' },
+        { href: '/dashboard/profile', icon: <FaUser size={20} />, label: 'Perfil' },
+        { href: '/dashboard/estimate-requests', icon: <FaClipboardList size={20} />, label: 'Orçamentos' },
+        { href: '/dashboard/companies', icon: <FaBuilding size={20} />, label: 'Empresas' },
       ];
     const footerItems = [
         {

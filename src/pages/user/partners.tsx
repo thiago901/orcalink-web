@@ -1,26 +1,26 @@
-import { Bookmark, MapPin, Search, Star } from "lucide-react";
+
 import {
   Button,
   Card,
   CardBody,
   CardFooter,
   Chip,
-  Input,
   Link,
   Select,
   SelectItem,
 } from "@heroui/react";
 import { getCompanies } from "../../api/companies";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { getCategories } from "../../api/category";
+import { CiBookmark, CiStar } from "react-icons/ci";
 
 
 
 
 
 export function Partners() {
-  const [categoriesSelected, setCategoriesSelected] = useState(new Set([]));
+  const [categoriesSelected, setCategoriesSelected] = useState<Set<string>>(new Set([]));
   const { data: companies } = useQuery({
     
     queryKey: ["companies",Array.from(categoriesSelected)],
@@ -34,6 +34,10 @@ export function Partners() {
     queryFn: () => getCategories(),
   });
 
+  const handleSelectionChange = useCallback((keys: 'all' | Set<React.Key>) => {
+    if (keys === 'all') return;
+    setCategoriesSelected(new Set([...keys].map(String)));
+  }, []);
   
   return (
     <div className="">
@@ -57,7 +61,7 @@ export function Partners() {
           <div className="self-start min-w-[300px] max-w-4xl ">
             <Select
               selectedKeys={categoriesSelected}
-              onSelectionChange={setCategoriesSelected as any}
+              onSelectionChange={handleSelectionChange}
               selectionMode="multiple"
               label="Categoria"
               placeholder="Selecione uma categoria"
@@ -78,7 +82,7 @@ export function Partners() {
                   className="w-full h-48 object-cover"
                 />
                 <button className="absolute top-2 right-2 bg-white/80 hover:bg-white p-1 rounded-full shadow">
-                  <Bookmark className="w-4 h-4 text-neutral-700" />
+                  <CiBookmark className="w-4 h-4 text-neutral-700" />
                 </button>
               </div>
 
@@ -91,19 +95,19 @@ export function Partners() {
                   {company.about?.slice(0, 300)}
                 </p>
 
-                <p className="text-xs text-neutral-400 mt-2">
-                  <div className="flex gap-1">
-                    {company.services.map((service) => (
-                      <Chip>{service.name}</Chip>
-                    ))}
-                  </div>
-                </p>
+                
+                <div className="flex gap-1 flex-wrap mt-4">
+                  {company.services.map((service) => (
+                    <Chip>{service.name}</Chip>
+                  ))}
+                </div>
+                
                 <div className="flex items-center justify-between mt-3">
                   <p className="text-sm text-neutral-600">
                     {company.address.city}, {company.address.country}
                   </p>
                   <div className="flex items-center text-sm text-neutral-500 mt-3">
-                    <Star className="w-4 h-4 mr-1 text-yellow-500" />
+                    <CiStar className="w-4 h-4 mr-1 text-yellow-500" />
                     {company.ratting}
                   </div>
                 </div>

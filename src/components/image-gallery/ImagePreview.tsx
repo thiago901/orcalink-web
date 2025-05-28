@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+
 import { useGallery } from './GalleryContext';
 import { ImageType } from './types';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 interface ImagePreviewProps {
   images: ImageType[];
@@ -89,14 +90,14 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ images, onClose }) => {
               onClick={() => navigateImage(-1)}
               aria-label="Previous image"
             >
-              <ChevronLeft className="w-6 h-6" />
+              <FiChevronLeft className="w-6 h-6" />
             </button>
             <button 
               className="absolute right-2 top-1/2 -translate-y-1/2 z-[55] bg-black bg-opacity-50 hover:bg-opacity-70 rounded-full p-2 text-white transition-all"
               onClick={() => navigateImage(1)}
               aria-label="Next image"
             >
-              <ChevronRight className="w-6 h-6" />
+              <FiChevronRight className="w-6 h-6" />
             </button>
           </>
         )}

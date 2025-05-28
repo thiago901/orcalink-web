@@ -1,8 +1,10 @@
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { MapPin, Building2, Calendar, FileText, Loader2 } from 'lucide-react';
+
 import { getProposalById } from '../../api/proposals';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
+import { FiLoader } from 'react-icons/fi';
+import { CiCalendar, CiMapPin } from 'react-icons/ci';
 
 const ProposalDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,7 +18,7 @@ const ProposalDetailPage = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+        <FiLoader className="w-8 h-8 animate-spin text-primary-500" />
       </div>
     );
   }
@@ -104,7 +106,7 @@ const ProposalDetailPage = () => {
                   <div>
                     <h4 className="font-medium mb-2">Localização</h4>
                     <div className="flex items-center gap-2 text-neutral-600">
-                      <MapPin size={18} />
+                      <CiMapPin size={18} />
                       <span>
                         {proposal.estimate_request.address_city}, {proposal.estimate_request.address_state}
                       </span>
@@ -133,7 +135,7 @@ const ProposalDetailPage = () => {
               <div>
                 <h4 className="font-medium mb-2">Data de envio</h4>
                 <div className="flex items-center gap-2 text-neutral-600">
-                  <Calendar size={18} />
+                  <CiCalendar size={18} />
                   <span>
                     {new Date(proposal.created_at).toLocaleDateString('pt-BR')}
                   </span>
@@ -143,7 +145,7 @@ const ProposalDetailPage = () => {
               <div>
                 <h4 className="font-medium mb-2">Última atualização</h4>
                 <div className="flex items-center gap-2 text-neutral-600">
-                  <Calendar size={18} />
+                  <CiCalendar size={18} />
                   <span>
                     {new Date(proposal.updated_at).toLocaleDateString('pt-BR')}
                   </span>

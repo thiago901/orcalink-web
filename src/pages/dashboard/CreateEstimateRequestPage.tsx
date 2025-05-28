@@ -9,11 +9,13 @@ import { createEstimateRequest, CreateEstimateRequestProps, uploadEstimateReques
 
 
 import FileUpload from '../../components/ui/FileUpload';
-import { MapPin, Phone, Mail, Ruler, FileText } from 'lucide-react';
+
 import { Title } from '../../components/ui/Title';
 import { Text } from '../../components/ui/Text';
 import { Subtitle } from '../../components/ui/Subtitle';
 import { Button, Card, CardBody, CardHeader, Input, Textarea } from '@heroui/react';
+import { FiFileText } from 'react-icons/fi';
+import { CiMail, CiMapPin, CiPhone, CiRuler } from 'react-icons/ci';
 
 const CreateEstimateRequestPage = () => {
   const navigate = useNavigate();
@@ -104,7 +106,7 @@ const CreateEstimateRequestPage = () => {
             <CardBody className="space-y-4">
               <Input
                 label="Nome do projeto"
-                startContent={<FileText size={18} />}
+                startContent={<FiFileText size={18} />}
                 placeholder="Ex: Reforma do banheiro"
                 errorMessage={errors.name?.message}
                 isInvalid={!!errors.name?.message}
@@ -130,7 +132,7 @@ const CreateEstimateRequestPage = () => {
               <Input
                 label="Metragem (m²)"
                 type="number"
-                startContent={<Ruler size={18} />}
+                startContent={<CiRuler size={18} />}
                 placeholder="Ex: 50"
                 errorMessage={errors.footage?.message}
                 isInvalid={!!errors.footage?.message}
@@ -165,7 +167,7 @@ const CreateEstimateRequestPage = () => {
               <div className="grid sm:grid-cols-2 gap-4">
                 <Input
                   label="CEP"
-                  startContent={<MapPin size={18} />}
+                  startContent={<CiMapPin size={18} />}
                   placeholder="00000-000"
                   errorMessage={errors.address_postal_code?.message}
                   isInvalid={!!errors.address_postal_code?.message}
@@ -232,7 +234,7 @@ const CreateEstimateRequestPage = () => {
                   <Button
                     type="button"
                     variant="ghost"
-                    startContent={<MapPin size={18} />}
+                    startContent={<CiMapPin size={18} />}
                     onPress={getCurrentPosition}
                   >
                     Usar minha localização atual
@@ -254,7 +256,7 @@ const CreateEstimateRequestPage = () => {
                 <Input
                   label="Email"
                   type="email"
-                  startContent={<Mail size={18} />}
+                  startContent={<CiMail size={18} />}
                   placeholder="seu@email.com"
                   errorMessage={errors.email?.message}
                   isInvalid={!!errors.email?.message}
@@ -269,7 +271,7 @@ const CreateEstimateRequestPage = () => {
 
                 <Input
                   label="Telefone"
-                  startContent={<Phone size={18} />}
+                  startContent={<CiPhone size={18} />}
                   placeholder="(00) 00000-0000"
                   errorMessage={errors.phone?.message}
                   isInvalid={!!errors.phone?.message}

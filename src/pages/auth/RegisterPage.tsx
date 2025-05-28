@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { Mail, Lock, User, Phone, UserPlus } from 'lucide-react';
+
 import { registerUser, CreateUserProps } from '../../api/auth';
 
 import {
@@ -13,6 +13,9 @@ import {
   Input,
   Link,
 } from '@heroui/react';
+import { CiLock, CiMail, CiUser } from 'react-icons/ci';
+import { FiPhone } from 'react-icons/fi';
+import { FaUserPlus } from 'react-icons/fa6';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -52,7 +55,7 @@ const RegisterPage = () => {
             <Input
               label="Nome completo"
               type="text"
-              startContent={<User size={18} />}
+              startContent={<CiUser size={18} />}
               placeholder="Seu nome completo"
               errorMessage={errors.name?.message}
               isInvalid={!!errors.name?.message}
@@ -68,7 +71,7 @@ const RegisterPage = () => {
             <Input
               label="Email"
               type="email"
-              startContent={<Mail size={18} />}
+              startContent={<CiMail size={18} />}
               placeholder="seu@email.com"
               errorMessage={errors.email?.message}
               isInvalid={!!errors.email?.message}
@@ -84,7 +87,7 @@ const RegisterPage = () => {
             <Input
               label="Telefone"
               type="tel"
-              startContent={<Phone size={18} />}
+              startContent={<FiPhone size={18} />}
               placeholder="(00) 00000-0000"
               errorMessage={errors.phone?.message}
               isInvalid={!!errors.phone?.message}
@@ -100,7 +103,7 @@ const RegisterPage = () => {
             <Input
               label="Senha"
               type="password"
-              startContent={<Lock size={18} />}
+              startContent={<CiLock size={18} />}
               placeholder="••••••••"
               errorMessage={errors.password?.message}
               isInvalid={!!errors.password?.message}
@@ -116,7 +119,7 @@ const RegisterPage = () => {
             <Button
               type="submit"
               isLoading={isLoading}
-              startContent={<UserPlus size={18} />}
+              startContent={<FaUserPlus size={18} />}
               className="w-full"
               color="primary"
             >

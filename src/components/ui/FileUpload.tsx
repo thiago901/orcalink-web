@@ -1,6 +1,8 @@
 import { ChangeEvent, useRef, useState, useEffect } from 'react';
-import { Upload, X, FileText, AlertCircle } from 'lucide-react';
+
 import { Button, Card, CardBody } from '@heroui/react';
+import { FiAlertCircle, FiFileText, FiUpload } from 'react-icons/fi';
+import { FaX } from 'react-icons/fa6';
 
 interface FileUploadProps {
   onFilesSelected: (files: File[]) => void;
@@ -116,7 +118,7 @@ const FileUpload = ({
           onDrop={handleDrop}
         >
           <div className="flex flex-col items-center justify-center text-center">
-            <Upload className="w-12 h-12 text-neutral-400 mb-4" />
+            <FiUpload className="w-12 h-12 text-neutral-400 mb-4" />
             <p className="text-neutral-600 mb-2">
               Arraste arquivos aqui ou{' '}
               <button
@@ -150,7 +152,7 @@ const FileUpload = ({
                 isIconOnly
                 className="absolute -top-2 -right-2 bg-white shadow-md"
               >
-                <X size={16} />
+                <FaX size={16} />
               </Button>
             </div>
           ) : (
@@ -159,7 +161,7 @@ const FileUpload = ({
               onClick={openFileDialog}
               className="w-32 h-32 flex items-center justify-center rounded-full border-2 border-dashed text-neutral-400 hover:border-primary-500 hover:text-primary-500 transition-colors"
             >
-              <Upload className="w-8 h-8" />
+              <FiUpload className="w-8 h-8" />
             </button>
           )}
         </div>
@@ -167,7 +169,7 @@ const FileUpload = ({
 
       {error && (
         <div className="flex items-center gap-2 text-error-500 text-sm">
-          <AlertCircle size={16} />
+          <FiAlertCircle size={16} />
           <span>{error}</span>
         </div>
       )}
@@ -179,7 +181,7 @@ const FileUpload = ({
               <CardBody>
                 <div className="flex">
                   <div className="flex flex-1 items-center gap-3">
-                    <FileText className="w-5 h-5 text-neutral-400" />
+                    <FiFileText className="w-5 h-5 text-neutral-400" />
                     <div>
                       <p className="text-sm font-medium text-neutral-700 truncate">
                         {file.name}
@@ -202,7 +204,7 @@ const FileUpload = ({
                     }
                     isIconOnly
                   >
-                    <X size={16} />
+                    <FaX size={16} />
                   </Button>
                 </div>
               </CardBody>

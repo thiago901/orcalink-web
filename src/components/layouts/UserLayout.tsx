@@ -16,9 +16,11 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../stores/authStore";
 import { useCallback, useEffect } from "react";
 import { useThemeStore } from "../../stores/themeStore";
-import { Moon, Sun } from "lucide-react";
+
 import { getCompaniesByOwnerId } from "../../api/companies";
 import { useQuery } from "@tanstack/react-query";
+import { CiSun } from "react-icons/ci";
+import { FiMoon } from "react-icons/fi";
 
 const navbarItems = [
   { label: "Inicial", href: "/" },
@@ -32,7 +34,7 @@ export const UserLayout = () => {
   const navigate = useNavigate();
   const pathname = location.pathname;
 
-  const { data: companies, isLoading} = useQuery({
+  const { data: companies} = useQuery({
     queryKey: ['companies', user?.id],
     queryFn: () => getCompaniesByOwnerId(user?.id || ''),
     enabled: !!user?.id,
@@ -62,7 +64,7 @@ export const UserLayout = () => {
           <NavbarBrand>
             <div className="flex items-center justify-between h-16 px-4  ">
               <Link href="/" className="flex items-center">
-                <h1 className="text-xl font-bold text-primary-700 dark:text-primary-400">
+                <h1 className="text-xl font-bold">
                   OrçaFacil
                 </h1>
               </Link>
@@ -88,7 +90,7 @@ export const UserLayout = () => {
           {isAuthenticated ? (
             <NavbarContent as="div" justify="end">
               <Button onPress={toggleTheme} isIconOnly={true} variant="light">
-                {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+                {theme === "dark" ? <CiSun size={20} /> : <FiMoon size={20} />}
               </Button>
               <Dropdown placement="bottom-end">
                 <DropdownTrigger>
@@ -136,7 +138,7 @@ export const UserLayout = () => {
           ) : (
             <NavbarContent justify="end">
               <Button onPress={toggleTheme} isIconOnly={true} variant="light">
-                {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+                {theme === "dark" ? <CiSun size={20} /> : <FiMoon size={20} />}
               </Button>
               <NavbarItem className="hidden lg:flex">
                 <Link href="/login">Login</Link>

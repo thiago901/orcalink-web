@@ -1,14 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import {
-  MapPin,
-  Building2,
-  Calendar,
-  FileText,
-  Loader2,
-  ArrowUpDown,
-} from "lucide-react";
+
 import { getCompanyById } from "../../api/companies";
 import {
   getCompanyServices,
@@ -36,6 +29,9 @@ import { Subtitle } from "../../components/ui/Subtitle";
 import { Text } from "../../components/ui/Text";
 import { getJobsByCompany } from "../../api/jobs-service";
 import CompanyServiceForm from "../../components/forms/company-service-create";
+import { FiFileText, FiLoader } from "react-icons/fi";
+import { CiCalendar, CiMapPin } from "react-icons/ci";
+import { FaArrowsUpDown, FaBuilding } from "react-icons/fa6";
 
 const RADIUS_OPTIONS = [
   { key: "5000", label: "5 km" },
@@ -101,7 +97,7 @@ const CompanyDetailPage = () => {
   if (isLoadingCompany || isLoadingServices) {
     return (
       <div className="flex justify-center py-8">
-        <Loader2 className="w-8 h-8 animate-spin " />
+        <FiLoader className="w-8 h-8 animate-spin " />
       </div>
     );
   }
@@ -171,7 +167,7 @@ const CompanyDetailPage = () => {
                     <div>
                       <h4 className="font-medium mb-2 ">Endereço</h4>
                       <div className="flex items-center gap-2 ">
-                        <MapPin size={18} />
+                        <CiMapPin size={18} />
                         <span>
                           {company.address.address}
                           <br />
@@ -199,7 +195,7 @@ const CompanyDetailPage = () => {
                   {!services?.length ? (
                     <div className="text-center py-8">
                       <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4 ">
-                        <Building2 className="w-8 h-8 " />
+                        <FaBuilding className="w-8 h-8 " />
                       </div>
                       <h3 className="text-lg font-medium mb-2 ">
                         Nenhum serviço cadastrado
@@ -270,7 +266,7 @@ const CompanyDetailPage = () => {
 
                     <Button
                       variant="ghost"
-                      startContent={<ArrowUpDown size={16} />}
+                      startContent={<FaArrowsUpDown size={16} />}
                       onPress={() =>
                         setSortBy(sortBy === "date" ? "distance" : "date")
                       }
@@ -283,7 +279,7 @@ const CompanyDetailPage = () => {
               <CardBody>
                 {isLoadingRequests ? (
                   <div className="flex justify-center py-8">
-                    <Loader2 className="w-8 h-8 animate-spin " />
+                    <FiLoader className="w-8 h-8 animate-spin " />
                   </div>
                 ) : !sortedRequests?.length ? (
                   <div className="text-center py-8">
@@ -311,7 +307,7 @@ const CompanyDetailPage = () => {
                             <div>
                               <h4 className="font-medium">{request.name}</h4>
                               <div className="flex items-center gap-2 mt-1 text-sm ">
-                                <MapPin size={14} />
+                                <CiMapPin size={14} />
                                 <span>
                                   {request.address.city},{" "}
                                   {request.address.state}
@@ -322,7 +318,7 @@ const CompanyDetailPage = () => {
                               </p>
                               <div className="mt-4 flex flex-wrap gap-4 text-sm ">
                                 <div className="flex items-center gap-1">
-                                  <Calendar size={14} />
+                                  <CiCalendar size={14} />
                                   <span>
                                     {new Date(
                                       request.created_at
@@ -330,7 +326,7 @@ const CompanyDetailPage = () => {
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <MapPin size={14} />
+                                  <CiMapPin size={14} />
                                   <span>{request.footage}m²</span>
                                 </div>
                               </div>
@@ -354,12 +350,12 @@ const CompanyDetailPage = () => {
               <CardBody>
                 {isLoadingProposals ? (
                   <div className="flex justify-center py-8">
-                    <Loader2 className="w-8 h-8 animate-spin " />
+                    <FiLoader className="w-8 h-8 animate-spin " />
                   </div>
                 ) : !proposals?.length ? (
                   <div className="text-center py-8">
                     <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <FileText className="w-8 h-8 " />
+                      <FiFileText className="w-8 h-8 " />
                     </div>
                     <h3 className="text-lg font-medium mb-2">
                       Nenhuma proposta enviada
@@ -428,12 +424,12 @@ const CompanyDetailPage = () => {
               <CardBody>
                 {isLoadingRequests ? (
                   <div className="flex justify-center py-8">
-                    <Loader2 className="w-8 h-8 animate-spin " />
+                    <FiLoader className="w-8 h-8 animate-spin " />
                   </div>
                 ) : !jobs?.length ? (
                   <div className="text-center py-8">
                     <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <MapPin className="w-8 h-8 " />
+                      <CiMapPin className="w-8 h-8 " />
                     </div>
                     <h3 className="text-lg font-medium mb-2">
                       Nenhum orçamento disponível
@@ -463,7 +459,7 @@ const CompanyDetailPage = () => {
                               </p>
                               <div className="mt-4 flex flex-wrap gap-4 text-sm ">
                                 <div className="flex items-center gap-1">
-                                  <Calendar size={14} />
+                                  <CiCalendar size={14} />
                                   <span>
                                     {new Date(
                                       request.created_at

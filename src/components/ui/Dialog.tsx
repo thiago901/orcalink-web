@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
-import { X } from 'lucide-react';
+
 import Button from './Button';
+import { FaX } from 'react-icons/fa6';
 
 interface DialogProps {
   isOpen: boolean;
@@ -31,7 +32,7 @@ const Dialog = ({ isOpen, onClose, title, children, footer }: DialogProps) => {
               variant="ghost"
               size="sm"
               onClick={onClose}
-              icon={<X size={18} />}
+              icon={<FaX size={18} />}
             />
           </div>
 

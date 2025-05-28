@@ -1,20 +1,14 @@
 import { useState, useEffect } from "react";
-import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../stores/authStore";
 import { useThemeStore } from "../../stores/themeStore";
-import {
-  Home,
-  User,
-  Building2,
-  ClipboardList,
-  LogOut,
-  Menu,
-  X,
-  Sun,
-  Moon,
-  Check,
-} from "lucide-react";
-import { Avatar, Button, Card, Divider, Listbox, ListboxItem } from "@heroui/react";
+
+import { Avatar, Button, Card, Divider, Link, Listbox, ListboxItem } from "@heroui/react";
+import { Text } from "../ui/Text";
+
+import { FiArrowLeft, FiMenu, FiMoon } from "react-icons/fi";
+import { CiHome, CiLogout, CiSun } from "react-icons/ci";
+import { FaBuilding, FaX } from "react-icons/fa6";
 
 const DashboardLayout = () => {
   const { user, logout } = useAuthStore();
@@ -36,16 +30,12 @@ const DashboardLayout = () => {
   };
 
   const navItems = [
-    { to: "/dashboard", icon: <Home size={20} />, label: "Dashboard" },
+    { to: "/dashboard", icon: <CiHome size={20} />, label: "Dashboard" },
     
-    {
-      to: "/dashboard/estimate-requests",
-      icon: <ClipboardList size={20} />,
-      label: "Orçamentos",
-    },
+  
     {
       to: "/dashboard/companies",
-      icon: <Building2 size={20} />,
+      icon: <FaBuilding size={20} />,
       label: "Empresas",
     },
   ];
@@ -58,7 +48,7 @@ const DashboardLayout = () => {
       <Card
         as={"aside"}
         radius="none"
-        className={`fixed top-0 left-0 z-20 flex flex-col w-64 h-screen transition-transform ${
+        className={`fixed top-0 left-0 z-20 flex flex-col w-64 h-screen transition-transform  ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 lg:static lg:z-0 `}
       >
@@ -74,7 +64,7 @@ const DashboardLayout = () => {
               isIconOnly
               variant="bordered"
             >
-              <X size={24}  />
+              <FaX size={24}  />
             </Button>
           </div>
 
@@ -94,14 +84,14 @@ const DashboardLayout = () => {
               <p className="text-sm font-medium truncate">
                 {user?.name}
               </p>
-              <p className="text-xs text-neutral-500 truncate">
+              <p className="text-xs truncate">
                 {user?.email}
               </p>
             </div>
           </div>
 
           {/* Navigation */}
-          <div className="flex-1">
+          <div className="flex-1 ">
             <Listbox className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
               {navItems.map((item) => (
                 <ListboxItem
@@ -109,8 +99,9 @@ const DashboardLayout = () => {
                   startContent={item.icon}
                   href={item.to}
                   color="primary"
+                  
                 >
-                  {item.label}
+                  <Text>{item.label}</Text>
                 </ListboxItem>
               ))}
             </Listbox>
@@ -118,25 +109,33 @@ const DashboardLayout = () => {
 
           {/* Theme toggle and logout */}
           <div className="p-4 space-y-2">
-            <Button
-              onPress={toggleTheme}
+          <Button
+              as={Link}
               className="w-full"
-              startContent={theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+              startContent={<FiArrowLeft  size={20} /> }
               variant="flat"
+              href="/"
             >
               
-              {theme === "dark" ? "Modo claro" : "Modo escuro"}
+              Voltar para o início
             </Button>
             <Button
               onPress={handleLogout}
               className="w-full"
-              startContent={<LogOut size={20} />}
+              startContent={<CiLogout size={20} />}
               color="danger" 
               variant="bordered"
             >
               
               Sair
             </Button>
+            <Button
+              onPress={toggleTheme}
+              className="w-full"
+              startContent={theme === "dark" ? <CiSun size={20} /> : <FiMoon size={20} />}
+              variant="light"
+              isIconOnly
+            />
           </div>
         </div>
       </Card>
@@ -146,7 +145,7 @@ const DashboardLayout = () => {
         {/* Top header */}
         <header className="flex items-center justify-between h-16 px-4 lg:hidden">
           <Button className="lg:hidden" onPress={toggleSidebar} isIconOnly variant="bordered" radius="sm">
-            <Menu
+            <FiMenu
               size={24}
               
             />

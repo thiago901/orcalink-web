@@ -1,12 +1,14 @@
 import { Avatar, Button, Card, CardBody, CardHeader, Chip, Input, Link, Select, SelectItem } from '@heroui/react';
 import { Text } from "../../components/ui/Text";
-import {  MapPin, Search, Ver, Verified, VerifiedifiedVerified } from "lucide-react";
+
 
 import {v4} from 'uuid'
 import ImageGallery from "../../components/image-gallery";
 import { Subtitle } from "../../components/ui/Subtitle";
 import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
+import { CiMapPin, CiSearch } from 'react-icons/ci';
+import { MdVerified } from 'react-icons/md';
 
 const posts  = [
     {
@@ -180,7 +182,7 @@ const { isAuthenticated } = useAuthStore();
                         type="text"
                         label="Cidade"
                         placeholder="Digite sua cidade"
-                        startContent={<MapPin size={18} />}
+                        startContent={<CiMapPin size={18} />}
                       />
         
                       <Select
@@ -198,7 +200,7 @@ const { isAuthenticated } = useAuthStore();
                       <Button
                         color="primary"
                         size="lg"
-                        startContent={<Search size={20} />}
+                        startContent={<CiSearch size={20} />}
                       >
                         Buscar Serviços
                       </Button>
@@ -214,7 +216,7 @@ const { isAuthenticated } = useAuthStore();
                         <Avatar size="lg" src={post.url} />
                         <div className="flex ml-2">
                             <Subtitle>{post.company_name}</Subtitle>
-                            <Text>{post.company_verified && <Verified/>}</Text>
+                            <Text>{post.company_verified && <MdVerified/>}</Text>
                         </div>
                 
                     </CardHeader>

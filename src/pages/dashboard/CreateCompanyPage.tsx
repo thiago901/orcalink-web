@@ -4,22 +4,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../stores/authStore";
 
-import { Title } from "../../components/ui/Title";
-import { Text } from "../../components/ui/Text";
-import { Subtitle } from "../../components/ui/Subtitle";
-import {
-  avatar,
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Input,
-  Textarea,
-} from "@heroui/react";
 import { CreateCompanyServiceProps } from "../../api/companyServices";
 import { createCompany } from "../../api/companies";
-import { FileText, MapPin } from "lucide-react";
-import FileUpload from "../../components/ui/FileUpload";
 import { CompanyCreateForm } from "../../components/forms/company-create";
 
 const CreateCompanyPage = () => {

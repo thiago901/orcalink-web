@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
-import { Home } from 'lucide-react';
+import { CiHome } from 'react-icons/ci';
+
 
 const PageNotFound = () => {
   return (
@@ -12,7 +13,7 @@ const PageNotFound = () => {
           A página que você está procurando não existe ou foi removida.
         </p>
         <Link to="/">
-          <Button icon={<Home size={18} />}>
+          <Button icon={<CiHome size={18} />}>
             Voltar para a página inicial
           </Button>
         </Link>

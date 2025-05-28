@@ -5,15 +5,17 @@ import { useAuthStore } from '../../stores/authStore';
 import { getEstimateRequestsByUserId } from '../../api/estimateRequests';
 import { getCompaniesByOwnerId } from '../../api/companies';
 
-import { Building2 } from 'lucide-react';
+
 import { Button, Card, CardBody, CardHeader, Chip, Link, Listbox, ListboxItem } from '@heroui/react';
 
 import { Title } from '../../components/ui/Title';
 
 import { Subtitle } from '../../components/ui/Subtitle';
 import { Text } from '../../components/ui/Text';
+import { FaArrowRight, FaBuilding, FaPlus } from 'react-icons/fa6';
+import { FiLoader } from 'react-icons/fi';
 
-import { Plus, ArrowRight, Loader2 } from 'lucide-react';
+
 
 
 const DashboardPage = () => {
@@ -69,14 +71,14 @@ const DashboardPage = () => {
         </div>
         
         <div className="flex flex-col sm:flex-row gap-2">
-         <Button as={Link} href="/dashboard/estimate-requests/new" startContent={<Plus size={18} />} color='primary'>
+         <Button as={Link} href="/dashboard/estimate-requests/new" startContent={<FaPlus size={18} />} color='primary'>
               Solicitar Orçamento
           </Button>
      
           
           {(companies?.length > 0) && (
             
-              <Button as={Link}  startContent={<Building2 size={18} />} href="/dashboard/companies">
+              <Button as={Link}  startContent={<FaBuilding size={18} />} href="/dashboard/companies">
                 Minhas Empresas
               </Button>
             
@@ -93,7 +95,7 @@ const DashboardPage = () => {
           <CardBody>
             {isLoadingRequests ? (
               <div className="flex justify-center py-8">
-                <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+                <FiLoader className="w-8 h-8 animate-spin text-primary-500" />
               </div>
             ) : estimateRequests?.length > 0 ? (
               <div className="space-y-4">
@@ -129,7 +131,7 @@ const DashboardPage = () => {
               <div className="text-center py-8">
                 <p className="text-neutral-500 mb-4">Você ainda não tem nenhum orçamento solicitado.</p>
                 
-                  <Button startContent={<Plus size={18} />} as={Link} href="/dashboard/estimate-requests/new">
+                  <Button startContent={<FaPlus size={18} />} as={Link} href="/dashboard/estimate-requests/new">
                     Solicitar Orçamento
                   </Button>
                 
@@ -147,7 +149,7 @@ const DashboardPage = () => {
             <CardBody>
               {isLoadingCompanies ? (
                 <div className="flex justify-center py-8">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+                  <FiLoader className="w-8 h-8 animate-spin text-primary-500" />
                 </div>
               ) : (
                 <div className="flex flex-col h-full">
@@ -166,7 +168,7 @@ const DashboardPage = () => {
                           <h4 className="font-medium">{company.name}</h4>
                         </div>
                         <div>
-                          <ArrowRight size={16}/>
+                          <FaArrowRight size={16}/>
                         </div>
                       </div>
                      
@@ -201,7 +203,7 @@ const DashboardPage = () => {
                 </div>
               ) : !position ? (
                 <div className="flex justify-center py-8">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+                  <FiLoader className="w-8 h-8 animate-spin text-primary-500" />
                 </div>
               ) : (
                 <div>

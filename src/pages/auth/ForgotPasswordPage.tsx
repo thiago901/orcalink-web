@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { Mail, ArrowLeft } from 'lucide-react';
+
 import { forgotPassword, RecoverPasswordProps } from '../../api/auth';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import { CiMail } from "react-icons/ci";
+import { FaArrowLeft } from "react-icons/fa6";
 
 const ForgotPasswordPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -44,7 +46,7 @@ const ForgotPasswordPage = () => {
           {isSubmitted ? (
             <div className="text-center py-4">
               <div className="w-16 h-16 bg-success-50 text-success-500 rounded-full mx-auto flex items-center justify-center mb-4">
-                <Mail size={32} />
+                <CiMail size={32} />
               </div>
               <h2 className="text-xl font-semibold mb-2">Email enviado!</h2>
               <p className="text-neutral-600 mb-6">
@@ -55,7 +57,7 @@ const ForgotPasswordPage = () => {
                 to="/login"
                 className="text-primary-600 hover:text-primary-700 font-medium inline-flex items-center"
               >
-                <ArrowLeft size={16} className="mr-1" />
+                <FaArrowLeft size={16} className="mr-1" />
                 Voltar para login
               </Link>
             </div>
@@ -70,7 +72,7 @@ const ForgotPasswordPage = () => {
                 <Input
                   label="Email"
                   type="email"
-                  icon={<Mail size={18} />}
+                  icon={<CiMail size={18} />}
                   placeholder="seu@email.com"
                   error={errors.email?.message}
                   {...register('email', {
@@ -96,7 +98,7 @@ const ForgotPasswordPage = () => {
                   to="/login"
                   className="text-primary-600 hover:text-primary-700 font-medium inline-flex items-center"
                 >
-                  <ArrowLeft size={16} className="mr-1" />
+                  <FaArrowLeft size={16} className="mr-1" />
                   Voltar para login
                 </Link>
               </div>

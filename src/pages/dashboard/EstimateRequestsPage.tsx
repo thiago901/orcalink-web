@@ -1,12 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { Plus, Loader2, MapPin, Calendar } from 'lucide-react';
+
 import { useAuthStore } from '../../stores/authStore';
 import { getEstimateRequestsByUserId } from '../../api/estimateRequests';
 
 
 import { Button, Card, CardBody, CardHeader, Divider, Link, Listbox, ListboxItem } from '@heroui/react';
 import { Subtitle } from '../../components/ui/Subtitle';
+import { FiLoader, FiPlus } from 'react-icons/fi';
+import { CiCalendar, CiMapPin } from 'react-icons/ci';
 
 const EstimateRequestsPage = () => {
   const { user } = useAuthStore();
@@ -26,7 +28,7 @@ const EstimateRequestsPage = () => {
         </div>
 
   
-          <Button startContent={<Plus size={18} />} color='primary' as={Link} href="/dashboard/estimate-requests/new">
+          <Button startContent={<FiPlus size={18} />} color='primary' as={Link} href="/dashboard/estimate-requests/new">
             Novo Orçamento
           </Button>
        
@@ -40,12 +42,12 @@ const EstimateRequestsPage = () => {
         <CardBody className='p-0'>
           {isLoading ? (
             <div className="flex justify-center py-8">
-              <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+              <FiLoader className="w-8 h-8 animate-spin text-primary-500" />
             </div>
           ) : !requests?.length ? (
             <div className="text-center py-8">
               <div className="w-16 h-16  rounded-full flex items-center justify-center mx-auto mb-4">
-                <MapPin className="w-8 h-8 text-primary-600" />
+                <CiMapPin className="w-8 h-8 text-primary-600" />
               </div>
               <h3 className="text-lg font-medium mb-2">Nenhum orçamento solicitado</h3>
               <p className="text-neutral-600 mb-6">
@@ -53,7 +55,7 @@ const EstimateRequestsPage = () => {
                 Crie uma agora mesmo!
               </p>
               
-                <Button as={Link} startContent={<Plus size={18} />} color='primary' href="/dashboard/estimate-requests/new">
+                <Button as={Link} startContent={<FiPlus size={18} />} color='primary' href="/dashboard/estimate-requests/new">
                   Solicitar Orçamento
                 </Button>
               
@@ -72,7 +74,7 @@ const EstimateRequestsPage = () => {
                       <div>
                         <h4 className="font-medium">{request.name}</h4>
                         <div className="flex items-center gap-2 mt-1 text-sm text-neutral-500">
-                          <MapPin size={14} />
+                          <CiMapPin size={14} />
                           <span>{request.address.city}, {request.address.state}</span>
                         </div>
                       </div>
@@ -85,7 +87,7 @@ const EstimateRequestsPage = () => {
                     </p>
                     <div className="mt-4 flex items-center gap-4 text-sm text-neutral-500">
                       <div className="flex items-center gap-1">
-                        <Calendar size={14} />
+                        <CiCalendar size={14} />
                         <span>
                           {new Date(request.created_at).toLocaleDateString('pt-BR')}
                         </span>

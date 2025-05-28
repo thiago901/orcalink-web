@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { Mail, Lock, LogIn } from 'lucide-react';
+
 import { useAuthStore } from '../../stores/authStore';
 import { AuthenticateUserProps } from '../../api/auth';
 import { Button, Card, CardBody, CardHeader, Input } from '@heroui/react';
+import { FiLock, FiMail } from 'react-icons/fi';
+import { CiLogin } from 'react-icons/ci';
 
 
 const LoginPage = () => {
@@ -54,7 +56,7 @@ const LoginPage = () => {
             <Input
               label="Email"
               type="email"
-              startContent={<Mail size={18} />}
+              startContent={<FiMail size={18} />}
               placeholder="seu@email.com"
               errorMessage={errors.email?.message}
               isInvalid={!!errors.email?.message}
@@ -70,7 +72,7 @@ const LoginPage = () => {
             <Input
               label="Senha"
               type="password"
-              startContent={<Lock size={18} />}
+              startContent={<FiLock size={18} />}
               errorMessage={errors.password?.message}
               isInvalid={!!errors.password?.message}
               placeholder="••••••••"
@@ -96,7 +98,7 @@ const LoginPage = () => {
             <Button
               type="submit"
               isLoading={isLoading}
-              startContent={<LogIn size={18} />}
+              startContent={<CiLogin size={18} />}
               className="w-full"
               color='primary'
             >

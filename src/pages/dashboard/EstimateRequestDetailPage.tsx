@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { MapPin, Phone, Mail, Calendar, FileText, Loader2, Check, X } from 'lucide-react';
+
 import { getEstimateRequestById } from '../../api/estimateRequests';
 import { getProposalsByEstimateId, approveProposal, rejectProposal } from '../../api/proposals';
 
@@ -13,6 +13,8 @@ import { Text } from '../../components/ui/Text';
 import { Accordion, AccordionItem, Button, Card, CardBody, CardHeader, Chip } from '@heroui/react';
 import { Subtitle } from '../../components/ui/Subtitle';
 import ImageGallery from '../../components/image-gallery';
+import { FiCheck, FiFileText, FiLoader } from 'react-icons/fi';
+import { CiCalendar, CiMail, CiMapPin, CiPhone } from 'react-icons/ci';
 
 const EstimateRequestDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -69,7 +71,7 @@ console.log('proposals',proposals);
   if (isLoadingRequest || isLoadingProposals) {
     return (
       <div className="flex justify-center py-8">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+        <FiLoader className="w-8 h-8 animate-spin text-primary-500" />
       </div>
     );
   }
@@ -114,7 +116,7 @@ console.log('proposals',proposals);
                 <div>
                   <h4 className="font-medium mb-2">Endereço</h4>
                   <div className="flex items-center gap-2 text-neutral-600">
-                    <MapPin size={18} />
+                    <CiMapPin size={18} />
                     <span>
                       {request.address.street}, {request.address.number} - {request.address.neighborhood}
                       <br />
@@ -128,11 +130,11 @@ console.log('proposals',proposals);
                     <h4 className="font-medium mb-2">Contato</h4>
                     <div className="space-y-2 text-neutral-600">
                       <div className="flex items-center gap-2">
-                        <Phone size={18} />
+                        <CiPhone size={18} />
                         <span>{request.phone}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Mail size={18} />
+                        <CiMail size={18} />
                         <span>{request.email}</span>
                       </div>
                     </div>
@@ -141,7 +143,7 @@ console.log('proposals',proposals);
                   <div>
                     <h4 className="font-medium mb-2">Data da solicitação</h4>
                     <div className="flex items-center gap-2 text-neutral-600">
-                      <Calendar size={18} />
+                      <CiCalendar size={18} />
                       <span>
                         {new Date(request.created_at).toLocaleDateString('pt-BR')}
                       </span>
@@ -166,7 +168,7 @@ console.log('proposals',proposals);
               {!proposals?.length ? (
                 <div className="text-center py-8">
                   <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FileText className="w-8 h-8 text-primary-600" />
+                    <FiFileText className="w-8 h-8 text-primary-600" />
                   </div>
                   <h3 className="text-lg font-medium mb-2">Nenhuma proposta recebida</h3>
                   <p className="text-neutral-600">
@@ -233,7 +235,7 @@ console.log('proposals',proposals);
                               <Button
                                 size="sm"
                                 color='success'
-                                startContent={<Check size={16} />}
+                                startContent={<FiCheck size={16} />}
                                 onPress={() => {
                                   setSelectedProposal(proposal);
                                   setIsApproveDialogOpen(true);
@@ -270,7 +272,7 @@ console.log('proposals',proposals);
               <div>
                 <h4 className="font-medium mb-2">Última atualização</h4>
                 <div className="flex items-center gap-2 text-neutral-600">
-                  <Calendar size={18} />
+                  <CiCalendar size={18} />
                   <span>
                     {new Date(request.updated_at ?? request.created_at).toLocaleDateString('pt-BR')}
                   </span>

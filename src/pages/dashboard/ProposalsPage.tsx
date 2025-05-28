@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Loader2, FileText } from 'lucide-react';
+
 import { useAuthStore } from '../../stores/authStore';
 import { getCompaniesByOwnerId } from '../../api/companies';
 import { getProposalsByCompanyId } from '../../api/proposals';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
+import { FiFileText, FiLoader } from 'react-icons/fi';
 
 const ProposalsPage = () => {
   const { user } = useAuthStore();
@@ -44,12 +45,12 @@ const ProposalsPage = () => {
         <CardContent>
           {isLoading ? (
             <div className="flex justify-center py-8">
-              <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+              <FiLoader className="w-8 h-8 animate-spin text-primary-500" />
             </div>
           ) : !proposals?.length ? (
             <div className="text-center py-8">
               <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FileText className="w-8 h-8 text-primary-600" />
+                <FiFileText className="w-8 h-8 text-primary-600" />
               </div>
               <h3 className="text-lg font-medium mb-2">Nenhuma proposta enviada</h3>
               <p className="text-neutral-600">

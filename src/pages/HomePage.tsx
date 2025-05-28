@@ -1,27 +1,17 @@
-
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
-import {
-  Building2,
-  ClipboardList,
-  ShieldCheck,
-  BarChart,
-} from "lucide-react";
-import {
-  Button,
-} from "@heroui/react";
 
-
-
+import { Button } from "@heroui/react";
+import { FaBuilding, FaClipboardList, FaShield } from "react-icons/fa6";
+import { FiBarChart } from "react-icons/fi";
 
 const HomePage = () => {
   const { isAuthenticated } = useAuthStore();
 
-
   return (
     <div className="min-h-screen flex flex-col">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-600 to-primary-800 py-20 text-white text-center">
+      <section className="bg-primary py-20 text-white text-center">
         <div className="container mx-auto px-4">
           <h1 className="text-5xl font-bold mb-4">
             Conectando você aos melhores profissionais
@@ -36,7 +26,7 @@ const HomePage = () => {
       </section>
 
       {/* Como Funciona */}
-      <section className="py-20 bg-white">
+      <section className="py-20">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">
             Como funciona
@@ -44,7 +34,7 @@ const HomePage = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="flex flex-col items-center text-center p-6">
               <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mb-4">
-                <ClipboardList className="w-8 h-8 text-primary-600" />
+                <FaClipboardList className="w-8 h-8 text-primary-600" />
               </div>
               <h3 className="text-xl font-semibold mb-2">
                 Solicite um orçamento
@@ -57,7 +47,7 @@ const HomePage = () => {
 
             <div className="flex flex-col items-center text-center p-6">
               <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mb-4">
-                <Building2 className="w-8 h-8 text-primary-600" />
+                <FaBuilding className="w-8 h-8 text-primary-600" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Receba propostas</h3>
               <p className="text-neutral-600">
@@ -68,7 +58,7 @@ const HomePage = () => {
 
             <div className="flex flex-col items-center text-center p-6">
               <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mb-4">
-                <ShieldCheck className="w-8 h-8 text-primary-600" />
+                <FaShield className="w-8 h-8 text-primary-600" />
               </div>
               <h3 className="text-xl font-semibold mb-2">
                 Agende com confiança
@@ -81,7 +71,7 @@ const HomePage = () => {
 
             <div className="flex flex-col items-center text-center p-6">
               <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mb-4">
-                <BarChart className="w-8 h-8 text-primary-600" />
+                <FiBarChart className="w-8 h-8 text-primary-600" />
               </div>
               <h3 className="text-xl font-semibold mb-2">
                 Acompanhe sua reputação
@@ -95,10 +85,8 @@ const HomePage = () => {
         </div>
       </section>
 
-      
-
       {/* CTA Section */}
-      <section className="py-16 bg-zinc-100">
+      <section className="py-16">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6">
             Pronto para encontrar o profissional ideal?
@@ -108,11 +96,6 @@ const HomePage = () => {
             lugar, com profissionais confiáveis.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/register">
-              <Button size="lg" color="primary" className="w-full sm:w-auto">
-                Criar uma conta
-              </Button>
-            </Link>
             {isAuthenticated ? (
               <Link to="/dashboard">
                 <Button variant="ghost" size="lg" className="w-full sm:w-auto">
@@ -120,17 +103,30 @@ const HomePage = () => {
                 </Button>
               </Link>
             ) : (
-              <Link to="/login">
-                <Button variant="ghost" size="lg" className="w-full sm:w-auto">
-                  Entrar na plataforma
-                </Button>
-              </Link>
+              <>
+                <Link to="/register">
+                  <Button
+                    size="lg"
+                    color="primary"
+                    className="w-full sm:w-auto"
+                  >
+                    Criar uma conta
+                  </Button>
+                </Link>
+                <Link to="/login">
+                  <Button
+                    variant="ghost"
+                    size="lg"
+                    className="w-full sm:w-auto"
+                  >
+                    Entrar na plataforma
+                  </Button>
+                </Link>
+              </>
             )}
           </div>
         </div>
       </section>
- 
-
     </div>
   );
 };

@@ -1,4 +1,5 @@
-import { Star } from "lucide-react";
+import { CiStar } from "react-icons/ci";
+
 
 
 
@@ -36,7 +37,7 @@ export function StarRating({
       {stars.map((fill, index) => (
         <div key={index} className="relative">
           {/* Star background (empty) */}
-          <Star className={className + " text-gray-300"} />
+          <CiStar className={className + " text-gray-300"} />
 
           {/* Star fill (partial/full) */}
           {fill > 0 && (
@@ -44,7 +45,7 @@ export function StarRating({
               className="absolute top-0 left-0 overflow-hidden"
               style={{ width: `${fill * 100}%` }}
             >
-              <Star className={className} fill="#f1c40f"/>
+              <CiStar className={className} fill="#f1c40f"/>
             </div>
           )}
         </div>
