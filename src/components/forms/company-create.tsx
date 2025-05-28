@@ -91,6 +91,8 @@ export function CompanyCreateForm() {
           ...data.address,
           name: data.name,
           country: "Brasil",
+          latitude: '-23.6528084',
+          longitude: '-46.7440400'
           // latitude: position.coords.latitude,
           // longitude: position.coords.longitude,
         },
