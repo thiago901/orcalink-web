@@ -111,8 +111,8 @@ export const UserLayout = () => {
                     <p className="font-semibold">{user?.email}</p>
                   </DropdownItem>
                   <DropdownItem key="settings">Perfil</DropdownItem>
-                  <DropdownItem key="configurations">
-                    Configurations
+                  <DropdownItem key="bugets" href="my-budgets">
+                    Meus orçamentos
                   </DropdownItem>
                   {!!companies && companies?.length > 0 ? (
                     <DropdownItem key="my-companies" href="/dashboard">

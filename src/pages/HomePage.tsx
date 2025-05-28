@@ -1,7 +1,7 @@
-import { Link } from "react-router-dom";
+
 import { useAuthStore } from "../stores/authStore";
 
-import { Button } from "@heroui/react";
+import { Button, Link } from "@heroui/react";
 import { FaBuilding, FaClipboardList, FaShield } from "react-icons/fa6";
 import { FiBarChart } from "react-icons/fi";
 
@@ -97,14 +97,14 @@ const HomePage = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {isAuthenticated ? (
-              <Link to="/dashboard">
+              <Link href="/dashboard">
                 <Button variant="ghost" size="lg" className="w-full sm:w-auto">
                   Acessar painel
                 </Button>
               </Link>
             ) : (
               <>
-                <Link to="/register">
+                <Link href="/register">
                   <Button
                     size="lg"
                     color="primary"
@@ -113,7 +113,7 @@ const HomePage = () => {
                     Criar uma conta
                   </Button>
                 </Link>
-                <Link to="/login">
+                <Link href="/login">
                   <Button
                     variant="ghost"
                     size="lg"

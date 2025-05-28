@@ -176,7 +176,7 @@ export function CompanyCreateForm() {
             <CardBody className="space-y-4">
               <Input
                 label="Telefone"
-                startContent={<FileText size={18} />}
+                startContent={<FiFileText size={18} />}
                 placeholder="+55 11 91234-5678"
                 errorMessage={errors.phone?.message}
                 isInvalid={!!errors.phone?.message}
