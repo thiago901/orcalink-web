@@ -35,6 +35,7 @@ const LoginPage = () => {
       toast.success('Login realizado com sucesso!');
       // navigate(from, { replace: true });
     } catch (error) {
+      console.log('error',error);
       toast.error('Falha ao realizar login. Verifique suas credenciais.');
     } finally {
       setIsLoading(false);

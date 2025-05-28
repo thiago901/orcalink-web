@@ -34,6 +34,7 @@ const RegisterPage = () => {
       toast.success('Conta criada com sucesso! Faça login para continuar.');
       navigate('/login');
     } catch (error) {
+      console.log('error',error);
       toast.error('Erro ao criar conta. Tente novamente.');
     } finally {
       setIsLoading(false);

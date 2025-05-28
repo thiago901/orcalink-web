@@ -62,6 +62,8 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
           });
         } catch (error) {
+          console.log("error",error);
+          
           set({ 
             isLoading: false, 
             error: error instanceof Error ? error.message : 'Failed to login' 
@@ -105,7 +107,7 @@ export const useAuthStore = create<AuthState>()(
             });
           }
         } catch (error) {
-          // Invalid token
+          console.log("error",error);
           get().logout();
         }
       },

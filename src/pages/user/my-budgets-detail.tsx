@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -49,6 +50,7 @@ console.log('proposals',proposals);
       setIsApproveDialogOpen(false);
     } catch (error) {
       console.error('Error approving proposal:', error);
+      console.log("error",error);
     } finally {
       setIsActionLoading(false);
     }

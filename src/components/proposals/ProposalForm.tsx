@@ -52,6 +52,8 @@ const ProposalForm = ({
       onSuccess();
       onClose();
     } catch (error) {
+      console.log('error',error);
+      
       toast.error('Erro ao enviar proposta');
     } finally {
       setIsLoading(false);

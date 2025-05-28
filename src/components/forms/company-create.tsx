@@ -17,8 +17,8 @@ import {
   Textarea,
   Tooltip,
 } from "@heroui/react";
-import { CreateCompanyServiceProps } from "../../api/companyServices";
-import { createCompany, uploadCompanyImage } from "../../api/companies";
+
+import { createCompany, CreateCompanyProps, uploadCompanyImage } from "../../api/companies";
 
 import FileUpload from "../../components/ui/FileUpload";
 import { FiFileText } from "react-icons/fi";
@@ -37,7 +37,7 @@ export function CompanyCreateForm() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<CreateCompanyServiceProps>({
+  } = useForm<CreateCompanyProps>({
     defaultValues: {},
   });
 
@@ -75,7 +75,7 @@ export function CompanyCreateForm() {
     }
 
   },[companyId, selectedFiles])
-  const onSubmit = async (data: CreateCompanyServiceProps) => {
+  const onSubmit = async (data: CreateCompanyProps) => {
     if (!position) {
       toast.error("É necessário permitir o acesso à sua localização");
       return;
@@ -101,6 +101,8 @@ export function CompanyCreateForm() {
     //   navigate(`/dashboard/companies/${response.id}`);
     } catch (error) {
       toast.error("Erro ao criar empresa");
+      console.log('error',error);
+      
     } finally {
       setIsLoading(false);
     }

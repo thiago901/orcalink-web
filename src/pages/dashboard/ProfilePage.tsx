@@ -35,6 +35,7 @@ const ProfilePage = () => {
       await updateUser(user.id, data);
       toast.success('Perfil atualizado com sucesso!');
     } catch (error) {
+      console.log('error',error);
       toast.error('Erro ao atualizar perfil');
     } finally {
       setIsLoading(false);

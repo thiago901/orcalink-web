@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import Dialog from '../ui/Dialog';
 import Button from '../ui/Button';

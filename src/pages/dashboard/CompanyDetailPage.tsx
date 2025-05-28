@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -57,7 +58,7 @@ const CompanyDetailPage = () => {
     enabled: !!id,
   });
 
-  const { data: jobs, isLoading: isLoadingJobs } = useQuery({
+  const { data: jobs } = useQuery({
     queryKey: ["jobs", id],
     queryFn: () => getJobsByCompany(id!),
     enabled: !!id,
@@ -366,7 +367,7 @@ const CompanyDetailPage = () => {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {proposals.map((proposal) => (
+                    {proposals.map((proposal:any) => (
                       <div key={proposal.id} className="p-4 rounded-lg ">
                         <div className="flex justify-between items-start gap-4">
                           <div>

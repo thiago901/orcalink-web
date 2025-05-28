@@ -26,6 +26,7 @@ const ForgotPasswordPage = () => {
       setIsSubmitted(true);
       toast.success('Instruções de recuperação enviadas para seu email!');
     } catch (error) {
+      console.log('error',error);
       toast.error('Erro ao enviar instruções. Tente novamente.');
     } finally {
       setIsLoading(false);
