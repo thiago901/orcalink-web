@@ -13,17 +13,18 @@ import FileUpload from '../../components/ui/FileUpload';
 import { Title } from '../../components/ui/Title';
 import { Text } from '../../components/ui/Text';
 import { Subtitle } from '../../components/ui/Subtitle';
-import { Button, Card, CardBody, CardHeader, Input, Textarea } from '@heroui/react';
+import { Button, Card, CardBody, CardHeader, Input, Select, SelectItem, Textarea } from '@heroui/react';
 import { FiFileText } from 'react-icons/fi';
 import { CiMail, CiMapPin, CiPhone, CiRuler } from 'react-icons/ci';
 import { searchByZipCode } from '../../utils/search-zip-address';
+import { getCategories } from '../../api/category';
+import { useQuery } from '@tanstack/react-query';
 
 export function MyBudgetsCreatePage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
-  const [position, setPosition] = useState<GeolocationPosition | null>(null);
-  const [geolocationError, setGeolocationError] = useState<string | null>(null);
+  
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const {
@@ -37,23 +38,7 @@ export function MyBudgetsCreatePage() {
     },
   });
 
-  // Get user's current position
-  const getCurrentPosition = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setPosition(pos);
-          setGeolocationError(null);
-        },
-        (error) => {
-          console.error('Geolocation error:', error);
-          setGeolocationError('Não foi possível obter sua localização.');
-        }
-      );
-    } else {
-      setGeolocationError('Geolocalização não é suportada pelo seu navegador.');
-    }
-  };
+
 
   const onSubmit = async (data: CreateEstimateRequestProps) => {
     // if (!position) {
@@ -69,8 +54,7 @@ export function MyBudgetsCreatePage() {
         user_id: user?.id,
         // lat: position.coords.latitude.toString(),
         // long: position.coords.longitude.toString(),
-        lat: '-23.6528084',
-        long: '-46.7440400'
+   
       };
 
       const response = await createEstimateRequest(requestData);
@@ -106,6 +90,10 @@ export function MyBudgetsCreatePage() {
     },
     [setValue]
   );
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => getCategories(),
+  });
   return (
     <div className="space-y-6 fade-in max-w-6xl mx-auto px-4 py-6">
       <div>
@@ -134,7 +122,15 @@ export function MyBudgetsCreatePage() {
                   },
                 })}
               />
-
+ <Select
+              {...register("category")}
+              label="Categoria"
+              placeholder="Selecione uma categoria"
+            >
+              {categories!.map((cat) => (
+                <SelectItem key={cat.name}>{cat.name}</SelectItem>
+              ))}
+            </Select>
               <Textarea
                 label="Descrição"
                 placeholder="Descreva os detalhes do seu projeto..."

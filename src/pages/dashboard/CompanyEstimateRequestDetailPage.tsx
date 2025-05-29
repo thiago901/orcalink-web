@@ -1,41 +1,46 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useQuery} from '@tanstack/react-query';
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 
-import { getEstimateRequestById } from '../../api/estimateRequests';
-import { getProposalsByEstimateId,  } from '../../api/proposals';
+import { getEstimateRequestById } from "../../api/estimateRequests";
+import { getProposalsByEstimateId } from "../../api/proposals";
 
+import { Title } from "../../components/ui/Title";
 
-
-import { Title } from '../../components/ui/Title';
-
-import { Text } from '../../components/ui/Text';
-import { Accordion, AccordionItem, Button, Card, CardBody, CardHeader } from '@heroui/react';
-import { Subtitle } from '../../components/ui/Subtitle';
-import ImageGallery from '../../components/image-gallery';
-import ProposalForm from '../../components/proposals/ProposalForm';
-import { FiLoader } from 'react-icons/fi';
-import { CiCalendar, CiMail, CiMapPin, CiPhone } from 'react-icons/ci';
+import { Text } from "../../components/ui/Text";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+} from "@heroui/react";
+import { Subtitle } from "../../components/ui/Subtitle";
+import ImageGallery from "../../components/image-gallery";
+import ProposalForm from "../../components/proposals/ProposalForm";
+import { FiLoader } from "react-icons/fi";
+import { CiCalendar, CiMail, CiMapPin, CiPhone } from "react-icons/ci";
 
 const CompanyEstimateRequestDetailPage = () => {
-  const { estimate_id,id } = useParams<{ estimate_id: string,id:string }>();
+  const { estimate_id, id } = useParams<{ estimate_id: string; id: string }>();
 
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [isProposalFormOpen, setIsProposalFormOpen] = useState(false);
   const { data: request, isLoading: isLoadingRequest } = useQuery({
-    queryKey: ['estimateRequest', estimate_id],
+    queryKey: ["estimateRequest", estimate_id],
     queryFn: () => getEstimateRequestById(estimate_id!),
     enabled: !!estimate_id,
   });
 
-  const { data: proposals, isLoading: isLoadingProposals,refetch: refetchProposals } = useQuery({
-    queryKey: ['proposals', estimate_id],
+  const {
+    data: proposals,
+    isLoading: isLoadingProposals,
+    refetch: refetchProposals,
+  } = useQuery({
+    queryKey: ["proposals", estimate_id],
     queryFn: () => getProposalsByEstimateId(estimate_id!),
     enabled: !!estimate_id,
   });
-
-
 
   if (isLoadingRequest || isLoadingProposals) {
     return (
@@ -55,14 +60,16 @@ const CompanyEstimateRequestDetailPage = () => {
       </div>
     );
   }
-  
+
   const hasSubmittedProposal = (requestId: string) => {
-    return proposals?.some((proposal:any) => proposal.estimate_request_id === requestId);
+    return proposals?.some(
+      (proposal: any) => proposal.estimate_request_id === requestId
+    );
   };
   return (
     <div className="space-y-6 fade-in">
       <div>
-        <Title >{request.name}</Title>
+        <Title>{request.name}</Title>
         <Text>Detalhes da solicitação de orçamento</Text>
       </div>
 
@@ -89,9 +96,11 @@ const CompanyEstimateRequestDetailPage = () => {
                   <div className="flex items-center gap-2 text-neutral-600">
                     <CiMapPin size={18} />
                     <span>
-                      {request.address.street}, {request.address.number} - {request.address.neighborhood}
+                      {request.address.street}, {request.address.number} -{" "}
+                      {request.address.neighborhood}
                       <br />
-                      {request.address.city}, {request.address.state} - {request.address.postal_code}
+                      {request.address.city}, {request.address.state} -{" "}
+                      {request.address.postal_code}
                     </span>
                   </div>
                 </div>
@@ -116,7 +125,9 @@ const CompanyEstimateRequestDetailPage = () => {
                     <div className="flex items-center gap-2 text-neutral-600">
                       <CiCalendar size={18} />
                       <span>
-                        {new Date(request.created_at).toLocaleDateString('pt-BR')}
+                        {new Date(request.created_at).toLocaleDateString(
+                          "pt-BR"
+                        )}
                       </span>
                     </div>
                   </div>
@@ -124,36 +135,35 @@ const CompanyEstimateRequestDetailPage = () => {
               </div>
             </CardBody>
           </Card>
-          
-            <Accordion variant="splitted" className='p-0'>
-              <AccordionItem key="1" aria-label="Imagens enviadas" title="Imagens">
-                <ImageGallery images={request?.estimate_request_files}/>
-              </AccordionItem>
-            </Accordion>
-          
-  
-            <div className="flex flex-col gap-2">
-                              {!hasSubmittedProposal(request.id) ? (
-                                <>
-                            
-                                  <Button
-                                    
-                                    color='primary'
-                                    onPress={() => {
-                                      setSelectedRequest(request);
-                                      setIsProposalFormOpen(true);
-                                    }}
-                                  >
-                                    Enviar Proposta
-                                  </Button>
-                                </>
-                              ) : (
-                                <Button variant="ghost" disabled color='success'>
-                                  Proposta Enviada
-                                </Button>
-                              )}
-            </div>
-         
+
+          <Card>
+            <CardBody>
+              <ImageGallery
+                images={request?.estimate_request_files}
+                layout="carousel"
+              />
+            </CardBody>
+          </Card>
+
+          <div className="flex flex-col gap-2">
+            {!hasSubmittedProposal(request.id) ? (
+              <>
+                <Button
+                  color="primary"
+                  onPress={() => {
+                    setSelectedRequest(request);
+                    setIsProposalFormOpen(true);
+                  }}
+                >
+                  Enviar Proposta
+                </Button>
+              </>
+            ) : (
+              <Button variant="ghost" disabled color="success">
+                Proposta Enviada
+              </Button>
+            )}
+          </div>
         </div>
 
         <Card>
@@ -166,7 +176,9 @@ const CompanyEstimateRequestDetailPage = () => {
                 <div className="text-2xl font-semibold text-neutral-800">
                   {proposals?.length || 0}
                 </div>
-                <div className="text-sm text-neutral-500">Propostas recebidas</div>
+                <div className="text-sm text-neutral-500">
+                  Propostas recebidas
+                </div>
               </div>
 
               <div className="h-px bg-neutral-200" />
@@ -176,7 +188,9 @@ const CompanyEstimateRequestDetailPage = () => {
                 <div className="flex items-center gap-2 text-neutral-600">
                   <CiCalendar size={18} />
                   <span>
-                    {new Date(request.updated_at ?? request.created_at).toLocaleDateString('pt-BR')}
+                    {new Date(
+                      request.updated_at ?? request.created_at
+                    ).toLocaleDateString("pt-BR")}
                   </span>
                 </div>
               </div>
@@ -196,7 +210,6 @@ const CompanyEstimateRequestDetailPage = () => {
         }}
       />
     </div>
-
   );
 };
 

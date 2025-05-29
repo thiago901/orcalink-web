@@ -13,6 +13,7 @@ export interface CreateEstimateRequestProps {
   address_postal_code: string;
   address_state: string;
   address_street: string;
+  category: string;
   lat: string;
   long: string;
 }
@@ -21,10 +22,13 @@ export interface GeolocationQuery {
   latitude: number;
   longitude: number;
   radiusInMeters: number;
+  category?:string[]
 }
 
 // Estimate Request API functions
 export const getEstimateRequests = async (params: GeolocationQuery) => {
+  
+  
   const response = await api.get('/estimate-requests', { params });
   return response.data.result;
 };

@@ -16,6 +16,7 @@ import { Subtitle } from '../../components/ui/Subtitle';
 import ImageGallery from '../../components/image-gallery';
 import { FiCheck, FiFileText, FiLoader } from 'react-icons/fi';
 import { CiCalendar, CiMail, CiMapPin, CiPhone } from 'react-icons/ci';
+import { FaX } from 'react-icons/fa6';
 
 const EstimateRequestDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -224,7 +225,7 @@ console.log('proposals',proposals);
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                startContent={<X size={16} />}
+                                startContent={<FaX size={16} />}
                                 color='danger'
                                 onPress={() => {
                                   setSelectedProposal(proposal);

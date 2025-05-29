@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useGallery } from './GalleryContext';
 import { ImageType } from './types';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FaX } from 'react-icons/fa6';
 
 interface ImagePreviewProps {
   images: ImageType[];
@@ -79,7 +80,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ images, onClose }) => {
         onClick={onClose}
         aria-label="Close preview"
       >
-        <X className="w-6 h-6" />
+        <FaX className="w-6 h-6" />
       </button>
 
       <div className="relative w-full max-w-5xl mx-auto">

@@ -12,10 +12,13 @@ export interface CompanyService {
   company_id: string;
   category_name: string;
 }
+export interface Response<T=unknown> {
+  result:T
+}
 
 
 export const getCompanyServices = async (companyId: string) => {
-  const response = await api.get(`/companies-services/${companyId}`);
+  const response = await api.get<Response<CompanyService[]>>(`/companies-services/${companyId}`);
   return response.data.result;
 };
 

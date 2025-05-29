@@ -75,6 +75,7 @@ function App() {
         <Route path="companies" element={<CompaniesPage />} />
         <Route path="companies/new" element={<CreateCompanyPage />}  />
         <Route path="companies/:id" element={<CompanyDetailPage />} />
+        <Route path="companies/:id/edit" element={<CreateCompanyPage />}  />
         <Route path="companies/:id/estimate_request/:estimate_id" element={<CompanyEstimateRequestDetailPage />} />
         <Route path="companies/jobs/:id" element={<JobDetailPage />} />
         <Route path="proposals" element={<ProposalsPage />} />

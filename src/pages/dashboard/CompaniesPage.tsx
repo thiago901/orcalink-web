@@ -22,6 +22,8 @@ const CompaniesPage = () => {
     queryFn: () => getCompaniesByOwnerId(user?.id || ''),
     enabled: !!user?.id,
   });
+  console.log('companies',companies);
+  
 
   return (
     <div className="space-y-6 fade-in">

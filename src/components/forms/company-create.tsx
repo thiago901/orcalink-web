@@ -1,9 +1,7 @@
-import { useCallback, useState } from "react";
-
+import { useCallback,  useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../stores/authStore";
-
 import { Title } from "../../components/ui/Title";
 import { Text } from "../../components/ui/Text";
 import { Subtitle } from "../../components/ui/Subtitle";
@@ -16,25 +14,31 @@ import {
   Textarea,
   Tooltip,
 } from "@heroui/react";
-
 import {
+  Company,
   createCompany,
+  
   CreateCompanyProps,
+  
   uploadCompanyImage,
 } from "../../api/companies";
-
 import FileUpload from "../../components/ui/FileUpload";
 import { FiFileText } from "react-icons/fi";
 import { CiMapPin } from "react-icons/ci";
 import { searchByZipCode } from "../../utils/search-zip-address";
+import { useNavigate } from "react-router-dom";
 
-export function CompanyCreateForm() {
+
+type CompanyCreateFormProp = {
+  company?: Company;
+};
+
+export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
-  const [position, setPosition] = useState<GeolocationPosition | null>(null);
-  const [geolocationError, setGeolocationError] = useState<string | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [companyId, setCompanyId] = useState(null);
+  const [companyId, setCompanyId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -42,290 +46,216 @@ export function CompanyCreateForm() {
     setValue,
     control,
     formState: { errors },
-  } = useForm<CreateCompanyProps>({
-    defaultValues: {},
-  });
+  } = useForm<CreateCompanyProps>({ defaultValues: {
+    about:company?.about,
+    address:company?.address,
+    avatar:company?.avatar,
+    email:company?.email,
+    name:company?.name,
+    owner_id:company?.owner_id,
+    phone:company?.phone,
+    website:company?.website
+  } });
 
-  // Get user's current position
-  const getCurrentPosition = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setPosition(pos);
-          setGeolocationError(null);
-        },
-        (error) => {
-          console.error("Geolocation error:", error);
-          setGeolocationError("Não foi possível obter sua localização.");
-        }
-      );
-    } else {
-      setGeolocationError("Geolocalização não é suportada pelo seu navegador.");
-    }
-  };
+
+
+
   const uploadImage = useCallback(async () => {
     if (!companyId) {
       toast.error("Crie a empresa antes de fazer o upload da imagem");
       return;
     }
-    console.log("companyId", selectedFiles[0]);
     if (selectedFiles.length > 0) {
       const formData = new FormData();
       formData.append("file", selectedFiles[0]);
-
       await uploadCompanyImage(companyId, formData);
-      // Call your upload API here
+      toast.success("Imagem enviada com sucesso!");
     }
   }, [companyId, selectedFiles]);
-  const onSubmit = async (data: CreateCompanyProps) => {
-    // if (!position) {
-    //   toast.error("É necessário permitir o acesso à sua localização");
-    //   return;
-    // }
 
+  const onSubmit = async (data: CreateCompanyProps) => {
     setIsLoading(true);
     try {
-      const requestData = {
+      const payload = {
         ...data,
         address: {
           ...data.address,
           name: data.name,
           country: "Brasil",
-          latitude: '-23.6528084',
-          longitude: '-46.7440400'
-          // latitude: position.coords.latitude,
-          // longitude: position.coords.longitude,
         },
         owner_id: user?.id as string,
       };
 
-      const response = await createCompany(requestData);
-      setCompanyId(response.id);
-      toast.success("Empresa criada com sucesso!");
-      //   navigate(`/dashboard/companies/${response.id}`);
-    } catch (error) {
-      toast.error("Erro ao criar empresa");
-      console.log("error", error);
+      if (company) {
+        // await updateCompany(id, payload);
+        toast.success("Empresa atualizada com sucesso!");
+      } else {
+        const response = await createCompany(payload);
+        setCompanyId(response.id);
+        toast.success("Empresa criada com sucesso!");
+      }
+
+      navigate("/dashboard/companies");
+    } catch (err) {
+      console.error(err);
+      toast.error(company ? "Erro ao atualizar empresa" : "Erro ao criar empresa");
     } finally {
       setIsLoading(false);
     }
   };
+
   const handleSearchZip = useCallback(
     async (e: React.FocusEvent<HTMLInputElement>) => {
-      const {logradouro,estado,uf} = await searchByZipCode(e.target.value)
-      setValue("address.address", logradouro, { shouldDirty: true, shouldTouch: true });
-      setValue("address.city", estado, { shouldDirty: true, shouldTouch: true });
-      setValue("address.state", uf, { shouldDirty: true, shouldTouch: true });
-      
+      const { logradouro, estado, uf } = await searchByZipCode(e.target.value);
+      setValue("address.address", logradouro);
+      setValue("address.city", estado);
+      setValue("address.state", uf);
     },
     [setValue]
   );
+
   return (
-    <div>
+    <div className="space-y-6">
       <div>
-        <Title>Nova Empresa</Title>
+        <Title>{company ? "Editar Empresa" : "Nova Empresa"}</Title>
         <Text className="text-neutral-600">
-          Preencha os dados para criar uma nova empresa
+          {company
+            ? "Atualize os dados da empresa"
+            : "Preencha os dados para criar uma nova empresa"}
         </Text>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid gap-6">
-          <Card>
-            <CardHeader>
-              <Subtitle>Informações da Empresa</Subtitle>
-            </CardHeader>
-            <CardBody className="space-y-4">
-              <div className="flex align-start">
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-2">
-                    Foto de perfil (opcional)
-                  </label>
-                  <div className="flex flex-col gap-4">
-                    <FileUpload
-                      onFilesSelected={setSelectedFiles}
-                      maxFiles={5}
-                      maxSizeInMB={10}
-                      multiple={false}
-                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Empresa */}
+        <Card>
+          <CardHeader>
+            <Subtitle>Informações da Empresa</Subtitle>
+          </CardHeader>
+          <CardBody className="space-y-4">
+            <div className="flex gap-6 flex-col sm:flex-row">
+              <div className="w-full sm:w-1/3">
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                  Foto de perfil (opcional)
+                </label>
+                <div className="flex flex-col gap-4">
+                  <FileUpload
+                    onFilesSelected={setSelectedFiles}
+                    maxFiles={1}
+                    maxSizeInMB={10}
+                    multiple={false}
+                    accept=".jpg,.jpeg,.png"
+                  />
+                  <Tooltip content="Salvar imagem apenas após criar a empresa">
+                    <Button disabled={!companyId} onPress={uploadImage}>
+                      Salvar
+                    </Button>
+                  </Tooltip>
+                </div>
+              </div>
+              <div className="flex-1 space-y-4">
+                <Input
+                  label="Nome"
+                  placeholder="Nome da empresa"
+                  startContent={<FiFileText />}
+                  
+                  errorMessage={errors.name?.message}
+                  isInvalid={!!errors.name}
+                  {...register("name", { required: "Campo obrigatório" })}
+                />
+                <Controller
+                  control={control}
+                  name="about"
+                  rules={{ required: "Campo obrigatório" }}
+                  render={({ field }) => (
+                    <Textarea
+                      {...field}
+                      label="Sobre"
+                      placeholder="Descreva sua empresa"
+                      value={field.value ?? ""}
+                      errorMessage={errors.about?.message}
+                      isInvalid={!!errors.about}
                     />
-                    <Tooltip content="Salvar imagem apenas após criar a empresa">
-                      <Button disabled={!companyId} onPress={uploadImage}>
-                        Salvar
-                      </Button>
-                    </Tooltip>
-                  </div>
-                </div>
-                <div className="flex-1 ml-4 flex flex-col gap-4">
-                  <Input
-                    label="Nome da empresa"
-                    startContent={<FiFileText size={18} />}
-                    placeholder="Ex: Reforma LTDA"
-                    errorMessage={errors.name?.message}
-                    isInvalid={!!errors.name?.message}
-                    {...register("name", {
-                      required: "Nome do projeto é obrigatório",
-                      minLength: {
-                        value: 2,
-                        message: "Nome deve ter pelo menos 2 caracteres",
-                      },
-                    })}
-                  />
-
-                  <Controller
-                    name="about"
-                    control={control}
-                    rules={{ required: "Descrição é obrigatória" }}
-                    render={({ field }) => (
-                      <Textarea
-                        {...field}
-                        value={field.value ?? ""} // <- aqui é o fix
-                        label="Descrição"
-                        
-                        placeholder="Descreva sobre sua empresa"
-                        errorMessage={errors.about?.message}
-                        isInvalid={!!errors.about?.message}
-                      />
-                    )}
-                  />
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-          <Card>
-            <CardHeader>
-              <Subtitle>Informações de Contato</Subtitle>
-            </CardHeader>
-            <CardBody className="space-y-4">
-              <Input
-                label="Telefone"
-                startContent={<FiFileText size={18} />}
-                placeholder="+55 11 91234-5678"
-                errorMessage={errors.phone?.message}
-                isInvalid={!!errors.phone?.message}
-                {...register("phone", {
-                  required: "Nome do projeto é obrigatório",
-                  minLength: {
-                    value: 2,
-                    message: "Nome deve ter pelo menos 2 caracteres",
-                  },
-                })}
-              />
-              <Input
-                label="E-mail"
-                startContent={<FiFileText size={18} />}
-                placeholder="john@mail.com"
-                errorMessage={errors.email?.message}
-                isInvalid={!!errors.email?.message}
-                type="email"
-                {...register("email", {
-                  required: "Nome do projeto é obrigatório",
-                  minLength: {
-                    value: 2,
-                    message: "Nome deve ter pelo menos 2 caracteres",
-                  },
-                })}
-              />
-              <Input
-                label="Site"
-                startContent={<FiFileText size={18} />}
-                placeholder="https://www.seusite.com"
-                errorMessage={errors.website?.message}
-                isInvalid={!!errors.website?.message}
-                {...register("website", {
-                  required: "Nome do projeto é obrigatório",
-                  minLength: {
-                    value: 2,
-                    message: "Nome deve ter pelo menos 2 caracteres",
-                  },
-                })}
-              />
-            </CardBody>
-          </Card>
-          <Card>
-            <CardHeader>
-              <Subtitle>Endereço</Subtitle>
-            </CardHeader>
-            <CardBody className="space-y-4">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <Input
-                  label="CEP"
-                  startContent={<CiMapPin size={18} />}
-                  placeholder="00000-000"
-                  errorMessage={errors.address?.zip?.message}
-                  isInvalid={!!errors.address?.zip?.message}
-                  {...register("address.zip", {
-                    required: "CEP é obrigatório",
-                  })}
-                  onBlur={handleSearchZip}
-                />
-
-                <Input
-                  label="Estado"
-                  placeholder="Ex: SP"
-                  isDisabled
-                  errorMessage={errors.address?.state?.message}
-                  isInvalid={!!errors.address?.state?.message}
-                  {...register("address.state", {
-                    required: "Estado é obrigatório",
-                  })}
-                />
-              </div>
-
-              <Input
-                label="Cidade"
-                isDisabled
-                placeholder="Ex: São Paulo"
-                errorMessage={errors.address?.city?.message}
-                isInvalid={!!errors.address?.city?.message}
-                {...register("address.city", {
-                  required: "Cidade é obrigatória",
-                })}
-              />
-
-              <div className="grid sm:grid-cols-2 gap-4">
-                <Input
-                  isDisabled
-                  label="Rua"
-                  placeholder="Ex: Rua Principal"
-                  errorMessage={errors.address?.address?.message}
-                  isInvalid={!!errors.address?.address?.message}
-                  {...register("address.address", {
-                    required: "Rua é obrigatória",
-                  })}
-                />
-              </div>
-
-              {/* {!position && (
-                <div className="mt-4">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    startContent={<CiMapPin size={18} />}
-                    onPress={getCurrentPosition}
-                  >
-                    Usar minha localização atual
-                  </Button>
-                  {geolocationError && (
-                    <p className="mt-2 text-sm text-error-500">
-                      {geolocationError}
-                    </p>
                   )}
-                </div>
-              )} */}
-            </CardBody>
-          </Card>
+                />
+              </div>
+            </div>
+          </CardBody>
+        </Card>
 
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              isLoading={isLoading}
-              color="primary"
-              isDisabled={!!companyId}
-            >
-              Criar empresa
-            </Button>
-          </div>
+        {/* Contato */}
+        <Card>
+          <CardHeader>
+            <Subtitle>Contato</Subtitle>
+          </CardHeader>
+          <CardBody className="space-y-4">
+            <Input
+              label="Telefone"
+              placeholder="(11) 91234-5678"
+              {...register("phone", { required: "Campo obrigatório" })}
+              isInvalid={!!errors.phone}
+              errorMessage={errors.phone?.message}
+            />
+            <Input
+              label="Email"
+              type="email"
+              placeholder="exemplo@email.com"
+              {...register("email", { required: "Campo obrigatório" })}
+              isInvalid={!!errors.email}
+              errorMessage={errors.email?.message}
+            />
+            <Input
+              label="Website"
+              placeholder="https://suaempresa.com"
+              {...register("website", { required: "Campo obrigatório" })}
+              isInvalid={!!errors.website}
+              errorMessage={errors.website?.message}
+            />
+          </CardBody>
+        </Card>
+
+        {/* Endereço */}
+        <Card>
+          <CardHeader>
+            <Subtitle>Endereço</Subtitle>
+          </CardHeader>
+          <CardBody className="space-y-4">
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Input
+                label="CEP"
+                placeholder="00000-000"
+                startContent={<CiMapPin />}
+                {...register("address.zip", { required: "Campo obrigatório" })}
+                isInvalid={!!errors.address?.zip}
+                errorMessage={errors.address?.zip?.message}
+                onBlur={handleSearchZip}
+              />
+              <Input
+                label="Estado"
+                isDisabled
+                {...register("address.state")}
+              />
+            </div>
+            <Input
+              label="Cidade"
+              isDisabled
+              {...register("address.city")}
+            />
+            <Input
+              label="Rua"
+              isDisabled
+              {...register("address.address")}
+            />
+          </CardBody>
+        </Card>
+
+        <div className="flex justify-end">
+          <Button
+            color="primary"
+            type="submit"
+            isLoading={isLoading}
+          >
+            {company ? "Salvar alterações" : "Criar empresa"}
+          </Button>
         </div>
       </form>
     </div>

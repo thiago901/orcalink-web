@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import {  useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
 import { getCompanyById } from "../../api/companies";
-import {
-  getCompanyServices,
-} from "../../api/companyServices";
+import { getCompanyServices } from "../../api/companyServices";
 import { getEstimateRequests } from "../../api/estimateRequests";
 import { getProposalsByCompanyId } from "../../api/proposals";
 
@@ -32,19 +30,20 @@ import { getJobsByCompany } from "../../api/jobs-service";
 import CompanyServiceForm from "../../components/forms/company-service-create";
 import { FiFileText, FiLoader } from "react-icons/fi";
 import { CiCalendar, CiMapPin } from "react-icons/ci";
-import { FaArrowsUpDown, FaBuilding } from "react-icons/fa6";
+import { FaBuilding } from "react-icons/fa6";
 
 const RADIUS_OPTIONS = [
-  { key: "5000", label: "5 km" },
-  { key: "10000", label: "10 km" },
-  { key: "20000", label: "20 km" },
-  { key: "50000", label: "50 km" },
+  { key: '5000', label: "5 km" },
+  { key: '10000', label: "10 km" },
+  { key: '20000', label: "20 km" },
+  { key: '50000', label: "50 km" },
 ];
 
 const CompanyDetailPage = () => {
   const { id } = useParams<{ id: string }>();
 
-  const [radius, setRadius] = useState(10000);
+  const [radius, setRadius] = useState(RADIUS_OPTIONS[0].key);
+  
   const [sortBy, setSortBy] = useState<"date" | "distance">("date");
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -68,6 +67,7 @@ const CompanyDetailPage = () => {
     queryKey: ["companyServices", id],
     queryFn: () => getCompanyServices(id!),
   });
+console.log('services',services);
 
   const { data: requests, isLoading: isLoadingRequests } = useQuery({
     queryKey: [
@@ -80,11 +80,15 @@ const CompanyDetailPage = () => {
       getEstimateRequests({
         latitude: company!.address.latitude,
         longitude: company!.address.longitude,
-        radiusInMeters: radius,
+        radiusInMeters:radius? Number(radius):Number(RADIUS_OPTIONS[0].key),
+        category:services ? services.map(s=>s.category_name):undefined
       }),
-    enabled: !!company?.address.latitude && !!company?.address.longitude,
+    enabled: !!company?.address.latitude && !!company?.address.longitude && !isLoadingServices
   });
 
+
+
+  
   const {
     data: proposals,
     isLoading: isLoadingProposals,
@@ -134,6 +138,8 @@ const CompanyDetailPage = () => {
     );
   };
 
+
+    
   return (
     <div>
       <Tabs>
@@ -142,7 +148,12 @@ const CompanyDetailPage = () => {
             <div className="lg:col-span-2 space-y-6">
               <Card>
                 <CardHeader>
-                  <Subtitle>Informações da Empresa</Subtitle>
+                  <div className="flex items-center justify-between w-full">
+                    <Subtitle>Informações da Empresa</Subtitle>
+                    <Button as={Link} href={`/dashboard/companies/${id}/edit`}>
+                      Editar
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardBody>
                   <div className="space-y-4">
@@ -258,22 +269,17 @@ const CompanyDetailPage = () => {
                   <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
                     <Select
                       defaultSelectedKeys={[RADIUS_OPTIONS[0].key]}
-                      label="Select filter"
+                      label="Selecione a Distância"
+                      selectionMode='single'
+                      selectedKeys={[radius]}
+                      onSelectionChange={(e)=>setRadius(String(e?.currentKey))                     }
                     >
                       {RADIUS_OPTIONS.map((opt) => (
                         <SelectItem key={opt.key}>{opt.label}</SelectItem>
                       ))}
                     </Select>
 
-                    <Button
-                      variant="ghost"
-                      startContent={<FaArrowsUpDown size={16} />}
-                      onPress={() =>
-                        setSortBy(sortBy === "date" ? "distance" : "date")
-                      }
-                    >
-                      {sortBy === "date" ? "Data" : "Distância"}
-                    </Button>
+                   
                   </div>
                 </div>
               </CardHeader>
@@ -285,7 +291,7 @@ const CompanyDetailPage = () => {
                 ) : !sortedRequests?.length ? (
                   <div className="text-center py-8">
                     <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <MapPin className="w-8 h-8 " />
+                      <CiMapPin className="w-8 h-8 " />
                     </div>
                     <h3 className="text-lg font-medium mb-2">
                       Nenhum orçamento disponível
@@ -367,7 +373,7 @@ const CompanyDetailPage = () => {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {proposals.map((proposal:any) => (
+                    {proposals.map((proposal: any) => (
                       <div key={proposal.id} className="p-4 rounded-lg ">
                         <div className="flex justify-between items-start gap-4">
                           <div>
@@ -480,6 +486,7 @@ const CompanyDetailPage = () => {
           </div>
         </Tab>
       </Tabs>
+
       {/* Dialogs */}
       <EstimateRequestDetailsDialog
         isOpen={isDetailsOpen}
