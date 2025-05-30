@@ -63,7 +63,7 @@ const CompanyServiceForm = ({
     <DialogV2
       isOpen={isOpen}
       onClose={onClose}
-      title="Enviar Proposta"
+      title="Adicionar um serviço"
       footer={
         <>
           <Button variant="ghost" onPress={onClose}>

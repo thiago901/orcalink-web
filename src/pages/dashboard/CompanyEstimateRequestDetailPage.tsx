@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
@@ -10,6 +10,8 @@ import { Title } from "../../components/ui/Title";
 
 import { Text } from "../../components/ui/Text";
 import {
+  BreadcrumbItem,
+  Breadcrumbs,
   Button,
   Card,
   CardBody,
@@ -25,13 +27,11 @@ const CompanyEstimateRequestDetailPage = () => {
   const { estimate_id, id } = useParams<{ estimate_id: string; id: string }>();
 
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
-  const [isProposalFormOpen, setIsProposalFormOpen] = useState(false);
-  const { data: request, isLoading: isLoadingRequest } = useQuery({
-    queryKey: ["estimateRequest", estimate_id],
-    queryFn: () => getEstimateRequestById(estimate_id!),
-    enabled: !!estimate_id,
+  const [statusProposals, setStatusProposals] = useState({
+    hasProposal: false,
+    wasApproved: false,
+    isSameCompany: false,
   });
-
   const {
     data: proposals,
     isLoading: isLoadingProposals,
@@ -39,6 +39,24 @@ const CompanyEstimateRequestDetailPage = () => {
   } = useQuery({
     queryKey: ["proposals", estimate_id],
     queryFn: () => getProposalsByEstimateId(estimate_id!),
+    enabled: !!estimate_id,
+  });
+
+  useEffect(() => {
+    const proposal = proposals?.find(
+      (proposal: any) => proposal.estimate_request_id === estimate_id
+    );
+
+    setStatusProposals({
+      hasProposal: proposal,
+      wasApproved: !!proposal?.approved_at,
+      isSameCompany: proposal?.company_id === id,
+    });
+  }, [estimate_id, id, proposals]);
+  const [isProposalFormOpen, setIsProposalFormOpen] = useState(false);
+  const { data: request, isLoading: isLoadingRequest } = useQuery({
+    queryKey: ["estimateRequest", estimate_id],
+    queryFn: () => getEstimateRequestById(estimate_id!),
     enabled: !!estimate_id,
   });
 
@@ -61,13 +79,15 @@ const CompanyEstimateRequestDetailPage = () => {
     );
   }
 
-  const hasSubmittedProposal = (requestId: string) => {
-    return proposals?.some(
-      (proposal: any) => proposal.estimate_request_id === requestId
-    );
-  };
   return (
     <div className="space-y-6 fade-in">
+      <Breadcrumbs>
+        <BreadcrumbItem href="/dashboard">Dashboard</BreadcrumbItem>
+        <BreadcrumbItem href={`dashboard/companies/${id}`}>
+          Orçamentos
+        </BreadcrumbItem>
+        <BreadcrumbItem>{request.name}</BreadcrumbItem>
+      </Breadcrumbs>
       <div>
         <Title>{request.name}</Title>
         <Text>Detalhes da solicitação de orçamento</Text>
@@ -146,21 +166,30 @@ const CompanyEstimateRequestDetailPage = () => {
           </Card>
 
           <div className="flex flex-col gap-2">
-            {!hasSubmittedProposal(request.id) ? (
-              <>
-                <Button
-                  color="primary"
-                  onPress={() => {
-                    setSelectedRequest(request);
-                    setIsProposalFormOpen(true);
-                  }}
-                >
-                  Enviar Proposta
-                </Button>
-              </>
-            ) : (
+            {/* STATUS PRINCIPAL */}
+            {statusProposals.wasApproved &&
+            statusProposals.hasProposal &&
+            statusProposals.isSameCompany ? (
               <Button variant="ghost" disabled color="success">
-                Proposta Enviada
+                Proposta aprovada pelo cliente
+              </Button>
+            ) : statusProposals.wasApproved ? (
+              <Button variant="ghost" disabled color="warning">
+                Proposta já foi fechada
+              </Button>
+            ) : statusProposals.hasProposal && statusProposals.isSameCompany ? (
+              <Button variant="ghost" disabled color="success">
+                Proposta enviada
+              </Button>
+            ) : (
+              <Button
+                color="primary"
+                onPress={() => {
+                  setSelectedRequest(request);
+                  setIsProposalFormOpen(true);
+                }}
+              >
+                Enviar proposta
               </Button>
             )}
           </div>

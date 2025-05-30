@@ -1,4 +1,4 @@
-import { useCallback,  useState } from "react";
+import { useCallback, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../stores/authStore";
@@ -6,6 +6,8 @@ import { Title } from "../../components/ui/Title";
 import { Text } from "../../components/ui/Text";
 import { Subtitle } from "../../components/ui/Subtitle";
 import {
+  BreadcrumbItem,
+  Breadcrumbs,
   Button,
   Card,
   CardBody,
@@ -17,9 +19,7 @@ import {
 import {
   Company,
   createCompany,
-  
   CreateCompanyProps,
-  
   uploadCompanyImage,
 } from "../../api/companies";
 import FileUpload from "../../components/ui/FileUpload";
@@ -27,7 +27,6 @@ import { FiFileText } from "react-icons/fi";
 import { CiMapPin } from "react-icons/ci";
 import { searchByZipCode } from "../../utils/search-zip-address";
 import { useNavigate } from "react-router-dom";
-
 
 type CompanyCreateFormProp = {
   company?: Company;
@@ -46,19 +45,18 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
     setValue,
     control,
     formState: { errors },
-  } = useForm<CreateCompanyProps>({ defaultValues: {
-    about:company?.about,
-    address:company?.address,
-    avatar:company?.avatar,
-    email:company?.email,
-    name:company?.name,
-    owner_id:company?.owner_id,
-    phone:company?.phone,
-    website:company?.website
-  } });
-
-
-
+  } = useForm<CreateCompanyProps>({
+    defaultValues: {
+      about: company?.about,
+      address: company?.address,
+      avatar: company?.avatar,
+      email: company?.email,
+      name: company?.name,
+      owner_id: company?.owner_id,
+      phone: company?.phone,
+      website: company?.website,
+    },
+  });
 
   const uploadImage = useCallback(async () => {
     if (!companyId) {
@@ -98,7 +96,9 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
       navigate("/dashboard/companies");
     } catch (err) {
       console.error(err);
-      toast.error(company ? "Erro ao atualizar empresa" : "Erro ao criar empresa");
+      toast.error(
+        company ? "Erro ao atualizar empresa" : "Erro ao criar empresa"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -116,6 +116,18 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs>
+        <BreadcrumbItem href="/dashboard">Dashboard</BreadcrumbItem>
+        {company?.id ? (
+          <BreadcrumbItem href={`dashboard/companies/${company?.id}`}>
+            Empresa
+          </BreadcrumbItem>
+        ) : (
+          <BreadcrumbItem href={`dashboard/companies`}>
+            Criar Empresa
+          </BreadcrumbItem>
+        )}
+      </Breadcrumbs>
       <div>
         <Title>{company ? "Editar Empresa" : "Nova Empresa"}</Title>
         <Text className="text-neutral-600">
@@ -157,7 +169,6 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
                   label="Nome"
                   placeholder="Nome da empresa"
                   startContent={<FiFileText />}
-                  
                   errorMessage={errors.name?.message}
                   isInvalid={!!errors.name}
                   {...register("name", { required: "Campo obrigatório" })}
@@ -229,31 +240,15 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
                 errorMessage={errors.address?.zip?.message}
                 onBlur={handleSearchZip}
               />
-              <Input
-                label="Estado"
-                isDisabled
-                {...register("address.state")}
-              />
+              <Input label="Estado" isDisabled {...register("address.state")} />
             </div>
-            <Input
-              label="Cidade"
-              isDisabled
-              {...register("address.city")}
-            />
-            <Input
-              label="Rua"
-              isDisabled
-              {...register("address.address")}
-            />
+            <Input label="Cidade" isDisabled {...register("address.city")} />
+            <Input label="Rua" isDisabled {...register("address.address")} />
           </CardBody>
         </Card>
 
         <div className="flex justify-end">
-          <Button
-            color="primary"
-            type="submit"
-            isLoading={isLoading}
-          >
+          <Button color="primary" type="submit" isLoading={isLoading}>
             {company ? "Salvar alterações" : "Criar empresa"}
           </Button>
         </div>

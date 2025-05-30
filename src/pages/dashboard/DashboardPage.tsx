@@ -2,20 +2,17 @@ import { useEffect, useState } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../../stores/authStore';
-import { getEstimateRequestsByUserId } from '../../api/estimateRequests';
 import { getCompaniesByOwnerId } from '../../api/companies';
 
 
-import { Button, Card, CardBody, CardHeader, Chip, Link, Listbox, ListboxItem } from '@heroui/react';
+import { Button, Card, CardBody, CardHeader, Link, Listbox, ListboxItem } from '@heroui/react';
 
 import { Title } from '../../components/ui/Title';
 
 import { Subtitle } from '../../components/ui/Subtitle';
 import { Text } from '../../components/ui/Text';
-import { FaArrowRight, FaBuilding, FaPlus } from 'react-icons/fa6';
+import { FaArrowRight, FaBuilding } from 'react-icons/fa6';
 import { FiLoader } from 'react-icons/fi';
-
-
 
 
 const DashboardPage = () => {
@@ -23,15 +20,6 @@ const DashboardPage = () => {
   const [position, setPosition] = useState<GeolocationPosition | null>(null);
   const [geolocationError, setGeolocationError] = useState<string | null>(null);
 
-  // Get user's estimate requests
-  const { 
-    data: estimateRequests,
-    isLoading: isLoadingRequests 
-  } = useQuery({
-    queryKey: ['estimateRequests', user?.id],
-    queryFn: () => getEstimateRequestsByUserId(user?.id || ''),
-    enabled: !!user?.id,
-  });
 
   // Get user's companies
   const { 
@@ -62,6 +50,7 @@ const DashboardPage = () => {
 
   return (
     <div className="space-y-8 fade-in">
+      
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <Title>Dashboard</Title>
@@ -71,9 +60,7 @@ const DashboardPage = () => {
         </div>
         
         <div className="flex flex-col sm:flex-row gap-2">
-         <Button as={Link} href="/dashboard/estimate-requests/new" startContent={<FaPlus size={18} />} color='primary'>
-              Solicitar Orçamento
-          </Button>
+  
      
           
           {(companies?.length > 0) && (
@@ -87,58 +74,6 @@ const DashboardPage = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Recent Estimate Requests */}
-        <Card>
-          <CardHeader>
-            <Subtitle>Orçamentos Recentes</Subtitle>
-          </CardHeader>
-          <CardBody>
-            {isLoadingRequests ? (
-              <div className="flex justify-center py-8">
-                <FiLoader className="w-8 h-8 animate-spin text-primary-500" />
-              </div>
-            ) : estimateRequests?.length > 0 ? (
-              <div className="space-y-4">
-                <Listbox aria-label="Actions" >
-                {estimateRequests.slice(0, 3).map((request) => (
-                  <ListboxItem 
-                    key={request.id}
-                    href={`/dashboard/estimate-requests/${request.id}`}
-                    
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <Text>{request.name}</Text>
-                      </div>
-                      <Chip color='primary'>
-                        {request.proposals?.length || 0} propostas
-                      </Chip>
-                    </div>
-              
-                  </ListboxItem>
-                ))}
-             
-                </Listbox>
-                
-                
-                <div className="text-center pt-2">
-                  <Link href="/dashboard/estimate-requests" className="text-primary-600 hover:text-primary-700 font-medium">
-                    Ver todos os orçamentos
-                  </Link>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-neutral-500 mb-4">Você ainda não tem nenhum orçamento solicitado.</p>
-                
-                  <Button startContent={<FaPlus size={18} />} as={Link} href="/dashboard/estimate-requests/new">
-                    Solicitar Orçamento
-                  </Button>
-                
-              </div>
-            )}
-          </CardBody>
-        </Card>
 
         {/* Location Status or Companies */}
         {companies?.length > 0 ? (

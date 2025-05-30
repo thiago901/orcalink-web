@@ -6,7 +6,7 @@ import { useQuery} from '@tanstack/react-query';
 import { Title } from '../../components/ui/Title';
 
 import { Text } from '../../components/ui/Text';
-import { Accordion, AccordionItem, Card, CardBody, CardHeader } from '@heroui/react';
+import { Accordion, AccordionItem, BreadcrumbItem, Breadcrumbs, Card, CardBody, CardHeader } from '@heroui/react';
 import { Subtitle } from '../../components/ui/Subtitle';
 import ImageGallery from '../../components/image-gallery';
 import { getJobById } from '../../api/jobs-service';
@@ -47,8 +47,16 @@ const JobDetailPage = () => {
   }
   
 
+
   return (
     <div className="space-y-6 fade-in">
+       <Breadcrumbs>
+        <BreadcrumbItem href="/dashboard">Dashboard</BreadcrumbItem>
+        <BreadcrumbItem href={`dashboard/companies/${request.company_id}`}>
+          Orçamentos
+        </BreadcrumbItem>
+        <BreadcrumbItem>{request.estimate_request.name}</BreadcrumbItem>
+      </Breadcrumbs>
       <div>
         <Title >{request.estimate_request.name}</Title>
         <Text>Detalhes da solicitação de orçamento</Text>

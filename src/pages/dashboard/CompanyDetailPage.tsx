@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {  useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
@@ -31,19 +31,24 @@ import CompanyServiceForm from "../../components/forms/company-service-create";
 import { FiFileText, FiLoader } from "react-icons/fi";
 import { CiCalendar, CiMapPin } from "react-icons/ci";
 import { FaBuilding } from "react-icons/fa6";
+import { DashboardStats } from "../../components/dashboard/dashboard-stats";
 
 const RADIUS_OPTIONS = [
-  { key: '5000', label: "5 km" },
-  { key: '10000', label: "10 km" },
-  { key: '20000', label: "20 km" },
-  { key: '50000', label: "50 km" },
+  { key: "5000", label: "5 km" },
+  { key: "10000", label: "10 km" },
+  { key: "20000", label: "20 km" },
+  { key: "50000", label: "50 km" },
 ];
-
+type TabSelect =  "dashboard"
+| "informations"
+| "available-requests"
+| "proposals-sent"
+| "jobs"
 const CompanyDetailPage = () => {
   const { id } = useParams<{ id: string }>();
 
   const [radius, setRadius] = useState(RADIUS_OPTIONS[0].key);
-  
+  const [selected, setSelected] = useState<TabSelect >("dashboard");
   const [sortBy, setSortBy] = useState<"date" | "distance">("date");
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -60,14 +65,13 @@ const CompanyDetailPage = () => {
   const { data: jobs } = useQuery({
     queryKey: ["jobs", id],
     queryFn: () => getJobsByCompany(id!),
-    enabled: !!id,
+    enabled: !!id && selected==='jobs',
   });
 
   const { data: services, isLoading: isLoadingServices } = useQuery({
     queryKey: ["companyServices", id],
     queryFn: () => getCompanyServices(id!),
   });
-console.log('services',services);
 
   const { data: requests, isLoading: isLoadingRequests } = useQuery({
     queryKey: [
@@ -80,15 +84,16 @@ console.log('services',services);
       getEstimateRequests({
         latitude: company!.address.latitude,
         longitude: company!.address.longitude,
-        radiusInMeters:radius? Number(radius):Number(RADIUS_OPTIONS[0].key),
-        category:services ? services.map(s=>s.category_name):undefined
+        radiusInMeters: radius ? Number(radius) : Number(RADIUS_OPTIONS[0].key),
+        category: services ? services.map((s) => s.category_name) : undefined,
       }),
-    enabled: !!company?.address.latitude && !!company?.address.longitude && !isLoadingServices
+    enabled:
+      !!company?.address.latitude &&
+      !!company?.address.longitude &&
+      !isLoadingServices &&
+      selected ==='available-requests'
   });
 
-
-
-  
   const {
     data: proposals,
     isLoading: isLoadingProposals,
@@ -96,7 +101,7 @@ console.log('services',services);
   } = useQuery({
     queryKey: ["companyProposals", id],
     queryFn: () => getProposalsByCompanyId(id!),
-    enabled: !!id,
+    enabled: !!id && selected ==='proposals-sent',
   });
 
   if (isLoadingCompany || isLoadingServices) {
@@ -138,93 +143,301 @@ console.log('services',services);
     );
   };
 
-
-    
   return (
     <div>
-      <Tabs>
+      <Tabs
+        selectedKey={selected}
+        onSelectionChange={(e) => setSelected(e.toString() as TabSelect)}
+      >
+        <Tab key="dashboard" title="Dashboard">
+          {selected === "dashboard" && (
+            <DashboardStats company_id={company.id} />
+          )}
+        </Tab>
         <Tab key="informations" title="Informações">
-          <div className="grid gap-6 lg:grid-cols-3">
-            <div className="lg:col-span-2 space-y-6">
+          
+            <div className="grid gap-6 lg:grid-cols-3">
+              <div className="lg:col-span-2 space-y-6">
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between w-full">
+                      <Subtitle>Informações da Empresa</Subtitle>
+                      <Button
+                        as={Link}
+                        href={`/dashboard/companies/${id}/edit`}
+                      >
+                        Editar
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardBody>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center  text-2xl font-medium ">
+                          {company.name.charAt(0)}
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-medium ">
+                            {company.name}
+                          </h4>
+                          <p>
+                            {company.address.city}, {company.address.state}
+                          </p>
+                        </div>
+                      </div>
+
+                      {company.about && (
+                        <div>
+                          <h4 className="font-medium mb-2">Sobre</h4>
+                          <p>{company.about}</p>
+                        </div>
+                      )}
+
+                      <div>
+                        <h4 className="font-medium mb-2 ">Endereço</h4>
+                        <div className="flex items-center gap-2 ">
+                          <CiMapPin size={18} />
+                          <span>
+                            {company.address.address}
+                            <br />
+                            {company.address.city}, {company.address.state} -{" "}
+                            {company.address.zip}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardBody>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex align-center justify-between">
+                    <Subtitle>Serviços Oferecidos</Subtitle>
+                    <Button
+                      color="primary"
+                      className="mt-4"
+                      onPress={() => setIsCompanyServiceFormOpen(true)}
+                    >
+                      Cadastrar Serviço
+                    </Button>
+                  </CardHeader>
+                  <CardBody>
+                    {!services?.length ? (
+                      <div className="text-center py-8">
+                        <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4 ">
+                          <FaBuilding className="w-8 h-8 " />
+                        </div>
+                        <h3 className="text-lg font-medium mb-2 ">
+                          Nenhum serviço cadastrado
+                        </h3>
+                        <p>Esta empresa ainda não cadastrou seus serviços.</p>
+                      </div>
+                    ) : (
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        {services.map((service) => (
+                          <div
+                            key={service.id}
+                            className="p-4 rounded-lg border border-neutral-200 "
+                          >
+                            <h4 className="font-medium ">{service.name}</h4>
+                            <p className="text-sm  mt-1 ">
+                              {service.category_name}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardBody>
+                </Card>
+              </div>
+
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between w-full">
-                    <Subtitle>Informações da Empresa</Subtitle>
-                    <Button as={Link} href={`/dashboard/companies/${id}/edit`}>
-                      Editar
-                    </Button>
-                  </div>
+                  <Subtitle>Status</Subtitle>
                 </CardHeader>
                 <CardBody>
                   <div className="space-y-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center  text-2xl font-medium ">
-                        {company.name.charAt(0)}
+                    <div>
+                      <div className="text-2xl font-semibold">
+                        {services?.length || 0}
                       </div>
-                      <div>
-                        <h4 className="text-lg font-medium ">{company.name}</h4>
-                        <p>
-                          {company.address.city}, {company.address.state}
-                        </p>
-                      </div>
+                      <div className="text-sm ">Serviços cadastrados</div>
                     </div>
 
-                    {company.about && (
-                      <div>
-                        <h4 className="font-medium mb-2">Sobre</h4>
-                        <p>{company.about}</p>
-                      </div>
-                    )}
+                    <div className="h-px " />
 
                     <div>
-                      <h4 className="font-medium mb-2 ">Endereço</h4>
-                      <div className="flex items-center gap-2 ">
-                        <CiMapPin size={18} />
-                        <span>
-                          {company.address.address}
-                          <br />
-                          {company.address.city}, {company.address.state} -{" "}
-                          {company.address.zip}
-                        </span>
+                      <h4 className="font-medium mb-2 ">Última atualização</h4>
+                      <div className="">
+                        {/* {new Date(company.updated_at).toLocaleDateString('pt-BR')} */}
+                        {new Date().toLocaleDateString("pt-BR")}
                       </div>
                     </div>
                   </div>
                 </CardBody>
               </Card>
-
+            </div>
+          
+        </Tab>
+        <Tab key="available-requests" title="Orçamentos Disponíveis">
+          
+            <div className="space-y-6">
               <Card>
-                <CardHeader className="flex align-center justify-between">
-                  <Subtitle>Serviços Oferecidos</Subtitle>
-                  <Button
-                    color="primary"
-                    className="mt-4"
-                    onPress={() => setIsCompanyServiceFormOpen(true)}
-                  >
-                    Cadastrar Serviço
-                  </Button>
+                <CardHeader>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <Subtitle>Orçamentos Disponíveis</Subtitle>
+                    <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
+                      <Select
+                        defaultSelectedKeys={[RADIUS_OPTIONS[0].key]}
+                        label="Selecione a Distância"
+                        selectionMode="single"
+                        selectedKeys={[radius]}
+                        onSelectionChange={(e) =>
+                          setRadius(String(e?.currentKey))
+                        }
+                      >
+                        {RADIUS_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.key}>{opt.label}</SelectItem>
+                        ))}
+                      </Select>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardBody>
-                  {!services?.length ? (
+                  {isLoadingRequests ? (
+                    <div className="flex justify-center py-8">
+                      <FiLoader className="w-8 h-8 animate-spin " />
+                    </div>
+                  ) : !sortedRequests?.length ? (
                     <div className="text-center py-8">
-                      <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4 ">
-                        <FaBuilding className="w-8 h-8 " />
+                      <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <CiMapPin className="w-8 h-8 " />
                       </div>
-                      <h3 className="text-lg font-medium mb-2 ">
-                        Nenhum serviço cadastrado
+                      <h3 className="text-lg font-medium mb-2">
+                        Nenhum orçamento disponível
                       </h3>
-                      <p>Esta empresa ainda não cadastrou seus serviços.</p>
+                      <p className="">
+                        Não há solicitações de orçamento na sua região no
+                        momento.
+                      </p>
                     </div>
                   ) : (
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      {services.map((service) => (
-                        <div
-                          key={service.id}
-                          className="p-4 rounded-lg border border-neutral-200 "
-                        >
-                          <h4 className="font-medium ">{service.name}</h4>
-                          <p className="text-sm  mt-1 ">
-                            {service.category.name}
-                          </p>
+                    <div className="space-y-4">
+                      <Listbox>
+                        {sortedRequests.map((request, index) => (
+                          <ListboxItem
+                            key={request.id}
+                            showDivider={sortedRequests.length - 1 !== index}
+                            as={Link}
+                            href={`/dashboard/companies/${id}/estimate_request/${request.id}`}
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                              <div>
+                                <h4 className="font-medium">{request.name}</h4>
+                                <div className="flex items-center gap-2 mt-1 text-sm ">
+                                  <CiMapPin size={14} />
+                                  <span>
+                                    {request.address.city},{" "}
+                                    {request.address.state}
+                                  </span>
+                                </div>
+                                <p className="mt-2 text-sm text-neutral-600">
+                                  {request.description.slice(0, 150)}
+                                </p>
+                                <div className="mt-4 flex flex-wrap gap-4 text-sm ">
+                                  <div className="flex items-center gap-1">
+                                    <CiCalendar size={14} />
+                                    <span>
+                                      {new Date(
+                                        request.created_at
+                                      ).toLocaleDateString("pt-BR")}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <CiMapPin size={14} />
+                                    <span>{request.footage}m²</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </ListboxItem>
+                        ))}
+                      </Listbox>
+                    </div>
+                  )}
+                </CardBody>
+              </Card>
+            </div>
+          
+        </Tab>
+        <Tab key="proposals-sent" title="Propostas Enviadas">
+          
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <Subtitle>Propostas Enviadas</Subtitle>
+                </CardHeader>
+                <CardBody>
+                  {isLoadingProposals ? (
+                    <div className="flex justify-center py-8">
+                      <FiLoader className="w-8 h-8 animate-spin " />
+                    </div>
+                  ) : !proposals?.length ? (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <FiFileText className="w-8 h-8 " />
+                      </div>
+                      <h3 className="text-lg font-medium mb-2">
+                        Nenhuma proposta enviada
+                      </h3>
+                      <p className="text-neutral-600">
+                        Você ainda não enviou nenhuma proposta.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {console.log('proposals',proposals)
+                      }
+                      {proposals.map((proposal: any) => (
+                        <div key={proposal.id} className="p-4 rounded-lg ">
+                          <div className="flex justify-between items-start gap-4">
+                            <div>
+                              <h4 className="font-medium">
+                                {/* {proposal.estimate_request.name} */}
+                                {proposal.id}
+                              </h4>
+                              <p className="text-sm  mt-1">
+                                {/* {proposal.estimate_request.address_city}, {proposal.estimate_request.address_state} */}
+                                Endereco
+                              </p>
+                              <Text className="mt-2">
+                                {proposal.description}
+                              </Text>
+                            </div>
+                            <div className="text-right">
+                              <Subtitle>
+                                {new Intl.NumberFormat("pt-BR", {
+                                  style: "currency",
+                                  currency: "BRL",
+                                }).format(proposal.amount)}
+                              </Subtitle>
+                              <Chip
+                                className="mt-2"
+                                color={
+                                  proposal.approved_at
+                                    ? "success"
+                                    : proposal.reject_at
+                                    ? "danger"
+                                    : "warning"
+                                }
+                              >
+                                {proposal.approved_at
+                                  ? "Aprovado"
+                                  : proposal.reject_at
+                                  ? "Rejeitado"
+                                  : "Pendente"}
+                              </Chip>
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -232,258 +445,75 @@ console.log('services',services);
                 </CardBody>
               </Card>
             </div>
-
-            <Card>
-              <CardHeader>
-                <Subtitle>Status</Subtitle>
-              </CardHeader>
-              <CardBody>
-                <div className="space-y-4">
-                  <div>
-                    <div className="text-2xl font-semibold">
-                      {services?.length || 0}
-                    </div>
-                    <div className="text-sm ">Serviços cadastrados</div>
-                  </div>
-
-                  <div className="h-px " />
-
-                  <div>
-                    <h4 className="font-medium mb-2 ">Última atualização</h4>
-                    <div className="">
-                      {/* {new Date(company.updated_at).toLocaleDateString('pt-BR')} */}
-                      {new Date().toLocaleDateString("pt-BR")}
-                    </div>
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-          </div>
-        </Tab>
-        <Tab key="available-requests" title="Orçamentos Disponíveis">
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <Subtitle>Orçamentos Disponíveis</Subtitle>
-                  <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
-                    <Select
-                      defaultSelectedKeys={[RADIUS_OPTIONS[0].key]}
-                      label="Selecione a Distância"
-                      selectionMode='single'
-                      selectedKeys={[radius]}
-                      onSelectionChange={(e)=>setRadius(String(e?.currentKey))                     }
-                    >
-                      {RADIUS_OPTIONS.map((opt) => (
-                        <SelectItem key={opt.key}>{opt.label}</SelectItem>
-                      ))}
-                    </Select>
-
-                   
-                  </div>
-                </div>
-              </CardHeader>
-              <CardBody>
-                {isLoadingRequests ? (
-                  <div className="flex justify-center py-8">
-                    <FiLoader className="w-8 h-8 animate-spin " />
-                  </div>
-                ) : !sortedRequests?.length ? (
-                  <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <CiMapPin className="w-8 h-8 " />
-                    </div>
-                    <h3 className="text-lg font-medium mb-2">
-                      Nenhum orçamento disponível
-                    </h3>
-                    <p className="">
-                      Não há solicitações de orçamento na sua região no momento.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <Listbox>
-                      {sortedRequests.map((request, index) => (
-                        <ListboxItem
-                          key={request.id}
-                          showDivider={sortedRequests.length - 1 !== index}
-                          as={Link}
-                          href={`/dashboard/companies/${id}/estimate_request/${request.id}`}
-                        >
-                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                            <div>
-                              <h4 className="font-medium">{request.name}</h4>
-                              <div className="flex items-center gap-2 mt-1 text-sm ">
-                                <CiMapPin size={14} />
-                                <span>
-                                  {request.address.city},{" "}
-                                  {request.address.state}
-                                </span>
-                              </div>
-                              <p className="mt-2 text-sm text-neutral-600">
-                                {request.description.slice(0, 150)}
-                              </p>
-                              <div className="mt-4 flex flex-wrap gap-4 text-sm ">
-                                <div className="flex items-center gap-1">
-                                  <CiCalendar size={14} />
-                                  <span>
-                                    {new Date(
-                                      request.created_at
-                                    ).toLocaleDateString("pt-BR")}
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <CiMapPin size={14} />
-                                  <span>{request.footage}m²</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </ListboxItem>
-                      ))}
-                    </Listbox>
-                  </div>
-                )}
-              </CardBody>
-            </Card>
-          </div>
-        </Tab>
-        <Tab key="proposals-sent" title="Propostas Enviadas">
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <Subtitle>Propostas Enviadas</Subtitle>
-              </CardHeader>
-              <CardBody>
-                {isLoadingProposals ? (
-                  <div className="flex justify-center py-8">
-                    <FiLoader className="w-8 h-8 animate-spin " />
-                  </div>
-                ) : !proposals?.length ? (
-                  <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <FiFileText className="w-8 h-8 " />
-                    </div>
-                    <h3 className="text-lg font-medium mb-2">
-                      Nenhuma proposta enviada
-                    </h3>
-                    <p className="text-neutral-600">
-                      Você ainda não enviou nenhuma proposta.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {proposals.map((proposal: any) => (
-                      <div key={proposal.id} className="p-4 rounded-lg ">
-                        <div className="flex justify-between items-start gap-4">
-                          <div>
-                            <h4 className="font-medium">
-                              {/* {proposal.estimate_request.name} */}
-                              {"proposal.estimate_request.name"}
-                            </h4>
-                            <p className="text-sm  mt-1">
-                              {/* {proposal.estimate_request.address_city}, {proposal.estimate_request.address_state} */}
-                              Endereco
-                            </p>
-                            <Text className="mt-2">{proposal.description}</Text>
-                          </div>
-                          <div className="text-right">
-                            <Subtitle>
-                              {new Intl.NumberFormat("pt-BR", {
-                                style: "currency",
-                                currency: "BRL",
-                              }).format(proposal.amount)}
-                            </Subtitle>
-                            <Chip
-                              className="mt-2"
-                              color={
-                                proposal.approved_at
-                                  ? "success"
-                                  : proposal.reject_at
-                                  ? "danger"
-                                  : "warning"
-                              }
-                            >
-                              {proposal.approved_at
-                                ? "Aprovado"
-                                : proposal.reject_at
-                                ? "Rejeitado"
-                                : "Pendente"}
-                            </Chip>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardBody>
-            </Card>
-          </div>
+          
         </Tab>
         <Tab key="jobs" title="Trabalhos confirmados">
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <Subtitle>Trabalhos confirmados</Subtitle>
-                </div>
-              </CardHeader>
-              <CardBody>
-                {isLoadingRequests ? (
-                  <div className="flex justify-center py-8">
-                    <FiLoader className="w-8 h-8 animate-spin " />
+          
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <Subtitle>Trabalhos confirmados</Subtitle>
                   </div>
-                ) : !jobs?.length ? (
-                  <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <CiMapPin className="w-8 h-8 " />
+                </CardHeader>
+                <CardBody>
+                  {isLoadingRequests ? (
+                    <div className="flex justify-center py-8">
+                      <FiLoader className="w-8 h-8 animate-spin " />
                     </div>
-                    <h3 className="text-lg font-medium mb-2">
-                      Nenhum orçamento disponível
-                    </h3>
-                    <p className="">
-                      Não há solicitações de orçamento na sua região no momento.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <Listbox>
-                      {jobs.map((request, index) => (
-                        <ListboxItem
-                          key={request.id}
-                          showDivider={sortedRequests.length - 1 !== index}
-                          as={Link}
-                          href={`/dashboard/companies/jobs/${request.id}`}
-                        >
-                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                            <div>
-                              <h4 className="font-medium">
-                                {request.name || "FAKE NAME"}
-                              </h4>
+                  ) : !jobs?.length ? (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <CiMapPin className="w-8 h-8 " />
+                      </div>
+                      <h3 className="text-lg font-medium mb-2">
+                        Nenhum orçamento disponível
+                      </h3>
+                      <p className="">
+                        Não há solicitações de orçamento na sua região no
+                        momento.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <Listbox>
+                        {jobs.map((request, index) => (
+                          <ListboxItem
+                            key={request.id}
+                            showDivider={sortedRequests.length - 1 !== index}
+                            as={Link}
+                            href={`/dashboard/companies/jobs/${request.id}`}
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                              <div>
+                                <h4 className="font-medium">
+                                  {request.name || "FAKE NAME"}
+                                </h4>
 
-                              <p className="mt-2 text-sm text-neutral-600">
-                                {"FAKE Descrição "}
-                              </p>
-                              <div className="mt-4 flex flex-wrap gap-4 text-sm ">
-                                <div className="flex items-center gap-1">
-                                  <CiCalendar size={14} />
-                                  <span>
-                                    {new Date(
-                                      request.created_at
-                                    ).toLocaleDateString("pt-BR")}
-                                  </span>
+                                <p className="mt-2 text-sm text-neutral-600">
+                                  {"FAKE Descrição "}
+                                </p>
+                                <div className="mt-4 flex flex-wrap gap-4 text-sm ">
+                                  <div className="flex items-center gap-1">
+                                    <CiCalendar size={14} />
+                                    <span>
+                                      {new Date(
+                                        request.created_at
+                                      ).toLocaleDateString("pt-BR")}
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        </ListboxItem>
-                      ))}
-                    </Listbox>
-                  </div>
-                )}
-              </CardBody>
-            </Card>
-          </div>
+                          </ListboxItem>
+                        ))}
+                      </Listbox>
+                    </div>
+                  )}
+                </CardBody>
+              </Card>
+            </div>
+          
         </Tab>
       </Tabs>
 
@@ -508,14 +538,14 @@ console.log('services',services);
           setSelectedRequest(null);
         }}
       />
-      <CompanyServiceForm
+     {selected ==='informations' &&  <CompanyServiceForm
         isOpen={isCompanyServiceFormOpen}
         onClose={() => setIsCompanyServiceFormOpen(false)}
         company_id={id!}
         onSuccess={() => {
           console.log("Success");
         }}
-      />
+      />}
     </div>
   );
 };
