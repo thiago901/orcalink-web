@@ -15,6 +15,8 @@ export interface Response<T=unknown> {
 // Company API functions
 export const getCategories = async () => {
   const response = await api.get<Response<Category[]>>('/companies-categories');
+  console.log('responses',response.data);
+  
   return response.data.result;
 };
 

@@ -395,8 +395,7 @@ const CompanyDetailPage = () => {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {console.log('proposals',proposals)
-                      }
+            
                       {proposals.map((proposal: any) => (
                         <div key={proposal.id} className="p-4 rounded-lg ">
                           <div className="flex justify-between items-start gap-4">

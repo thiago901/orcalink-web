@@ -6,6 +6,7 @@ import { Title } from "../../components/ui/Title";
 import { Text } from "../../components/ui/Text";
 import { Subtitle } from "../../components/ui/Subtitle";
 import {
+  Avatar,
   BreadcrumbItem,
   Breadcrumbs,
   Button,
@@ -59,17 +60,17 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
   });
 
   const uploadImage = useCallback(async () => {
-    if (!companyId) {
+    if (!company?.id) {
       toast.error("Crie a empresa antes de fazer o upload da imagem");
       return;
     }
     if (selectedFiles.length > 0) {
       const formData = new FormData();
       formData.append("file", selectedFiles[0]);
-      await uploadCompanyImage(companyId, formData);
+      await uploadCompanyImage(company.id, formData);
       toast.success("Imagem enviada com sucesso!");
     }
-  }, [companyId, selectedFiles]);
+  }, [company, selectedFiles]);
 
   const onSubmit = async (data: CreateCompanyProps) => {
     setIsLoading(true);
@@ -93,7 +94,7 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
         toast.success("Empresa criada com sucesso!");
       }
 
-      navigate("/dashboard/companies");
+      // navigate("/dashboard/companies");
     } catch (err) {
       console.error(err);
       toast.error(
@@ -150,18 +151,36 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
                   Foto de perfil (opcional)
                 </label>
                 <div className="flex flex-col gap-4">
-                  <FileUpload
-                    onFilesSelected={setSelectedFiles}
-                    maxFiles={1}
-                    maxSizeInMB={10}
-                    multiple={false}
-                    accept=".jpg,.jpeg,.png"
-                  />
-                  <Tooltip content="Salvar imagem apenas após criar a empresa">
-                    <Button disabled={!companyId} onPress={uploadImage}>
-                      Salvar
-                    </Button>
-                  </Tooltip>
+                  {company?.avatar ? (
+                    <div>
+                      <Avatar src={company.avatar} />
+                      <div className="[w-10px]">
+                        <FileUpload
+                          onFilesSelected={setSelectedFiles}
+                          maxFiles={1}
+                          maxSizeInMB={10}
+                          multiple={false}
+                          accept=".jpg,.jpeg,.png"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <FileUpload
+                      onFilesSelected={setSelectedFiles}
+                      maxFiles={1}
+                      maxSizeInMB={10}
+                      multiple={false}
+                      accept=".jpg,.jpeg,.png"
+                    />
+                  )}
+
+                  <Button
+                    isDisabled={!company?.id}
+                    onPress={uploadImage}
+                    color="primary"
+                  >
+                    Salvar
+                  </Button>
                 </div>
               </div>
               <div className="flex-1 space-y-4">

@@ -1,22 +1,38 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { getEstimateRequestById } from '../../api/estimateRequests';
-import { getProposalsByEstimateId, approveProposal, rejectProposal } from '../../api/proposals';
+import { getEstimateRequestById } from "../../api/estimateRequests";
+import {
+  getProposalsByEstimateId,
+  approveProposal,
+  rejectProposal,
+} from "../../api/proposals";
 
+import ProposalActionDialog from "../../components/proposals/ProposalActionDialog";
 
-import ProposalActionDialog from '../../components/proposals/ProposalActionDialog';
+import { Text } from "../../components/ui/Text";
+import {
+  avatar,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Chip,
+} from "@heroui/react";
+import { Subtitle } from "../../components/ui/Subtitle";
+import ImageGallery from "../../components/image-gallery";
+import { FiCheck, FiFileText, FiLoader } from "react-icons/fi";
+import { CiCalendar, CiMail, CiMapPin, CiPhone } from "react-icons/ci";
+import { FaX } from "react-icons/fa6";
 
-
-import { Text } from '../../components/ui/Text';
-import {  Button, Card, CardBody, CardHeader, Chip } from '@heroui/react';
-import { Subtitle } from '../../components/ui/Subtitle';
-import ImageGallery from '../../components/image-gallery';
-import { FiCheck, FiFileText, FiLoader } from 'react-icons/fi';
-import { CiCalendar, CiMail, CiMapPin, CiPhone } from 'react-icons/ci';
-import { FaX } from 'react-icons/fa6';
+import {
+  createEstimateRequestMessage,
+  getEstimateRequestMessages,
+} from "../../api/estimate-requests-messages";
+import { ChatSidebarLayout } from "../../components/chat/chat-section";
+import { Chats } from "../../components/chat/chats";
 
 export function MyBudgetsDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -27,30 +43,37 @@ export function MyBudgetsDetailPage() {
   const [isActionLoading, setIsActionLoading] = useState(false);
 
   const { data: request, isLoading: isLoadingRequest } = useQuery({
-    queryKey: ['estimateRequest', id],
+    queryKey: ["estimateRequest", id],
     queryFn: () => getEstimateRequestById(id!),
+    enabled: !!id,
+  });
+  const {
+    data: estimate_request_messages,
+    isLoading: isLoadingRequestMessages,
+  } = useQuery({
+    queryKey: ["estimateRequestMessages", id],
+    queryFn: () => getEstimateRequestMessages(id!),
     enabled: !!id,
   });
 
   const { data: proposals, isLoading: isLoadingProposals } = useQuery({
-    queryKey: ['proposals', id],
+    queryKey: ["proposals", id],
     queryFn: () => getProposalsByEstimateId(id!),
     enabled: !!id,
   });
-console.log('proposals',proposals);
-
+  console.log("proposals", proposals);
 
   const handleApprove = async () => {
     if (!selectedProposal) return;
-    
+
     setIsActionLoading(true);
     try {
       await approveProposal(selectedProposal.id);
-      queryClient.invalidateQueries(['proposals', id]);
+      queryClient.invalidateQueries(["proposals", id]);
       setIsApproveDialogOpen(false);
     } catch (error) {
-      console.error('Error approving proposal:', error);
-      console.log("error",error);
+      console.error("Error approving proposal:", error);
+      console.log("error", error);
     } finally {
       setIsActionLoading(false);
     }
@@ -58,14 +81,14 @@ console.log('proposals',proposals);
 
   const handleReject = async () => {
     if (!selectedProposal) return;
-    
+
     setIsActionLoading(true);
     try {
       await rejectProposal(selectedProposal.id);
-      queryClient.invalidateQueries(['proposals', id]);
+      queryClient.invalidateQueries(["proposals", id]);
       setIsRejectDialogOpen(false);
     } catch (error) {
-      console.error('Error rejecting proposal:', error);
+      console.error("Error rejecting proposal:", error);
     } finally {
       setIsActionLoading(false);
     }
@@ -89,12 +112,10 @@ console.log('proposals',proposals);
       </div>
     );
   }
-  
-  
+
   return (
     <div className="space-y-6 fade-in max-w-6xl mx-auto px-4 py-6">
       <div>
-        
         <Text>Detalhes da solicitação de orçamento</Text>
       </div>
 
@@ -121,9 +142,11 @@ console.log('proposals',proposals);
                   <div className="flex items-center gap-2 text-neutral-600">
                     <CiMapPin size={18} />
                     <span>
-                      {request.address.street}, {request.address.number} - {request.address.neighborhood}
+                      {request.address.street}, {request.address.number} -{" "}
+                      {request.address.neighborhood}
                       <br />
-                      {request.address.city}, {request.address.state} - {request.address.postal_code}
+                      {request.address.city}, {request.address.state} -{" "}
+                      {request.address.postal_code}
                     </span>
                   </div>
                 </div>
@@ -148,7 +171,9 @@ console.log('proposals',proposals);
                     <div className="flex items-center gap-2 text-neutral-600">
                       <CiCalendar size={18} />
                       <span>
-                        {new Date(request.created_at).toLocaleDateString('pt-BR')}
+                        {new Date(request.created_at).toLocaleDateString(
+                          "pt-BR"
+                        )}
                       </span>
                     </div>
                   </div>
@@ -158,11 +183,13 @@ console.log('proposals',proposals);
           </Card>
           <Card>
             <CardBody>
-              <ImageGallery images={request?.estimate_request_files} layout='carousel'/>
+              <ImageGallery
+                images={request?.estimate_request_files}
+                layout="carousel"
+              />
             </CardBody>
           </Card>
 
-          
           <Card>
             <CardHeader>
               <Subtitle>Propostas Recebidas</Subtitle>
@@ -173,7 +200,9 @@ console.log('proposals',proposals);
                   <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
                     <FiFileText className="w-8 h-8 text-primary-600" />
                   </div>
-                  <h3 className="text-lg font-medium mb-2">Nenhuma proposta recebida</h3>
+                  <h3 className="text-lg font-medium mb-2">
+                    Nenhuma proposta recebida
+                  </h3>
                   <p className="text-neutral-600">
                     Aguarde enquanto as empresas analisam sua solicitação.
                   </p>
@@ -181,10 +210,7 @@ console.log('proposals',proposals);
               ) : (
                 <div className="space-y-4">
                   {proposals.map((proposal) => (
-                    <div
-                      key={proposal.id}
-                      className="p-4"
-                    >
+                    <div key={proposal.id} className="p-4">
                       <div className="flex items-start justify-between gap-4">
                         <div>
                           <div className="flex items-center gap-3">
@@ -192,7 +218,9 @@ console.log('proposals',proposals);
                               {proposal.company.name.charAt(0)}
                             </div>
                             <div>
-                              <h4 className="font-medium">{proposal.company.name}</h4>
+                              <h4 className="font-medium">
+                                {proposal.company.name}
+                              </h4>
                               <p className="text-sm text-neutral-500">
                                 {/* {proposal.company.address.city}, {proposal.company.address.state} */}
                                 Endereço
@@ -201,53 +229,60 @@ console.log('proposals',proposals);
                           </div>
                           <Text className="mt-2">{proposal.description}</Text>
                         </div>
-                     
-                          <div className="flex gap-2">
-                           
-                           <Subtitle>
-                            {new Intl.NumberFormat('pt-BR', {
-                                style: 'currency',
-                                currency: 'BRL',
-                              }).format(proposal.amount)}
 
-                           </Subtitle>
-                           <Chip color={proposal.approved_at ? "success": proposal.reject_at? "danger":"warning" } size='sm'>
-                              {proposal.approved_at ? "Aprovado": proposal.reject_at? "Rejeitado":"Pendente" }
-                            </Chip>
-                          </div>
-                         
-                          
-                        
-                       
+                        <div className="flex gap-2">
+                          <Subtitle>
+                            {new Intl.NumberFormat("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                            }).format(proposal.amount)}
+                          </Subtitle>
+                          <Chip
+                            color={
+                              proposal.approved_at
+                                ? "success"
+                                : proposal.reject_at
+                                ? "danger"
+                                : "warning"
+                            }
+                            size="sm"
+                          >
+                            {proposal.approved_at
+                              ? "Aprovado"
+                              : proposal.reject_at
+                              ? "Rejeitado"
+                              : "Pendente"}
+                          </Chip>
+                        </div>
                       </div>
-                      <div className='flex justify-end'>
-                        {(!proposal.approved_at && !proposal.reject_at )&& (
-                            <div className="mt-4 flex gap-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                startContent={<FaX size={16} />}
-                                color='danger'
-                                onPress={() => {
-                                  setSelectedProposal(proposal);
-                                  setIsRejectDialogOpen(true);
-                                }}
-                              >
-                                Recusar
-                              </Button>
-                              <Button
-                                size="sm"
-                                color='success'
-                                startContent={<FiCheck size={16} />}
-                                onPress={() => {
-                                  setSelectedProposal(proposal);
-                                  setIsApproveDialogOpen(true);
-                                }}
-                              >
-                                Aceitar
-                              </Button>
-                            </div>
-                          )}
+                      <div className="flex justify-end">
+                        {!proposal.approved_at && !proposal.reject_at && (
+                          <div className="mt-4 flex gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              startContent={<FaX size={16} />}
+                              color="danger"
+                              onPress={() => {
+                                setSelectedProposal(proposal);
+                                setIsRejectDialogOpen(true);
+                              }}
+                            >
+                              Recusar
+                            </Button>
+                            <Button
+                              size="sm"
+                              color="success"
+                              startContent={<FiCheck size={16} />}
+                              onPress={() => {
+                                setSelectedProposal(proposal);
+                                setIsApproveDialogOpen(true);
+                              }}
+                            >
+                              Aceitar
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -257,34 +292,67 @@ console.log('proposals',proposals);
           </Card>
         </div>
 
-        <Card>
-          <CardHeader>
-            <Subtitle>Status</Subtitle>
-          </CardHeader>
-          <CardBody>
-            <div className="space-y-4">
-              <div>
-                <div className="text-2xl font-semibold text-neutral-800">
-                  {proposals?.length || 0}
+        <div className="space-y-2">
+          <Card>
+            <CardHeader>
+              <Subtitle>Status</Subtitle>
+            </CardHeader>
+            <CardBody>
+              <div className="space-y-4">
+                <div>
+                  <div className="text-2xl font-semibold text-neutral-800">
+                    {proposals?.length || 0}
+                  </div>
+                  <div className="text-sm text-neutral-500">
+                    Propostas recebidas
+                  </div>
                 </div>
-                <div className="text-sm text-neutral-500">Propostas recebidas</div>
-              </div>
 
-              <div className="h-px bg-neutral-200" />
+                <div className="h-px bg-neutral-200" />
 
-              <div>
-                <h4 className="font-medium mb-2">Última atualização</h4>
-                <div className="flex items-center gap-2 text-neutral-600">
-                  <CiCalendar size={18} />
-                  <span>
-                    {new Date(request.updated_at ?? request.created_at).toLocaleDateString('pt-BR')}
-                  </span>
+                <div>
+                  <h4 className="font-medium mb-2">Última atualização</h4>
+                  <div className="flex items-center gap-2 text-neutral-600">
+                    <CiCalendar size={18} />
+                    <span>
+                      {new Date(
+                        request.updated_at ?? request.created_at
+                      ).toLocaleDateString("pt-BR")}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </CardBody>
-        </Card>
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Subtitle>Chats</Subtitle>
+            </CardHeader>
+            <CardBody className="p-0 rounded-none">
+              <Chats
+                estimate_request_id={id!}
+                contacts={
+                  !proposals
+                    ? []
+                    : proposals.map((item) => ({
+                        id: item.company.id,
+                        name: item.company.name,
+                        avatar: item.company.avatar,
+                      }))
+                }
+              />
+            </CardBody>
+          </Card>
+        </div>
       </div>
+      {/* <div>
+        <ChatSidebarLayout
+          messages={estimate_request_messages || []}
+          onSend={(msg) => console.log("Send text:", msg)}
+          onUpload={(img) => console.log("Uploaded image:", img)}
+        />
+      </div> */}
 
       {/* Action Dialogs */}
       <ProposalActionDialog
@@ -306,5 +374,4 @@ console.log('proposals',proposals);
       />
     </div>
   );
-};
-
+}

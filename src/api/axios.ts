@@ -12,7 +12,9 @@ const api = axios.create({
   },
 });
 
-
+export interface ResponseAPI<T = unknown> {
+  result: T;
+}
 
 // Add a request interceptor to add the auth token to requests
 api.interceptors.request.use(

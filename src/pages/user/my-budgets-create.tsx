@@ -1,30 +1,40 @@
-import { useCallback, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { toast } from 'react-hot-toast';
-import { useAuthStore } from '../../stores/authStore';
-import { createEstimateRequest, CreateEstimateRequestProps, uploadEstimateRequestFiles } from '../../api/estimateRequests';
+import { useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
+import { useAuthStore } from "../../stores/authStore";
+import {
+  createEstimateRequest,
+  CreateEstimateRequestProps,
+  uploadEstimateRequestFiles,
+} from "../../api/estimateRequests";
 
+import FileUpload from "../../components/ui/FileUpload";
 
-
-
-import FileUpload from '../../components/ui/FileUpload';
-
-import { Title } from '../../components/ui/Title';
-import { Text } from '../../components/ui/Text';
-import { Subtitle } from '../../components/ui/Subtitle';
-import { Button, Card, CardBody, CardHeader, Input, Select, SelectItem, Textarea } from '@heroui/react';
-import { FiFileText } from 'react-icons/fi';
-import { CiMail, CiMapPin, CiPhone, CiRuler } from 'react-icons/ci';
-import { searchByZipCode } from '../../utils/search-zip-address';
-import { getCategories } from '../../api/category';
-import { useQuery } from '@tanstack/react-query';
+import { Title } from "../../components/ui/Title";
+import { Text } from "../../components/ui/Text";
+import { Subtitle } from "../../components/ui/Subtitle";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Input,
+  Select,
+  SelectItem,
+  Textarea,
+} from "@heroui/react";
+import { FiFileText } from "react-icons/fi";
+import { CiMail, CiMapPin, CiPhone, CiRuler } from "react-icons/ci";
+import { searchByZipCode } from "../../utils/search-zip-address";
+import { getCategories } from "../../api/category";
+import { useQuery } from "@tanstack/react-query";
 
 export function MyBudgetsCreatePage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const {
@@ -37,8 +47,10 @@ export function MyBudgetsCreatePage() {
       email: user?.email,
     },
   });
-
-
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => getCategories(),
+  });
 
   const onSubmit = async (data: CreateEstimateRequestProps) => {
     // if (!position) {
@@ -50,11 +62,10 @@ export function MyBudgetsCreatePage() {
     try {
       const requestData = {
         ...data,
-        footage:Number(data.footage),
+        footage: Number(data.footage),
         user_id: user?.id,
         // lat: position.coords.latitude.toString(),
         // long: position.coords.longitude.toString(),
-   
       };
 
       const response = await createEstimateRequest(requestData);
@@ -62,43 +73,51 @@ export function MyBudgetsCreatePage() {
       // Upload files if any are selected
       if (selectedFiles.length > 0) {
         const formData = new FormData();
-        selectedFiles.forEach(file => {
-          formData.append('files', file);
+        selectedFiles.forEach((file) => {
+          formData.append("files", file);
         });
 
         await uploadEstimateRequestFiles(response.id, formData);
       }
 
-      toast.success('Solicitação de orçamento criada com sucesso!');
+      toast.success("Solicitação de orçamento criada com sucesso!");
       navigate(`/dashboard/estimate-requests/${response.id}`);
     } catch (error) {
-      console.log('error',error);
-      toast.error('Erro ao criar solicitação de orçamento');
+      console.log("error", error);
+      toast.error("Erro ao criar solicitação de orçamento");
     } finally {
       setIsLoading(false);
     }
   };
- const handleSearchZip = useCallback(
+  const handleSearchZip = useCallback(
     async (e: React.FocusEvent<HTMLInputElement>) => {
-      const {logradouro,estado,uf,bairro} = await searchByZipCode(e.target.value)
+      const { logradouro, estado, uf, bairro } = await searchByZipCode(
+        e.target.value
+      );
       setValue("address_state", uf, { shouldDirty: true, shouldTouch: true });
-      setValue("address_city", estado, { shouldDirty: true, shouldTouch: true });
-      setValue("address_neighborhood", bairro, { shouldDirty: true, shouldTouch: true });
-      setValue("address_street", logradouro, { shouldDirty: true, shouldTouch: true });
-      
-      
+      setValue("address_city", estado, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+      setValue("address_neighborhood", bairro, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+      setValue("address_street", logradouro, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
     },
     [setValue]
   );
-  const { data: categories } = useQuery({
-    queryKey: ["categories"],
-    queryFn: () => getCategories(),
-  });
+
   return (
     <div className="space-y-6 fade-in max-w-6xl mx-auto px-4 py-6">
       <div>
-        <Title >Nova Solicitação</Title>
-        <Text className="text-neutral-600">Preencha os dados para solicitar orçamentos</Text>
+        <Title>Nova Solicitação</Title>
+        <Text className="text-neutral-600">
+          Preencha os dados para solicitar orçamentos
+        </Text>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -114,30 +133,33 @@ export function MyBudgetsCreatePage() {
                 placeholder="Ex: Reforma do banheiro"
                 errorMessage={errors.name?.message}
                 isInvalid={!!errors.name?.message}
-                {...register('name', {
-                  required: 'Nome do projeto é obrigatório',
+                {...register("name", {
+                  required: "Nome do projeto é obrigatório",
                   minLength: {
                     value: 2,
-                    message: 'Nome deve ter pelo menos 2 caracteres',
+                    message: "Nome deve ter pelo menos 2 caracteres",
                   },
                 })}
               />
- <Select
-              {...register("category")}
-              label="Categoria"
-              placeholder="Selecione uma categoria"
-            >
-              {categories!.map((cat) => (
-                <SelectItem key={cat.name}>{cat.name}</SelectItem>
-              ))}
-            </Select>
+              {categories && categories.length && (
+                <Select
+                  {...register("category")}
+                  label="Categoria"
+                  placeholder="Selecione uma categoria"
+                >
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.name}>{cat.name}</SelectItem>
+                  ))}
+                </Select>
+              )}
+
               <Textarea
                 label="Descrição"
                 placeholder="Descreva os detalhes do seu projeto..."
                 errorMessage={errors.description?.message}
                 isInvalid={!!errors.description?.message}
-                {...register('description', {
-                  required: 'Descrição é obrigatória',
+                {...register("description", {
+                  required: "Descrição é obrigatória",
                 })}
               />
 
@@ -148,11 +170,11 @@ export function MyBudgetsCreatePage() {
                 placeholder="Ex: 50"
                 errorMessage={errors.footage?.message}
                 isInvalid={!!errors.footage?.message}
-                {...register('footage', {
-                  required: 'Metragem é obrigatória',
+                {...register("footage", {
+                  required: "Metragem é obrigatória",
                   min: {
                     value: 1,
-                    message: 'Metragem deve ser maior que 0',
+                    message: "Metragem deve ser maior que 0",
                   },
                 })}
               />
@@ -183,8 +205,8 @@ export function MyBudgetsCreatePage() {
                   placeholder="00000-000"
                   errorMessage={errors.address_postal_code?.message}
                   isInvalid={!!errors.address_postal_code?.message}
-                  {...register('address_postal_code', {
-                    required: 'CEP é obrigatório',
+                  {...register("address_postal_code", {
+                    required: "CEP é obrigatório",
                   })}
                   onBlur={handleSearchZip}
                 />
@@ -195,8 +217,8 @@ export function MyBudgetsCreatePage() {
                   placeholder="Ex: SP"
                   errorMessage={errors.address_state?.message}
                   isInvalid={!!errors.address_state?.message}
-                  {...register('address_state', {
-                    required: 'Estado é obrigatório',
+                  {...register("address_state", {
+                    required: "Estado é obrigatório",
                   })}
                 />
               </div>
@@ -207,8 +229,8 @@ export function MyBudgetsCreatePage() {
                 isDisabled
                 errorMessage={errors.address_city?.message}
                 isInvalid={!!errors.address_city?.message}
-                {...register('address_city', {
-                  required: 'Cidade é obrigatória',
+                {...register("address_city", {
+                  required: "Cidade é obrigatória",
                 })}
               />
 
@@ -218,8 +240,8 @@ export function MyBudgetsCreatePage() {
                 placeholder="Ex: Centro"
                 errorMessage={errors.address_neighborhood?.message}
                 isInvalid={!!errors.address_neighborhood?.message}
-                {...register('address_neighborhood', {
-                  required: 'Bairro é obrigatório',
+                {...register("address_neighborhood", {
+                  required: "Bairro é obrigatório",
                 })}
               />
 
@@ -230,8 +252,8 @@ export function MyBudgetsCreatePage() {
                   placeholder="Ex: Rua Principal"
                   errorMessage={errors.address_street?.message}
                   isInvalid={!!errors.address_street?.message}
-                  {...register('address_street', {
-                    required: 'Rua é obrigatória',
+                  {...register("address_street", {
+                    required: "Rua é obrigatória",
                   })}
                 />
 
@@ -240,8 +262,8 @@ export function MyBudgetsCreatePage() {
                   placeholder="Ex: 123"
                   errorMessage={errors.address_number?.message}
                   isInvalid={!!errors.address_number?.message}
-                  {...register('address_number', {
-                    required: 'Número é obrigatório',
+                  {...register("address_number", {
+                    required: "Número é obrigatório",
                   })}
                 />
               </div>
@@ -277,11 +299,11 @@ export function MyBudgetsCreatePage() {
                   placeholder="seu@email.com"
                   errorMessage={errors.email?.message}
                   isInvalid={!!errors.email?.message}
-                  {...register('email', {
-                    required: 'Email é obrigatório',
+                  {...register("email", {
+                    required: "Email é obrigatório",
                     pattern: {
                       value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: 'Email inválido',
+                      message: "Email inválido",
                     },
                   })}
                 />
@@ -292,15 +314,15 @@ export function MyBudgetsCreatePage() {
                   placeholder="(00) 00000-0000"
                   errorMessage={errors.phone?.message}
                   isInvalid={!!errors.phone?.message}
-                  {...register('phone', {
-                    required: 'Telefone é obrigatório',
+                  {...register("phone", {
+                    required: "Telefone é obrigatório",
                     minLength: {
                       value: 10,
-                      message: 'Telefone deve ter pelo menos 10 dígitos',
+                      message: "Telefone deve ter pelo menos 10 dígitos",
                     },
                     maxLength: {
                       value: 15,
-                      message: 'Telefone deve ter no máximo 15 dígitos',
+                      message: "Telefone deve ter no máximo 15 dígitos",
                     },
                   })}
                 />
@@ -309,11 +331,7 @@ export function MyBudgetsCreatePage() {
           </Card>
 
           <div className="flex justify-end">
-            <Button
-              type="submit"
-              isLoading={isLoading}
-              color='primary'
-            >
+            <Button type="submit" isLoading={isLoading} color="primary">
               Solicitar orçamentos
             </Button>
           </div>
@@ -321,5 +339,4 @@ export function MyBudgetsCreatePage() {
       </form>
     </div>
   );
-};
-
+}
