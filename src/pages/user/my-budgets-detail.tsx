@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -14,7 +13,8 @@ import ProposalActionDialog from "../../components/proposals/ProposalActionDialo
 
 import { Text } from "../../components/ui/Text";
 import {
-  avatar,
+  BreadcrumbItem,
+  Breadcrumbs,
   Button,
   Card,
   CardBody,
@@ -27,12 +27,8 @@ import { FiCheck, FiFileText, FiLoader } from "react-icons/fi";
 import { CiCalendar, CiMail, CiMapPin, CiPhone } from "react-icons/ci";
 import { FaX } from "react-icons/fa6";
 
-import {
-  createEstimateRequestMessage,
-  getEstimateRequestMessages,
-} from "../../api/estimate-requests-messages";
-import { ChatSidebarLayout } from "../../components/chat/chat-section";
 import { Chats } from "../../components/chat/chats";
+import { ProposalCard } from "../../components/ProposalCard";
 
 export function MyBudgetsDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -45,14 +41,6 @@ export function MyBudgetsDetailPage() {
   const { data: request, isLoading: isLoadingRequest } = useQuery({
     queryKey: ["estimateRequest", id],
     queryFn: () => getEstimateRequestById(id!),
-    enabled: !!id,
-  });
-  const {
-    data: estimate_request_messages,
-    isLoading: isLoadingRequestMessages,
-  } = useQuery({
-    queryKey: ["estimateRequestMessages", id],
-    queryFn: () => getEstimateRequestMessages(id!),
     enabled: !!id,
   });
 
@@ -115,15 +103,16 @@ export function MyBudgetsDetailPage() {
 
   return (
     <div className="space-y-6 fade-in max-w-6xl mx-auto px-4 py-6">
-      <div>
-        <Text>Detalhes da solicitação de orçamento</Text>
-      </div>
+      <Breadcrumbs>
+        <BreadcrumbItem href="/my-budgets">Meus orçamentos</BreadcrumbItem>
+        <BreadcrumbItem>{request.name}</BreadcrumbItem>
+      </Breadcrumbs>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <Subtitle>Informações do Projeto</Subtitle>
+              <Subtitle>{request.name}</Subtitle>
             </CardHeader>
             <CardBody>
               <div className="space-y-4">
@@ -195,6 +184,7 @@ export function MyBudgetsDetailPage() {
               <Subtitle>Propostas Recebidas</Subtitle>
             </CardHeader>
             <CardBody>
+              <ProposalCard proposal={proposals}/>
               {!proposals?.length ? (
                 <div className="text-center py-8">
                   <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -209,6 +199,7 @@ export function MyBudgetsDetailPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
+             
                   {proposals.map((proposal) => (
                     <div key={proposal.id} className="p-4">
                       <div className="flex items-start justify-between gap-4">
