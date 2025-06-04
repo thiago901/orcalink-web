@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 
 
-import { Proposal } from "../types";
+
 import { Avatar, Badge, Button, Card, CardBody } from "@heroui/react";
 import { CiCalendar, CiLock, CiStar } from "react-icons/ci";
 import { FaBriefcase, FaShield } from "react-icons/fa6";
 import { FiCheckCircle, FiDollarSign, FiMessageSquare } from "react-icons/fi";
+import { Proposal } from "../api/proposals";
+
 
 
 interface ProposalCardProps {
@@ -21,7 +23,7 @@ export function ProposalCard({
   onAccept,
   onReject,
 }: ProposalCardProps) {
-  const getStatusBadge = (status: Proposal["status"] = 'in_progress') => {
+  const getStatusBadge = (status = 'in_progress') => {
     const statusConfig = {
       sent: { label: "Enviada", color: "bg-blue-100 text-blue-800" },
       accepted: { label: "Aceita", color: "bg-green-100 text-green-800" },
@@ -44,31 +46,32 @@ export function ProposalCard({
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <Avatar className="h-12 w-12" name={proposal.company?.name.charAt(0).toUpperCase() || "P"}>
+            <Avatar className="h-12 w-12" src={proposal?.company?.avatar}
+            name={proposal?.company?.name.charAt(0).toUpperCase() || "P"}>
          
             </Avatar>
             <div>
               <h3 className="font-semibold text-lg">
-                {proposal.company?.name || "Prestador"}
+                {proposal?.company?.name}
               </h3>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <div className="flex items-center">
                   <CiStar className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
                   <span className="font-medium">
-                    {proposal.company?.rating}
+                    {proposal?.company?.ratting}
                   </span>
                   <span className="ml-1">
-                    ({proposal.company?.reviewCount})
+                    (250)
                   </span>
                 </div>
                 <div className="flex items-center">
                   <FaBriefcase className="h-4 w-4 mr-1" />
-                  <span>{proposal.company?.completedJobs} trabalhos</span>
+                  <span>{700} trabalhos</span>
                 </div>
               </div>
             </div>
           </div>
-          {getStatusBadge(proposal.status)}
+          {getStatusBadge()}
         </div>
 
         {/* Price and Duration */}
@@ -88,7 +91,7 @@ export function ProposalCard({
               <CiLock className="h-4 w-4 text-blue-600" />
             </div>
             <div className="text-lg font-semibold">
-              {proposal.estimatedDuration}
+              {3}
             </div>
             <div className="text-xs text-gray-600">Prazo estimado</div>
           </div>
@@ -98,7 +101,7 @@ export function ProposalCard({
               <FaShield className="h-4 w-4 text-purple-600" />
             </div>
             <div className="text-lg font-semibold">
-              {proposal.warranty || "N/A"}
+              { "N/A"}
             </div>
             <div className="text-xs text-gray-600">Garantia</div>
           </div>
@@ -108,7 +111,7 @@ export function ProposalCard({
               <FiCheckCircle className="h-4 w-4 text-green-600" />
             </div>
             <div className="text-lg font-semibold">
-              {proposal.includesMaterials ? "Sim" : "Não"}
+              Sim
             </div>
             <div className="text-xs text-gray-600">Materiais inclusos</div>
           </div>
@@ -118,12 +121,12 @@ export function ProposalCard({
         <div className="mb-4">
           <h4 className="font-medium mb-2">Descrição da Proposta</h4>
           <p className="text-gray-600 leading-relaxed">
-            {proposal.description}
+            {proposal?.description}
           </p>
         </div>
 
         {/* Technical Visit */}
-        {proposal.technicalVisitRequired && (
+        {true && (
           <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
             <div className="flex items-center">
               <CiCalendar className="h-4 w-4 text-yellow-600 mr-2" />
@@ -135,10 +138,10 @@ export function ProposalCard({
         )}
 
         {/* Actions */}
-        {variant === "client" && proposal.status === "sent" && (
+        {variant === "client"  && (
           <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
             <Button variant="light" className="flex-1" >
-              <Link to={`/client/chat/${proposal.id}`}>
+              <Link to={`/client/chat/${proposal?.id}`}>
                 <FiMessageSquare className="h-4 w-4 mr-2" />
                 Conversar
               </Link>
@@ -161,10 +164,10 @@ export function ProposalCard({
           </div>
         )}
 
-        {variant === "client" && proposal.status === "accepted" && (
+        {variant === "client" && (
           <div className="flex gap-3 pt-4 border-t">
             <Button className="flex-1" >
-              <Link to={`/client/chat/${proposal.id}`}>
+              <Link to={`/client/chat/${proposal?.id}`}>
                 <FiMessageSquare className="h-4 w-4 mr-2" />
                 Ir para Chat
               </Link>
@@ -176,13 +179,13 @@ export function ProposalCard({
         {variant === "provider" && (
           <div className="flex gap-3 pt-4 border-t">
             <Button variant="ghost" className="flex-1" >
-              <Link to={`/provider/proposals/${proposal.id}/edit`}>
+              <Link to={`/provider/proposals/${proposal?.id}/edit`}>
                 Editar Proposta
               </Link>
             </Button>
 
             <Button className="flex-1" >
-              <Link to={`/provider/chat/${proposal.id}`}>
+              <Link to={`/provider/chat/${proposal?.id}`}>
                 <FiMessageSquare className="h-4 w-4 mr-2" />
                 Chat
               </Link>
@@ -195,7 +198,7 @@ export function ProposalCard({
           <span>
             Enviada em: {"a"}
           </span>
-          <span>ID: #{proposal.id}</span>
+          <span>ID: #{proposal?.id}</span>
         </div>
       </CardBody>
     </Card>

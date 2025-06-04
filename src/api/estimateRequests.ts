@@ -32,6 +32,13 @@ export type EstimateRequest={
   name:string,
   phone:string,
   user_id:string,
+  user: {
+    avatar:string;
+    email:string;
+    name:string;
+    phone:string;
+    id:string;
+  },
   proposals:{
     id: string
     company_id: string
@@ -72,7 +79,7 @@ export const getEstimateRequests = async (params: GeolocationQuery) => {
 };
 
 export const getEstimateRequestById = async (id: string) => {
-  const response = await api.get(`/estimate-requests/${id}`);
+  const response = await api.get<ResponseAPI<EstimateRequest>>(`/estimate-requests/${id}`);
   return response.data.result;
 };
 
