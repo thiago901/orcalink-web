@@ -248,6 +248,7 @@ const CompanyEstimateRequestDetailPage = () => {
             onSend={() => console.log("")}
             onUpload={() => console.log("")}
             onBack={() => null}
+            sender="COMPANY"
           />
         </div>
       </div>

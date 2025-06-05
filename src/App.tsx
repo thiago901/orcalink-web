@@ -29,6 +29,8 @@ import { MyBudgetsDetailPage } from './pages/user/my-budgets-detail';
 import { Partners } from './pages/user/partners';
 import { PartnersDetail } from './pages/user/partners-detail';
 import { CompanyCreatePage } from './pages/user/company-create-page';
+import { ProviderPlans } from './pages/plans';
+
 
 function App() {
   const { checkAuth } = useAuthStore();
@@ -43,6 +45,7 @@ function App() {
       {/* Public routes */}
       
       <Route path="/login" element={<LoginPage />} />
+      
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       
@@ -53,7 +56,7 @@ function App() {
       }>
         <Route index path="/" element={<HomePage />} />
         <Route element={<Posts/>}  path='posts'/>
-        
+        <Route path="/plans" element={<ProviderPlans />} />
         <Route element={<MyBudgetsPage/>}  path='my-budgets'/>
         <Route element={<MyBudgetsCreatePage/>}  path='my-budgets/new'/>
         <Route element={<MyBudgetsDetailPage/>}  path='my-budgets/:id'/>

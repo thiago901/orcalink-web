@@ -5,8 +5,10 @@ import { Button, Link } from "@heroui/react";
 import { FaBuilding, FaClipboardList, FaShield } from "react-icons/fa6";
 import { FiBarChart } from "react-icons/fi";
 
+
 const HomePage = () => {
   const { isAuthenticated } = useAuthStore();
+  
 
   return (
     <div className="min-h-screen flex flex-col">

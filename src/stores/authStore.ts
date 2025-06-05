@@ -7,6 +7,7 @@ interface User {
   id: string;
   name: string;
   email: string;
+  role: string;
   avatar?: string;
 }
 
@@ -14,6 +15,7 @@ interface JwtPayload {
   sub: string;
   name: string;
   email: string;
+  role: string;
   avatar?: string;
   iat: number;
   exp: number;
@@ -57,6 +59,7 @@ export const useAuthStore = create<AuthState>()(
               name: decoded.name,
               email: decoded.email,
               avatar: decoded.avatar,
+              role:decoded.role
             },
             isAuthenticated: true,
             isLoading: false,
@@ -102,6 +105,8 @@ export const useAuthStore = create<AuthState>()(
                 name: decoded.name,
                 email: decoded.email,
                 avatar: decoded.avatar,
+                role: decoded.role,
+                
               },
               isAuthenticated: true,
             });

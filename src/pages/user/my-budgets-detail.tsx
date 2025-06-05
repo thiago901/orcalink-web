@@ -32,6 +32,7 @@ import { FaX } from "react-icons/fa6";
 
 import { Chats } from "../../components/chat/chats";
 import { AiFillStar } from "react-icons/ai";
+import { getEstimateRequestMessagesGroupedByCompany } from "../../api/estimate-requests-messages";
 
 export function MyBudgetsDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -46,13 +47,19 @@ export function MyBudgetsDetailPage() {
     queryFn: () => getEstimateRequestById(id!),
     enabled: !!id,
   });
-
+  const { data: estimate_request_message} = useQuery({
+    queryKey: ["estimateRequestMessage", id],
+    queryFn: () => getEstimateRequestMessagesGroupedByCompany(id!),
+    enabled: !!id,
+  });
+  
+  
   const { data: proposals, isLoading: isLoadingProposals } = useQuery({
     queryKey: ["proposals", id],
     queryFn: () => getProposalsByEstimateId(id!),
     enabled: !!id,
   });
-  console.log("proposals", proposals);
+  
 
   const handleApprove = async () => {
     if (!selectedProposal) return;
@@ -328,15 +335,18 @@ export function MyBudgetsDetailPage() {
               <Subtitle>Chats</Subtitle>
             </CardHeader>
             <CardBody className="p-0 rounded-none">
+              {console.log('unread_amount',estimate_request_message)}
               <Chats
+                sender="CLIENT"
                 estimate_request_id={id!}
                 contacts={
-                  !proposals
+                  !estimate_request_message
                     ? []
-                    : proposals.map((item) => ({
+                    : estimate_request_message.map((item) => ({
                         id: item.company.id,
                         name: item.company.name,
-                        avatar: item.company.avatar,
+                        avatar: '',
+                        unread_amount:item.unread_amount
                       }))
                 }
               />
