@@ -26,7 +26,7 @@ interface ChatBoxProps {
   onBack: () => void;
   companyId: string | null;
   contact: ChatContacts;
-  estimate_request_id?:string;
+  estimate_request_id:string;
   sender: 'CLIENT' |'COMPANY'
 }
 
@@ -147,7 +147,7 @@ export function Chat({
       company_id: companyId!,
       content: input.trim(),
       sender,
-      estimate_request_id: messages[0].estimate_request_id,
+      estimate_request_id,
       type: "TEXT",
     }
     await createEstimateRequestMessage(payload);

@@ -91,6 +91,7 @@ export function Chats({ contacts, estimate_request_id ,sender}: ChatsProps) {
       ) : (
         <Chat
           companyId={companyId}
+          estimate_request_id={estimate_request_id}
           contact={contact!}
           messages={!estimate_request_messages? []:estimate_request_messages}
           onSend={() => console.log("")}
