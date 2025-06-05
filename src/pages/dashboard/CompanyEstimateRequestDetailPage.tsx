@@ -243,7 +243,7 @@ const CompanyEstimateRequestDetailPage = () => {
           </Card>
           <Chat
             companyId={id!}
-            contact={{ id: request.user.id, name: request.user.name, avatar: request.user.avatar,unread_amount }}
+            contact={{ id: request.user.id, name: request.user.name, avatar: request.user.avatar,unread_amount:0}}
             messages={estimate_request_messages?estimate_request_messages:[]}
             estimate_request_id={estimate_id!}
             onSend={() => console.log("")}
