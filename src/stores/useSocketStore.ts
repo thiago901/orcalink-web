@@ -24,7 +24,8 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     const { token } = useAuthStore.getState();
     if (!token || get().socket) return;
 
-    const socket = io('http://localhost:3000', {
+    const API_BASE_URL = import.meta.env.VITE_API_URL||'http://localhost:3000';
+    const socket = io(API_BASE_URL, {
       transports: ['websocket'],
       auth: { token },
     });
