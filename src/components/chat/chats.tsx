@@ -1,8 +1,8 @@
-import { Avatar, Listbox, ListboxItem, cn } from "@heroui/react";
+import { Avatar, Chip, Listbox, ListboxItem, cn } from "@heroui/react";
 import { useState } from "react";
 import { Chat } from "./chat";
 
-import { Subtitle } from "../ui/Subtitle";
+
 import { getEstimateRequestMessagesByCompany } from "../../api/estimate-requests-messages";
 import { useQuery } from "@tanstack/react-query";
 
@@ -29,7 +29,7 @@ const ChevronRightIcon = (props) => {
 
 const ItemCounter = ({ number }) => (
   <div className="flex items-center gap-1 text-default-400">
-    <span className="text-small">{number}</span>
+    <Chip color="primary" className="text-small">{number}</Chip>
     <ChevronRightIcon className="text-xl" />
   </div>
 );
@@ -38,13 +38,16 @@ export type ChatContacts = {
   id: string;
   avatar?: string;
   name: string;
+  unread_amount:number
 };
 
 type ChatsProps = {
   estimate_request_id: string;
+  sender:"COMPANY" |"CLIENT"
+
   contacts: ChatContacts[];
 };
-export function Chats({ contacts, estimate_request_id }: ChatsProps) {
+export function Chats({ contacts, estimate_request_id ,sender}: ChatsProps) {
   
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [contact, setContact] = useState<ChatContacts | null>(null);
@@ -74,7 +77,7 @@ export function Chats({ contacts, estimate_request_id }: ChatsProps) {
           {contacts.map((contact) => (
             <ListboxItem
               key={contact.id}
-              endContent={<ItemCounter number={13} />}
+              endContent={<ItemCounter number={contact.unread_amount} />}
               startContent={<Avatar src={contact.avatar} size="sm" />}
               onPress={() => {
                 setCompanyId(contact.id.toString())
@@ -93,6 +96,7 @@ export function Chats({ contacts, estimate_request_id }: ChatsProps) {
           onSend={() => console.log("")}
           onUpload={() => console.log("")}
           onBack={() => setCompanyId(null)}
+          sender={sender}
         />
       )}
     </div>

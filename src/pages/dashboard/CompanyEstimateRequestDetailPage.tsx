@@ -22,6 +22,8 @@ import ImageGallery from "../../components/image-gallery";
 import ProposalForm from "../../components/proposals/ProposalForm";
 import { FiLoader } from "react-icons/fi";
 import { CiCalendar, CiMail, CiMapPin, CiPhone } from "react-icons/ci";
+import { Chat } from "../../components/chat/chat";
+import { getEstimateRequestMessagesByCompany } from "../../api/estimate-requests-messages";
 
 const CompanyEstimateRequestDetailPage = () => {
   const { estimate_id, id } = useParams<{ estimate_id: string; id: string }>();
@@ -32,6 +34,19 @@ const CompanyEstimateRequestDetailPage = () => {
     wasApproved: false,
     isSameCompany: false,
   });
+
+    const {
+      data: estimate_request_messages,
+      isLoading: isLoadingRequestMessages,
+    } = useQuery({
+      queryKey: ["estimateRequestMessages", id, estimate_id],
+      queryFn: () =>
+        getEstimateRequestMessagesByCompany(estimate_id!, id!),
+      enabled: !!id,
+    });
+  
+  
+  
   const {
     data: proposals,
     isLoading: isLoadingProposals,
@@ -194,38 +209,48 @@ const CompanyEstimateRequestDetailPage = () => {
             )}
           </div>
         </div>
-
-        <Card>
-          <CardHeader>
-            <Subtitle>Status</Subtitle>
-          </CardHeader>
-          <CardBody>
-            <div className="space-y-4">
-              <div>
-                <div className="text-2xl font-semibold text-neutral-800">
-                  {proposals?.length || 0}
+        <div className="space-y-2">
+          <Card>
+            <CardHeader>
+              <Subtitle>Status</Subtitle>
+            </CardHeader>
+            <CardBody>
+              <div className="space-y-4">
+                <div>
+                  <div className="text-2xl font-semibold text-neutral-800">
+                    {proposals?.length || 0}
+                  </div>
+                  <div className="text-sm text-neutral-500">
+                    Propostas recebidas
+                  </div>
                 </div>
-                <div className="text-sm text-neutral-500">
-                  Propostas recebidas
+
+                <div className="h-px bg-neutral-200" />
+
+                <div>
+                  <h4 className="font-medium mb-2">Última atualização</h4>
+                  <div className="flex items-center gap-2 text-neutral-600">
+                    <CiCalendar size={18} />
+                    <span>
+                      {new Date(
+                        request.updated_at ?? request.created_at
+                      ).toLocaleDateString("pt-BR")}
+                    </span>
+                  </div>
                 </div>
               </div>
-
-              <div className="h-px bg-neutral-200" />
-
-              <div>
-                <h4 className="font-medium mb-2">Última atualização</h4>
-                <div className="flex items-center gap-2 text-neutral-600">
-                  <CiCalendar size={18} />
-                  <span>
-                    {new Date(
-                      request.updated_at ?? request.created_at
-                    ).toLocaleDateString("pt-BR")}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
+            </CardBody>
+          </Card>
+          <Chat
+            companyId={id!}
+            contact={{ id: request.user.id, name: request.user.name, avatar: request.user.avatar }}
+            messages={estimate_request_messages?estimate_request_messages:[]}
+            onSend={() => console.log("")}
+            onUpload={() => console.log("")}
+            onBack={() => null}
+            sender="COMPANY"
+          />
+        </div>
       </div>
 
       <ProposalForm

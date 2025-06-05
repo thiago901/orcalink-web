@@ -9,7 +9,7 @@ export interface CreateProposalProps {
 
 export type Proposal = {
   id: string;
-  amount: string;
+  amount: number;
   company_id: string;
   description: string;
   estimate_request_id: string;

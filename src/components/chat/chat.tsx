@@ -6,7 +6,7 @@ import {
   CardHeader,
   Input,
 } from "@heroui/react";
-import { useRef, useState, useEffect, ChangeEvent, FormEvent } from "react";
+import { useRef, useState, useEffect, ChangeEvent, FormEvent, useCallback } from "react";
 import { FiPaperclip, FiSend } from "react-icons/fi";
 import {
   createEstimateRequestMessage,
@@ -15,6 +15,9 @@ import {
 import { FaArrowLeft } from "react-icons/fa6";
 import { ChatContacts } from "./chats";
 import { v4 } from "uuid";
+import { socket as socketFun } from "../../utils/socket";
+import { useAuthStore } from "../../stores/authStore";
+import { useSocketStore } from "../../stores/useSocketStore";
 
 interface ChatBoxProps {
   messages: EstimateRequestMessage[];
@@ -23,6 +26,8 @@ interface ChatBoxProps {
   onBack: () => void;
   companyId: string | null;
   contact: ChatContacts;
+  estimate_request_id?:string;
+  sender: 'CLIENT' |'COMPANY'
 }
 
 export function Chat({
@@ -32,20 +37,108 @@ export function Chat({
   companyId,
   onBack,
   contact,
+  estimate_request_id,
+  sender
 }: ChatBoxProps) {
   const [internalMessages, setInternalMessages] = useState(messages);
-
+  const [mmessages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState("");
   const chatEndRef = useRef<HTMLDivElement | null>(null);
-
+  
+  
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
     scrollToBottom();
+    setInternalMessages(messages)
   }, [messages]);
 
+
+  const handleSendMessage = useCallback((message:EstimateRequestMessage)=>{
+
+    console.log('RECEBI UMA MENSAGEM',message);
+    
+    setInternalMessages((old) => [
+      ...old,
+      {
+        company_name:message.company_name,
+        created_at:message.created_at,
+        updated_at:message.updated_at,
+        id:message.id,
+        user_name:message.user_name,
+        company_id:message.company_id,
+        content:message.content,
+        estimate_request_id:message.estimate_request_id,
+        sender:message.sender,
+        type:message.type,
+      }
+     ])
+  },[])
+
+
+  const { connect, on, off, emit } = useSocketStore();
+  const { user } = useAuthStore();
+
+  useEffect(() => {
+    if (!user) return;
+
+    connect(); // cria conexão (só uma vez)
+
+    const handleMessage = (data: any) => {
+      console.log('[Chat] Nova mensagem:', data);
+    };
+    on('room:joined', handleMessage);
+    emit('join:room', { roomId: estimate_request_id ||'91b00ee5-266f-44b3-9b5c-f8212d1dc612' });
+    on('chat:message', handleMessage);
+    on('message:recieve', (data) => {
+          console.log('message:recieve',data,data.message.sender!==sender);
+          
+          if(data.message.sender!==sender){
+    
+            handleSendMessage(data.message);
+          }
+        });
+
+    return () => {
+      off('chat:message', handleMessage);
+    };
+  }, [connect, emit, estimate_request_id, handleSendMessage, off, on, sender, user]);
+
+  // useEffect(() => {
+  //   console.log('iniciou a tela');
+  //   const socket = socketFun()
+  //   //********* INVES de entrar na sala ao conectar apenas entrar na sala ja que ele vai ta conectado */
+  //   socket.on('connect', () => {
+  //     console.log('✅ Conectado com ID:', socket.id);
+
+  //     // Entrar na sala do orçamento
+  //     socket.emit('join:room', { roomId: estimate_request_id ||'91b00ee5-266f-44b3-9b5c-f8212d1dc612' });
+
+  //     // (opcional) confirmação
+  //     socket.on('room:joined', (data) => {
+  //       console.log('🛏️ Entrou na sala:', data.roomId);
+  //     });
+  //   });
+
+
+  //   socket.on('message:recieve', (data) => {
+  //     console.log('message:recieve',data,data.message.sender!==sender);
+      
+  //     if(data.message.sender!==sender){
+
+  //       handleSendMessage(data.message);
+  //     }
+  //   });
+
+  //   return () => {
+  //     // Limpando listeners
+      
+  //     socket.off('room:joined');
+  //     socket.off('message:recieve');
+  //   };
+  // }, [estimate_request_id, handleSendMessage, sender]);
   const handleSend = async (e: FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -53,11 +146,13 @@ export function Chat({
     const payload ={
       company_id: companyId!,
       content: input.trim(),
-      sender: "CLIENT",
+      sender,
       estimate_request_id: messages[0].estimate_request_id,
       type: "TEXT",
     }
     await createEstimateRequestMessage(payload);
+    console.log('payload',payload);
+    
     setInternalMessages((old) => [
       ...old,
       {
@@ -98,8 +193,9 @@ export function Chat({
       </CardHeader>
 
       <CardBody className="overflow-y-auto flex-1 space-y-4">
-        {internalMessages.map((msg, idx) => {
-          const isMe = msg.sender === "COMPANY";
+        
+        {internalMessages?.map((msg, idx) => {
+          const isMe = msg.sender === sender;
 
           const date = new Date(msg.created_at);
           return (
@@ -107,6 +203,7 @@ export function Chat({
               key={idx}
               className={`flex ${isMe ? "justify-end" : "justify-start"}`}
             >
+              
               <div
                 className={`max-w-[70%] px-4 py-2 rounded-2xl shadow-sm text-sm ${
                   isMe
@@ -114,6 +211,7 @@ export function Chat({
                     : "bg-neutral-200 text-neutral-800 rounded-bl-none"
                 }`}
               >
+         
                 {msg.type === "TEXT" ? (
                   <p>{msg.content}</p>
                 ) : (

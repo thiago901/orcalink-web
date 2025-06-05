@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 
 import { getEstimateRequestById } from "../../api/estimateRequests";
 import {
@@ -14,12 +14,15 @@ import ProposalActionDialog from "../../components/proposals/ProposalActionDialo
 
 import { Text } from "../../components/ui/Text";
 import {
-  avatar,
+  Avatar,
+  BreadcrumbItem,
+  Breadcrumbs,
   Button,
   Card,
   CardBody,
   CardHeader,
   Chip,
+  Divider,
 } from "@heroui/react";
 import { Subtitle } from "../../components/ui/Subtitle";
 import ImageGallery from "../../components/image-gallery";
@@ -27,12 +30,9 @@ import { FiCheck, FiFileText, FiLoader } from "react-icons/fi";
 import { CiCalendar, CiMail, CiMapPin, CiPhone } from "react-icons/ci";
 import { FaX } from "react-icons/fa6";
 
-import {
-  createEstimateRequestMessage,
-  getEstimateRequestMessages,
-} from "../../api/estimate-requests-messages";
-import { ChatSidebarLayout } from "../../components/chat/chat-section";
 import { Chats } from "../../components/chat/chats";
+import { AiFillStar } from "react-icons/ai";
+import { getEstimateRequestMessagesGroupedByCompany } from "../../api/estimate-requests-messages";
 
 export function MyBudgetsDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -47,21 +47,19 @@ export function MyBudgetsDetailPage() {
     queryFn: () => getEstimateRequestById(id!),
     enabled: !!id,
   });
-  const {
-    data: estimate_request_messages,
-    isLoading: isLoadingRequestMessages,
-  } = useQuery({
-    queryKey: ["estimateRequestMessages", id],
-    queryFn: () => getEstimateRequestMessages(id!),
+  const { data: estimate_request_message} = useQuery({
+    queryKey: ["estimateRequestMessage", id],
+    queryFn: () => getEstimateRequestMessagesGroupedByCompany(id!),
     enabled: !!id,
   });
-
+  
+  
   const { data: proposals, isLoading: isLoadingProposals } = useQuery({
     queryKey: ["proposals", id],
     queryFn: () => getProposalsByEstimateId(id!),
     enabled: !!id,
   });
-  console.log("proposals", proposals);
+  
 
   const handleApprove = async () => {
     if (!selectedProposal) return;
@@ -115,15 +113,16 @@ export function MyBudgetsDetailPage() {
 
   return (
     <div className="space-y-6 fade-in max-w-6xl mx-auto px-4 py-6">
-      <div>
-        <Text>Detalhes da solicitação de orçamento</Text>
-      </div>
+      <Breadcrumbs>
+        <BreadcrumbItem href="/my-budgets">Meus orçamentos</BreadcrumbItem>
+        <BreadcrumbItem>{request.name}</BreadcrumbItem>
+      </Breadcrumbs>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <Subtitle>Informações do Projeto</Subtitle>
+              <Subtitle>{request.name}</Subtitle>
             </CardHeader>
             <CardBody>
               <div className="space-y-4">
@@ -211,48 +210,52 @@ export function MyBudgetsDetailPage() {
                 <div className="space-y-4">
                   {proposals.map((proposal) => (
                     <div key={proposal.id} className="p-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-medium">
-                              {proposal.company.name.charAt(0)}
-                            </div>
-                            <div>
-                              <h4 className="font-medium">
-                                {proposal.company.name}
-                              </h4>
-                              <p className="text-sm text-neutral-500">
-                                {/* {proposal.company.address.city}, {proposal.company.address.state} */}
-                                Endereço
-                              </p>
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-3">
+                          <Avatar
+                            name={proposal.company.name.charAt(0).toUpperCase()}
+                            src={proposal.company.avatar}
+                          />
+
+                          <div className="flex-1">
+                            <h4 className="font-medium">
+                              {proposal.company.name}
+                            </h4>
+                            <div className="flex items-center gap-1">
+                              <AiFillStar color="#f1c40f" />
+                              <Text type="small">
+                                {proposal.company.ratting}
+                              </Text>
                             </div>
                           </div>
-                          <Text className="mt-2">{proposal.description}</Text>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <Subtitle>
-                            {new Intl.NumberFormat("pt-BR", {
-                              style: "currency",
-                              currency: "BRL",
-                            }).format(proposal.amount)}
-                          </Subtitle>
-                          <Chip
-                            color={
-                              proposal.approved_at
-                                ? "success"
+                          <div className="flex gap-2 flex-col items-end">
+                            <Chip
+                              color={
+                                proposal.approved_at
+                                  ? "success"
+                                  : proposal.reject_at
+                                  ? "danger"
+                                  : "warning"
+                              }
+                              size="sm"
+                            >
+                              {proposal.approved_at
+                                ? "Aprovado"
                                 : proposal.reject_at
-                                ? "danger"
-                                : "warning"
-                            }
-                            size="sm"
-                          >
-                            {proposal.approved_at
-                              ? "Aprovado"
-                              : proposal.reject_at
-                              ? "Rejeitado"
-                              : "Pendente"}
-                          </Chip>
+                                ? "Rejeitado"
+                                : "Pendente"}
+                            </Chip>
+                            <Text type="subtitle" weight="semibold">
+                              {new Intl.NumberFormat("pt-BR", {
+                                style: "currency",
+                                currency: "BRL",
+                              }).format(proposal.amount)}
+                            </Text>
+                          </div>
+                        </div>
+                        <div className="my-4">
+                          <Text type="normal" weight="semibold">Descrição da Proposta</Text>
+                          <Text className="mt-2">{proposal.description}</Text>
                         </div>
                       </div>
                       <div className="flex justify-end">
@@ -260,7 +263,6 @@ export function MyBudgetsDetailPage() {
                           <div className="mt-4 flex gap-2">
                             <Button
                               variant="ghost"
-                              size="sm"
                               startContent={<FaX size={16} />}
                               color="danger"
                               onPress={() => {
@@ -271,7 +273,6 @@ export function MyBudgetsDetailPage() {
                               Recusar
                             </Button>
                             <Button
-                              size="sm"
                               color="success"
                               startContent={<FiCheck size={16} />}
                               onPress={() => {
@@ -284,6 +285,10 @@ export function MyBudgetsDetailPage() {
                           </div>
                         )}
                       </div>
+                
+                        <Divider className="my-4"/>
+                        <Text type="caption">Enviada em: {format(proposal.created_at,"dd/MM/yyyy, HH:mm:ss")}</Text>
+                      
                     </div>
                   ))}
                 </div>
@@ -330,15 +335,18 @@ export function MyBudgetsDetailPage() {
               <Subtitle>Chats</Subtitle>
             </CardHeader>
             <CardBody className="p-0 rounded-none">
+              {console.log('unread_amount',estimate_request_message)}
               <Chats
+                sender="CLIENT"
                 estimate_request_id={id!}
                 contacts={
-                  !proposals
+                  !estimate_request_message
                     ? []
-                    : proposals.map((item) => ({
+                    : estimate_request_message.map((item) => ({
                         id: item.company.id,
                         name: item.company.name,
-                        avatar: item.company.avatar,
+                        avatar: '',
+                        unread_amount:item.unread_amount
                       }))
                 }
               />

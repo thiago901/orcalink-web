@@ -12,6 +12,15 @@ export default {
   },
   darkMode: "class",
   plugins: [
-    heroui({}),
+    heroui({
+
+      layout:{
+        radius:{
+          small:"0.125rem",
+          medium:"0.25rem",
+          large:"0.375rem",
+        }
+      }
+    }),
   ],
 };

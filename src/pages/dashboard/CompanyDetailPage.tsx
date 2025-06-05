@@ -148,6 +148,7 @@ const CompanyDetailPage = () => {
       <Tabs
         selectedKey={selected}
         onSelectionChange={(e) => setSelected(e.toString() as TabSelect)}
+        fullWidth
       >
         <Tab key="dashboard" title="Dashboard">
           {selected === "dashboard" && (

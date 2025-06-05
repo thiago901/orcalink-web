@@ -3,7 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../stores/authStore";
 import { useThemeStore } from "../../stores/themeStore";
 
-import { Avatar, Button, Card, Divider, Link, Listbox, ListboxItem } from "@heroui/react";
+import { Avatar, Button, Card, Divider, Image, Link, Listbox, ListboxItem } from "@heroui/react";
 import { Text } from "../ui/Text";
 
 import { FiArrowLeft, FiMenu, FiMoon } from "react-icons/fi";
@@ -54,6 +54,7 @@ const DashboardLayout = () => {
       >
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between h-16 px-4">
+            <Image src="./favicon.png"  className="w-10 h-10"/>
             <h1 className="text-xl font-bold">
               OrçaFacil
             </h1>

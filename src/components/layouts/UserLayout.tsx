@@ -5,6 +5,7 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  Image,
   Link,
   Navbar,
   NavbarBrand,
@@ -26,6 +27,7 @@ const navbarItems = [
   { label: "Inicial", href: "/" },
   { label: "Meus orçamentos", href: "/my-budgets" },
   { label: "Parceiros", href: "/partners" },
+  { label: "Planos", href: "/plans" },
 ];
 export const UserLayout = () => {
   const { isAuthenticated, user, logout } = useAuthStore();
@@ -64,6 +66,7 @@ export const UserLayout = () => {
           <NavbarBrand>
             <div className="flex items-center justify-between h-16 px-4  ">
               <Link href="/" className="flex items-center">
+              <Image src="./favicon.png"  className="w-10 h-10"/>
                 <h1 className="text-xl font-bold">
                   OrçaFacil
                 </h1>
@@ -117,14 +120,12 @@ export const UserLayout = () => {
                   <DropdownItem key="partners" href="/partners">
                     Parceiros
                   </DropdownItem>
-                  {!!companies && companies?.length > 0 ? (
+                  {!!companies &&user?.role==='company' && companies?.length > 0 ? (
                     <DropdownItem key="my-companies" href="/dashboard">
                       Acessar dashboard
                     </DropdownItem>
-                  ):
-                  <DropdownItem key="company" href="/company/new">
-                    Criar empresa
-                  </DropdownItem>
+                  ):<></>
+             
                   }
                   
 

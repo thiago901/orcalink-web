@@ -1,119 +1,214 @@
-import { useQuery } from '@tanstack/react-query';
-import { useAuthStore } from '../../stores/authStore';
-import { getEstimateRequestsByUserId } from '../../api/estimateRequests';
+import { useQuery } from "@tanstack/react-query";
+import { useAuthStore } from "../../stores/authStore";
+import {
+  getEstimateRequestsByUserId,
+  ResponseEstimateRequests,
+} from "../../api/estimateRequests";
 
 import {
   Button,
   Card,
   CardBody,
-  CardHeader,
+  Chip,
   Link,
   Listbox,
   ListboxItem,
-} from '@heroui/react';
-import { Title } from '../../components/ui/Title';
-import { Text } from '../../components/ui/Text';
-import { FiLoader } from 'react-icons/fi';
-import { CiCalendar, CiMapPin } from 'react-icons/ci';
-import { FaPlus } from 'react-icons/fa6';
+  Tab,
+  Tabs,
+} from "@heroui/react";
+import { Text } from "../../components/ui/Text";
+import { FiLoader } from "react-icons/fi";
+import { CiCalendar, CiMapPin } from "react-icons/ci";
+import { FaPlus } from "react-icons/fa6";
+import { Subtitle } from "../../components/ui/Subtitle";
+import { MdInbox } from "react-icons/md";
 
+function EmptyResponse() {
+  return (
+    <div className="flex flex-col items-center justify-center py-5">
+      <div className="w-14 h-14 bg-primary-500 text-white rounded-full flex items-center justify-center mx-auto mb-4">
+        <CiMapPin size={30} />
+      </div>
+      <Subtitle className="text-neutral-900 mb-1">
+        Nenhum orçamento encontrado
+      </Subtitle>
+      <Text className="text-neutral-900 mb-6">
+        Você ainda não solicitou nenhum orçamento. Que tal começar agora?
+      </Text>
+      <Button
+        as={Link}
+        href="/my-budgets/new"
+        color="primary"
+        startContent={<FaPlus size={16} />}
+      >
+        Novo Orçamento
+      </Button>
+    </div>
+  );
+}
+function EmptyListBox() {
+  return (
+    <div className="flex flex-col items-center justify-center text-center py-8">
+      <MdInbox size={32} className="mb-2" />
+      <Text type="normal">Nenhum item encontrado</Text>
+    </div>
+  );
+}
+
+interface ListboxEstimateRequestProps {
+  isLoading: boolean;
+  data: ResponseEstimateRequests;
+}
+function ListboxEstimateRequest({
+  data,
+  isLoading,
+}: ListboxEstimateRequestProps) {
+  return (
+    <Card>
+      <CardBody className="p-0">
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <FiLoader className="w-6 h-6 animate-spin text-primary-500" />
+          </div>
+        ) : (
+          <Listbox className="p-0" emptyContent={<EmptyListBox />}>
+            {data?.estimate_requests.map((request) => (
+              <ListboxItem key={request.id} href={`/my-budgets/${request.id}`}>
+                <div className="p-4">
+                  <div className="flex justify-between gap-4 items-start">
+                    <div className="flex-1">
+                      <Text type="subtitle" weight="semibold">
+                        {request.name}
+                      </Text>
+                      <div className="flex items-center gap-3 my-1">
+                        <Chip color="default" size="sm">
+                          Pintura
+                        </Chip>
+                        <div className="flex items-center gap-1">
+                          <CiMapPin size={14} />
+                          <Text color="muted" type="small">
+                            {request.address.city}, {request.address.state}
+                          </Text>
+                        </div>
+                        <div className="flex items-center gap-1 ">
+                          <CiCalendar size={14} />
+                          <Text color="muted" type="small">
+                            {new Date(request.created_at).toLocaleDateString(
+                              "pt-BR"
+                            )}
+                          </Text>
+                        </div>
+                      </div>
+                    </div>
+                    <Chip color="secondary">
+                      {request.proposals?.length > 1
+                        ? `${request.proposals?.length} Propostas`
+                        : `${request.proposals?.length} Proposta`}
+                    </Chip>
+                  </div>
+
+                  <Text color="muted">{request.description}</Text>
+                </div>
+              </ListboxItem>
+            ))}
+          </Listbox>
+        )}
+      </CardBody>
+    </Card>
+  );
+}
 export function MyBudgetsPage() {
   const { user } = useAuthStore();
 
   const { data: requests, isLoading } = useQuery({
-    queryKey: ['estimateRequests', user?.id],
-    queryFn: () => getEstimateRequestsByUserId(user?.id || ''),
+    queryKey: ["estimateRequests", user?.id],
+    queryFn: () => getEstimateRequestsByUserId(user?.id || ""),
     enabled: !!user?.id,
   });
 
   return (
     <div className="space-y-6 fade-in max-w-6xl mx-auto px-4 py-6">
-      <Card>
-        <CardHeader className="border-b border-neutral-200">
-          <div>
-            <Title className="text-xl font-semibold">Meus Orçamentos</Title>
-            <Text className="text-sm text-neutral-500 mt-1">
-              Veja suas solicitações de orçamento e acompanhe o status.
-            </Text>
-          </div>
-        </CardHeader>
-
-        <CardBody className="p-0">
-          {isLoading ? (
-            <div className="flex justify-center py-12">
-              <FiLoader className="w-6 h-6 animate-spin text-primary-500" />
+      <div className="flex items-center justify-between">
+        <div>
+          <Text type="title" weight="bold">
+            Meus Orçamentos
+          </Text>
+          <Text type="normal" weight="light">
+            Veja suas solicitações de orçamento e acompanhe o status.
+          </Text>
+        </div>
+        <Button
+          as={Link}
+          href="/my-budgets/new"
+          color="primary"
+          startContent={<FaPlus size={16} />}
+        >
+          Novo Orçamento
+        </Button>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
+        <Card className="w-full">
+          <CardBody>
+            <div className="flex flex-col justify-center items-center">
+              <Text type="subtitle">
+                {requests?.estimate_requests.length || 0}
+              </Text>
+              <Text type="small">Total</Text>
             </div>
-          ) : !requests?.length ? (
-            <div className="text-center py-12 px-6">
-              <div className="w-14 h-14 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CiMapPin className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-semibold mb-1">
-                Nenhum orçamento encontrado
-              </h3>
-              <p className="text-sm text-neutral-600 mb-6">
-                Você ainda não solicitou nenhum orçamento. Que tal começar agora?
-              </p>
-              <Button
-                as={Link}
-                href="/my-budgets/new"
-                color="primary"
-                startContent={<FaPlus size={16} />}
-              >
-                Solicitar Orçamento
-              </Button>
-            </div>
-          ) : (
-            <>
-            <Listbox className="divide-y divide-neutral-100">
-              {requests.map((request) => (
-                <ListboxItem
-                  key={request.id}
-                  href={`/my-budgets/${request.id}`}
-                  className="hover:bg-neutral-50 transition"
-                >
-                  <div className="py-4">
-                    <div className="flex justify-between gap-4 items-start">
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-base text-neutral-800">
-                          {request.name}
-                        </h4>
-                        <div className="flex items-center gap-1 text-sm text-neutral-500 mt-1">
-                          <CiMapPin size={14} />
-                          <span>{request.address.city}, {request.address.state}</span>
-                        </div>
-                      </div>
-                      <span className="bg-primary-100 text-primary-700 text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap">
-                        {request.proposals?.length || 0} proposta{request.proposals?.length === 1 ? '' : 's'}
-                      </span>
-                    </div>
+          </CardBody>
+        </Card>
 
-                    <p className="mt-2 text-sm text-neutral-600 line-clamp-2">
-                      {request.description}
-                    </p>
-
-                    <div className="mt-3 flex items-center gap-2 text-sm text-neutral-500">
-                      <CiCalendar size={14} />
-                      <span>{new Date(request.created_at).toLocaleDateString('pt-BR')}</span>
-                    </div>
-                  </div>
-                </ListboxItem>
-              ))}
-            </Listbox>
-            <div className='p-4 border-t border-neutral-200 flex justify-end'>
-            <Button
-                as={Link}
-                href="/my-budgets/new"
-                color="primary"
-                startContent={<FaPlus size={16} />}
-              >
-                Solicitar Orçamento
-              </Button>
+        <Card className="w-full">
+          <CardBody>
+            <div className="flex flex-col justify-center items-center">
+              <Text type="subtitle">{requests?.proposals_amout}</Text>
+              <Text type="small">Com Propostas</Text>
             </div>
-            </>
-          )}
-        </CardBody>
-      </Card>
+          </CardBody>
+        </Card>
+        <Card className="w-full">
+          <CardBody>
+            <div className="flex flex-col justify-center items-center">
+              <Text type="subtitle">{requests?.finished_amount}</Text>
+              <Text type="small">Concluídos</Text>
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+      {!requests?.estimate_requests.length ? (
+        <EmptyResponse />
+      ) : (
+        <Tabs aria-label="Options" fullWidth>
+          <Tab key="all" title="Todos">
+            <ListboxEstimateRequest data={requests} isLoading={isLoading} />
+          </Tab>
+
+          <Tab key="proposal" title="Com Propostas">
+            <ListboxEstimateRequest
+              data={{
+                estimate_requests: requests.estimate_requests.filter(
+                  (item) => !!item.proposals.length
+                ),
+                finished_amount: requests.finished_amount,
+                proposals_amout: requests.proposals_amout,
+              }}
+              isLoading={isLoading}
+            />
+          </Tab>
+          <Tab key="finished" title="Concluídas">
+            <ListboxEstimateRequest
+              data={{
+                estimate_requests: requests.estimate_requests.filter(
+                  (item) => !!item.finished_at
+                ),
+                finished_amount: requests.finished_amount,
+                proposals_amout: requests.proposals_amout,
+              }}
+              isLoading={isLoading}
+            />
+          </Tab>
+        </Tabs>
+      )}
     </div>
   );
 }
