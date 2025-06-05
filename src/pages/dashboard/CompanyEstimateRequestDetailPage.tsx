@@ -243,8 +243,9 @@ const CompanyEstimateRequestDetailPage = () => {
           </Card>
           <Chat
             companyId={id!}
-            contact={{ id: request.user.id, name: request.user.name, avatar: request.user.avatar }}
+            contact={{ id: request.user.id, name: request.user.name, avatar: request.user.avatar,unread_amount }}
             messages={estimate_request_messages?estimate_request_messages:[]}
+            estimate_request_id={estimate_id!}
             onSend={() => console.log("")}
             onUpload={() => console.log("")}
             onBack={() => null}

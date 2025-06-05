@@ -335,7 +335,7 @@ export function MyBudgetsDetailPage() {
               <Subtitle>Chats</Subtitle>
             </CardHeader>
             <CardBody className="p-0 rounded-none">
-              {console.log('unread_amount',estimate_request_message)}
+              
               <Chats
                 sender="CLIENT"
                 estimate_request_id={id!}
@@ -354,13 +354,7 @@ export function MyBudgetsDetailPage() {
           </Card>
         </div>
       </div>
-      {/* <div>
-        <ChatSidebarLayout
-          messages={estimate_request_messages || []}
-          onSend={(msg) => console.log("Send text:", msg)}
-          onUpload={(img) => console.log("Uploaded image:", img)}
-        />
-      </div> */}
+
 
       {/* Action Dialogs */}
       <ProposalActionDialog
