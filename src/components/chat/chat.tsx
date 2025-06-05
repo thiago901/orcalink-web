@@ -6,7 +6,7 @@ import {
   CardHeader,
   Input,
 } from "@heroui/react";
-import { useRef, useState, useEffect, ChangeEvent, FormEvent, useCallback } from "react";
+import { useRef, useState, useEffect, ChangeEvent, FormEvent, useCallback, useMemo } from "react";
 import { FiPaperclip, FiSend } from "react-icons/fi";
 import {
   createEstimateRequestMessage,
@@ -15,7 +15,6 @@ import {
 import { FaArrowLeft } from "react-icons/fa6";
 import { ChatContacts } from "./chats";
 import { v4 } from "uuid";
-import { socket as socketFun } from "../../utils/socket";
 import { useAuthStore } from "../../stores/authStore";
 import { useSocketStore } from "../../stores/useSocketStore";
 
@@ -40,6 +39,8 @@ export function Chat({
   estimate_request_id,
   sender
 }: ChatBoxProps) {
+  const { connect, on, off, emit } = useSocketStore();
+  const { user } = useAuthStore();
   const [internalMessages, setInternalMessages] = useState(messages);
   const [mmessages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState("");
@@ -78,8 +79,7 @@ export function Chat({
   },[])
 
 
-  const { connect, on, off, emit } = useSocketStore();
-  const { user } = useAuthStore();
+
 
   useEffect(() => {
     if (!user) return;
@@ -93,7 +93,7 @@ export function Chat({
     emit('join:room', { roomId: estimate_request_id ||'91b00ee5-266f-44b3-9b5c-f8212d1dc612' });
     on('chat:message', handleMessage);
     on('message:recieve', (data) => {
-          console.log('message:recieve',data,data.message.sender!==sender);
+          console.log('message:recieve',data,sender,data.message.sender!==sender);
           
           if(data.message.sender!==sender){
     
@@ -105,6 +105,12 @@ export function Chat({
       off('chat:message', handleMessage);
     };
   }, [connect, emit, estimate_request_id, handleSendMessage, off, on, sender, user]);
+
+  
+  useEffect(()=>{
+    console.log('Renderizou');
+    
+  },[])
 
   // useEffect(() => {
   //   console.log('iniciou a tela');
