@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
@@ -34,6 +34,15 @@ export function MyBudgetsCreatePage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingPostalCode, setIsLoadingPostalCode] = useState(false);
+  const [address, setAddress] = useState(
+    {} as {
+      address_state: string;
+      address_city: string;
+      address_neighborhood: string;
+      address_street: string;
+    }
+  );
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
@@ -41,6 +50,8 @@ export function MyBudgetsCreatePage() {
     register,
     handleSubmit,
     setValue,
+    getValues,
+    watch,
     formState: { errors },
   } = useForm<CreateEstimateRequestProps>({
     defaultValues: {
@@ -90,9 +101,12 @@ export function MyBudgetsCreatePage() {
     }
   };
   const handleSearchZip = useCallback(
-    async (e: React.FocusEvent<HTMLInputElement>) => {
+    async () => {
+      try {
+        const postal_code = getValues('address_postal_code')
+      setIsLoadingPostalCode(true)
       const { logradouro, estado, uf, bairro } = await searchByZipCode(
-        e.target.value
+        postal_code
       );
       setValue("address_state", uf, { shouldDirty: true, shouldTouch: true });
       setValue("address_city", estado, {
@@ -107,9 +121,22 @@ export function MyBudgetsCreatePage() {
         shouldDirty: true,
         shouldTouch: true,
       });
+      setAddress({
+        address_state: uf,
+        address_city: estado,
+        address_neighborhood: bairro,
+        address_street: logradouro,
+      });
+      } catch (error) {
+        console.log('erros',error);
+        
+      }finally{
+        setIsLoadingPostalCode(false)
+      }
     },
-    [setValue]
+    [getValues, setValue]
   );
+  const postalCode = watch("address_postal_code");
 
   return (
     <div className="space-y-6 fade-in max-w-6xl mx-auto px-4 py-6">
@@ -198,62 +225,65 @@ export function MyBudgetsCreatePage() {
               <Subtitle>Endereço</Subtitle>
             </CardHeader>
             <CardBody className="space-y-4">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <Input
-                  label="CEP"
-                  startContent={<CiMapPin size={18} />}
-                  placeholder="00000-000"
-                  errorMessage={errors.address_postal_code?.message}
-                  isInvalid={!!errors.address_postal_code?.message}
-                  {...register("address_postal_code", {
-                    required: "CEP é obrigatório",
+              <Input
+                label="CEP"
+                startContent={<CiMapPin size={18} />}
+                placeholder="00000-000"
+                errorMessage={errors.address_postal_code?.message}
+                isInvalid={!!errors.address_postal_code?.message}
+                {...register("address_postal_code", {
+                  required: "CEP é obrigatório",
+                })}
+                
+              />
+              <Button onPress={handleSearchZip} isDisabled={!postalCode} color="primary" isLoading={isLoadingPostalCode}>Pesquisar</Button>
+              
+              <Input
+                  label="Rua"
+                  isDisabled
+                  placeholder="Ex: Rua Principal"
+                  value={address.address_street}
+                  errorMessage={errors.address_street?.message}
+                  isInvalid={!!errors.address_street?.message}
+                  {...register("address_street", {
+                    required: "Rua é obrigatória",
                   })}
-                  onBlur={handleSearchZip}
                 />
-
+              <div className="grid sm:grid-cols-2 gap-4">
                 <Input
                   label="Estado"
                   isDisabled
                   placeholder="Ex: SP"
+                  value={address.address_state}
                   errorMessage={errors.address_state?.message}
                   isInvalid={!!errors.address_state?.message}
                   {...register("address_state", {
                     required: "Estado é obrigatório",
                   })}
                 />
+                <Input
+                  label="Cidade"
+                  placeholder="Ex: São Paulo"
+                  isDisabled
+                  value={address.address_city}
+                  errorMessage={errors.address_city?.message}
+                  isInvalid={!!errors.address_city?.message}
+                  {...register("address_city", {
+                    required: "Cidade é obrigatória",
+                  })}
+                />
               </div>
-
-              <Input
-                label="Cidade"
-                placeholder="Ex: São Paulo"
-                isDisabled
-                errorMessage={errors.address_city?.message}
-                isInvalid={!!errors.address_city?.message}
-                {...register("address_city", {
-                  required: "Cidade é obrigatória",
-                })}
-              />
-
-              <Input
-                label="Bairro"
-                isDisabled
-                placeholder="Ex: Centro"
-                errorMessage={errors.address_neighborhood?.message}
-                isInvalid={!!errors.address_neighborhood?.message}
-                {...register("address_neighborhood", {
-                  required: "Bairro é obrigatório",
-                })}
-              />
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <Input
-                  label="Rua"
+                  label="Bairro"
                   isDisabled
-                  placeholder="Ex: Rua Principal"
-                  errorMessage={errors.address_street?.message}
-                  isInvalid={!!errors.address_street?.message}
-                  {...register("address_street", {
-                    required: "Rua é obrigatória",
+                  placeholder="Ex: Centro"
+                  value={address.address_neighborhood}
+                  errorMessage={errors.address_neighborhood?.message}
+                  isInvalid={!!errors.address_neighborhood?.message}
+                  {...register("address_neighborhood", {
+                    required: "Bairro é obrigatório",
                   })}
                 />
 
@@ -267,6 +297,8 @@ export function MyBudgetsCreatePage() {
                   })}
                 />
               </div>
+              
+              
 
               {/* {!position && (
                 <div className="mt-4">

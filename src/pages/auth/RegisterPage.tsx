@@ -31,8 +31,24 @@ const RegisterPage = () => {
 
   const onSubmit = async (data: CreateUserProps) => {
     setIsLoading(true);
-    try {
+    try {      
       await registerUser(data);
+      toast.success("Conta criada com sucesso! Faça login para continuar.");
+      navigate("/login");
+    } catch (error) {
+      console.log("error", error);
+      toast.error("Erro ao criar conta. Tente novamente.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const onSubmitCompany = async (data: CreateUserProps) => {
+    setIsLoading(true);
+    try {
+      data.role='company'
+      console.log('dataa',data);
+      
+      // await registerUser(data);
       toast.success("Conta criada com sucesso! Faça login para continuar.");
       navigate("/login");
     } catch (error) {
@@ -153,7 +169,7 @@ const RegisterPage = () => {
               </CardBody>
             </Card>
           </Tab>
-          <Tab key="company" title="Sou empresa">
+          <Tab key="company" title="Sou empresa" >
             <Card className="w-full shadow-lg">
               <CardHeader>
                 <div className="my-0 mx-auto text-center">
@@ -161,18 +177,18 @@ const RegisterPage = () => {
                     OrçaFacil
                   </h1>
                   <p className="text-neutral-600 mt-1">
-                    Crie sua conta para começar
+                    Crie sua conta empresarial para começar
                   </p>
                 </div>
               </CardHeader>
 
               <CardBody className="px-6 pb-6 pt-2">
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={handleSubmit(onSubmitCompany)} className="space-y-4">
                   <Input
                     label="Nome completo"
                     type="text"
                     startContent={<CiUser size={18} />}
-                    placeholder="Seu nome completo"
+                    placeholder="Nome do Responsável"
                     errorMessage={errors.name?.message}
                     isInvalid={!!errors.name?.message}
                     {...register("name", {
@@ -185,7 +201,7 @@ const RegisterPage = () => {
                   />
 
                   <Input
-                    label="Email"
+                    label="Email do Responsável"
                     type="email"
                     startContent={<CiMail size={18} />}
                     placeholder="seu@email.com"

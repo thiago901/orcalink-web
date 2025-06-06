@@ -23,6 +23,8 @@ import { useQuery } from "@tanstack/react-query";
 import { CiSun } from "react-icons/ci";
 import { FiMoon } from "react-icons/fi";
 
+import { Notification } from "../notification";
+
 const navbarItems = [
   { label: "Inicial", href: "/" },
   { label: "Meus orçamentos", href: "/my-budgets" },
@@ -36,9 +38,9 @@ export const UserLayout = () => {
   const navigate = useNavigate();
   const pathname = location.pathname;
 
-  const { data: companies} = useQuery({
-    queryKey: ['companies', user?.id],
-    queryFn: () => getCompaniesByOwnerId(user?.id || ''),
+  const { data: companies } = useQuery({
+    queryKey: ["companies", user?.id],
+    queryFn: () => getCompaniesByOwnerId(user?.id || ""),
     enabled: !!user?.id,
   });
 
@@ -64,12 +66,10 @@ export const UserLayout = () => {
       <header>
         <Navbar>
           <NavbarBrand>
-            <div className="flex items-center justify-between h-16 px-4  ">
+            <div className="flex items-center justify-between h-16  flex-shrink-0 min-w-0 ">
               <Link href="/" className="flex items-center">
-              <Image src="./favicon.png"  className="w-10 h-10"/>
-                <h1 className="text-xl font-bold">
-                  OrçaFacil
-                </h1>
+                <Image src="./favicon.png" className="w-10 h-10" />
+                <h1 className="text-xl font-bold">OrçaFacil</h1>
               </Link>
             </div>
           </NavbarBrand>
@@ -91,60 +91,70 @@ export const UserLayout = () => {
             ))}
           </NavbarContent>
           {isAuthenticated ? (
-            <NavbarContent as="div" justify="end">
-              <Button onPress={toggleTheme} isIconOnly={true} variant="light">
-                {theme === "dark" ? <CiSun size={20} /> : <FiMoon size={20} />}
-              </Button>
-              <Dropdown placement="bottom-end">
-                <DropdownTrigger>
-                  <Avatar
-                    isBordered
-                    as="button"
-                    className="transition-transform"
-                    color="secondary"
-                    name={user?.name.toLocaleUpperCase()}
-                    size="sm"
-                    src={user?.avatar}
-                    showFallback
-                  />
-                </DropdownTrigger>
-                <DropdownMenu aria-label="Profile Actions" variant="flat">
-                  <DropdownItem key="profile" className="h-14 gap-2">
-                    <p className="font-semibold">Logado como:</p>
-                    <p className="font-semibold">{user?.email}</p>
-                  </DropdownItem>
-                  <DropdownItem key="settings">Perfil</DropdownItem>
-                  <DropdownItem key="bugets" href="my-budgets">
-                    Meus orçamentos
-                  </DropdownItem>
-                  <DropdownItem key="partners" href="/partners">
-                    Parceiros
-                  </DropdownItem>
-                  {!!companies &&user?.role==='company' && companies?.length > 0 ? (
-                    <DropdownItem key="my-companies" href="/dashboard">
-                      Acessar dashboard
+            <>
+              <NavbarContent as="div" justify="end">
+              <Notification/>
+              </NavbarContent>
+              <NavbarContent as="div" justify="end">
+                <Button onPress={toggleTheme} isIconOnly={true} variant="light">
+                  {theme === "dark" ? (
+                    <CiSun size={20} />
+                  ) : (
+                    <FiMoon size={20} />
+                  )}
+                </Button>
+                <Dropdown placement="bottom-end">
+                  <DropdownTrigger>
+                    <Avatar
+                      isBordered
+                      as="button"
+                      className="transition-transform"
+                      color="secondary"
+                      name={user?.name.toLocaleUpperCase()}
+                      size="sm"
+                      src={user?.avatar}
+                      showFallback
+                    />
+                  </DropdownTrigger>
+                  <DropdownMenu aria-label="Profile Actions" variant="flat">
+                    <DropdownItem key="profile" className="h-14 gap-2">
+                      <p className="font-semibold">Logado como:</p>
+                      <p className="font-semibold">{user?.email}</p>
                     </DropdownItem>
-                  ):<></>
-             
-                  }
-                  
+                    <DropdownItem key="settings">Perfil</DropdownItem>
+                    <DropdownItem key="bugets" href="my-budgets">
+                      Meus orçamentos
+                    </DropdownItem>
+                    <DropdownItem key="partners" href="/partners">
+                      Parceiros
+                    </DropdownItem>
+                    {!!companies &&
+                    user?.role === "company" &&
+                    companies?.length > 0 ? (
+                      <DropdownItem key="my-companies" href="/dashboard">
+                        Acessar dashboard
+                      </DropdownItem>
+                    ) : (
+                      <></>
+                    )}
 
-                  <DropdownItem
-                    key="logout"
-                    color="danger"
-                    onPress={handleLogout}
-                  >
-                    Sair
-                  </DropdownItem>
-                </DropdownMenu>
-              </Dropdown>
-            </NavbarContent>
+                    <DropdownItem
+                      key="logout"
+                      color="danger"
+                      onPress={handleLogout}
+                    >
+                      Sair
+                    </DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
+              </NavbarContent>
+            </>
           ) : (
             <NavbarContent justify="end">
               <Button onPress={toggleTheme} isIconOnly={true} variant="light">
                 {theme === "dark" ? <CiSun size={20} /> : <FiMoon size={20} />}
               </Button>
-              <NavbarItem className="hidden lg:flex">
+              <NavbarItem className="lg:flex">
                 <Link href="/login">Login</Link>
               </NavbarItem>
               <NavbarItem>
@@ -157,7 +167,6 @@ export const UserLayout = () => {
                   Sign Up
                 </Button>
               </NavbarItem>
-           
             </NavbarContent>
           )}
         </Navbar>
