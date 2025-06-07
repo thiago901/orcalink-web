@@ -46,6 +46,7 @@ export function MyBudgetsCreatePage() {
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
+
   const {
     register,
     handleSubmit,
@@ -56,6 +57,7 @@ export function MyBudgetsCreatePage() {
   } = useForm<CreateEstimateRequestProps>({
     defaultValues: {
       email: user?.email,
+      phone:user?.phone
     },
   });
   const { data: categories } = useQuery({

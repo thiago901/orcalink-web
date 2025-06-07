@@ -6,6 +6,7 @@ import { loginUser } from '../api/auth';
 interface User {
   id: string;
   name: string;
+  phone: string;
   email: string;
   role: 'company' |'customer';
   avatar?: string;
@@ -15,7 +16,8 @@ interface JwtPayload {
   sub: string;
   name: string;
   email: string;
-  role: string;
+  phone: string;
+  role: 'company' |'customer';
   avatar?: string;
   iat: number;
   exp: number;
@@ -59,7 +61,8 @@ export const useAuthStore = create<AuthState>()(
               name: decoded.name,
               email: decoded.email,
               avatar: decoded.avatar,
-              role:decoded.role
+              role:decoded.role,
+              phone:decoded.phone
             },
             isAuthenticated: true,
             isLoading: false,

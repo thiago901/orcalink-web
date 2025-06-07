@@ -10,6 +10,7 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Chip,
   Input,
   Link,
   Tab,
@@ -18,6 +19,7 @@ import {
 import { CiLock, CiMail, CiUser } from "react-icons/ci";
 import { FiPhone } from "react-icons/fi";
 import { FaUserPlus } from "react-icons/fa6";
+import { Text } from "../../components/ui/Text";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -62,7 +64,7 @@ const RegisterPage = () => {
   return (
     <div className="w-[400px] m-auto mt-4">
       <div>
-        <Tabs fullWidth>
+        <Tabs fullWidth color="primary">
           <Tab key="customer" title="Sou Cliente">
             <Card className="w-full  shadow-lg">
               <CardHeader>
