@@ -11,6 +11,7 @@ import { getProposalsByCompanyId } from "../../api/proposals";
 import ProposalForm from "../../components/proposals/ProposalForm";
 import EstimateRequestDetailsDialog from "../../components/proposals/EstimateRequestDetailsDialog";
 import {
+  Avatar,
   Button,
   Card,
   CardBody,
@@ -174,9 +175,9 @@ const CompanyDetailPage = () => {
                   <CardBody>
                     <div className="space-y-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center  text-2xl font-medium ">
-                          {company.name.charAt(0)}
-                        </div>
+                        <Avatar src={company.avatar} name={company.name} size="lg"/>
+                        
+                        
                         <div>
                           <h4 className="text-lg font-medium ">
                             {company.name}

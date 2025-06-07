@@ -61,6 +61,7 @@ export const UserLayout = () => {
     },
     [pathname]
   );
+
   return (
     <div>
       <header>
@@ -93,7 +94,7 @@ export const UserLayout = () => {
           {isAuthenticated ? (
             <>
               <NavbarContent as="div" justify="end">
-              <Notification/>
+                <Notification />
               </NavbarContent>
               <NavbarContent as="div" justify="end">
                 <Button onPress={toggleTheme} isIconOnly={true} variant="light">
@@ -133,6 +134,13 @@ export const UserLayout = () => {
                     companies?.length > 0 ? (
                       <DropdownItem key="my-companies" href="/dashboard">
                         Acessar dashboard
+                      </DropdownItem>
+                    ) : user?.role === "company" ? (
+                      <DropdownItem
+                        key="my-companies"
+                        href="/dashboard/companies/new"
+                      >
+                        Criar empresa
                       </DropdownItem>
                     ) : (
                       <></>

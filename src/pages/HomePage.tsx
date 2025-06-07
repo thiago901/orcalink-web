@@ -1,14 +1,11 @@
-
 import { useAuthStore } from "../stores/authStore";
 
 import { Button, Link } from "@heroui/react";
 import { FaBuilding, FaClipboardList, FaShield } from "react-icons/fa6";
 import { FiBarChart } from "react-icons/fi";
 
-
 const HomePage = () => {
-  const { isAuthenticated } = useAuthStore();
-  
+  const { isAuthenticated, user } = useAuthStore();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -98,13 +95,13 @@ const HomePage = () => {
             lugar, com profissionais confiáveis.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {isAuthenticated ? (
+            {isAuthenticated && user?.role === "company" ? (
               <Link href="/dashboard">
                 <Button variant="ghost" size="lg" className="w-full sm:w-auto">
                   Acessar painel
                 </Button>
               </Link>
-            ) : (
+            ) : !isAuthenticated ? (
               <>
                 <Link href="/register">
                   <Button
@@ -125,6 +122,8 @@ const HomePage = () => {
                   </Button>
                 </Link>
               </>
+            ) : (
+              <></>
             )}
           </div>
         </div>

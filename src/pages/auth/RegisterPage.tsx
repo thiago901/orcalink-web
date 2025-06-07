@@ -46,9 +46,9 @@ const RegisterPage = () => {
     setIsLoading(true);
     try {
       data.role='company'
-      console.log('dataa',data);
       
-      // await registerUser(data);
+      
+      await registerUser(data);
       toast.success("Conta criada com sucesso! Faça login para continuar.");
       navigate("/login");
     } catch (error) {

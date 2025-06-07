@@ -13,6 +13,7 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Image,
   Input,
   Textarea,
   Tooltip,
@@ -21,11 +22,12 @@ import {
   Company,
   createCompany,
   CreateCompanyProps,
+  updateCompany,
   uploadCompanyImage,
 } from "../../api/companies";
 import FileUpload from "../../components/ui/FileUpload";
 import { FiFileText } from "react-icons/fi";
-import { CiMapPin } from "react-icons/ci";
+import { CiMapPin, CiSearch } from "react-icons/ci";
 import { searchByZipCode } from "../../utils/search-zip-address";
 import { useNavigate } from "react-router-dom";
 
@@ -36,15 +38,29 @@ type CompanyCreateFormProp = {
 export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [changedFile, setChangedFile] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [isLoadingPostalCode, setIsLoadingPostalCode] = useState(false);
+  
+
+  const [address, setAddress] = useState(
+    {} as {
+      address_state: string;
+      address_city: string;
+      
+      address_street: string;
+    }
+  );
 
   const {
     register,
     handleSubmit,
     setValue,
     control,
+    getValues,
+    watch,
     formState: { errors },
   } = useForm<CreateCompanyProps>({
     defaultValues: {
@@ -58,19 +74,18 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
       website: company?.website,
     },
   });
-
-  const uploadImage = useCallback(async () => {
-    if (!company?.id) {
-      toast.error("Crie a empresa antes de fazer o upload da imagem");
-      return;
-    }
-    if (selectedFiles.length > 0) {
-      const formData = new FormData();
-      formData.append("file", selectedFiles[0]);
-      await uploadCompanyImage(company.id, formData);
-      toast.success("Imagem enviada com sucesso!");
-    }
-  }, [company, selectedFiles]);
+  const postalCode = watch("address.zip");
+  const uploadImage = useCallback(
+    async (company_id: string) => {
+      if (selectedFiles.length > 0) {
+        const formData = new FormData();
+        formData.append("file", selectedFiles[0]);
+        await uploadCompanyImage(company_id, formData);
+        toast.success("Imagem enviada com sucesso!");
+      }
+    },
+    [selectedFiles]
+  );
 
   const onSubmit = async (data: CreateCompanyProps) => {
     setIsLoading(true);
@@ -86,15 +101,23 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
       };
 
       if (company) {
-        // await updateCompany(id, payload);
+        await updateCompany(company.id, payload);
+        if (changedFile) {
+          await uploadImage(company.id);
+        }
+
         toast.success("Empresa atualizada com sucesso!");
       } else {
         const response = await createCompany(payload);
         setCompanyId(response.id);
+
         toast.success("Empresa criada com sucesso!");
+        if (changedFile) {
+          await uploadImage(response.id);
+        }
       }
 
-      // navigate("/dashboard/companies");
+      navigate("/dashboard/companies");
     } catch (err) {
       console.error(err);
       toast.error(
@@ -105,16 +128,42 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
     }
   };
 
-  const handleSearchZip = useCallback(
-    async (e: React.FocusEvent<HTMLInputElement>) => {
-      const { logradouro, estado, uf } = await searchByZipCode(e.target.value);
-      setValue("address.address", logradouro);
-      setValue("address.city", estado);
-      setValue("address.state", uf);
-    },
-    [setValue]
-  );
+  
+  const handleSearchZip = useCallback(async () => {
+    try {
+      const postal_code = getValues("address.zip");
+      setIsLoadingPostalCode(true);
+      const { logradouro, estado, uf} = await searchByZipCode(postal_code);
+      setValue("address.address", logradouro, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+      setValue("address.city", estado, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+      setValue("address.state", uf, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+      setAddress({
+        address_city:estado,
+        
+        address_state:uf,
+        address_street:logradouro,
 
+      })
+    } catch (error) {
+      console.log("erros", error);
+    } finally {
+      setIsLoadingPostalCode(false);
+    }
+  }, [getValues, setValue]);
+
+  const handleChangeAvatar = useCallback((files: File[]) => {
+    setSelectedFiles(files);
+    setChangedFile(true);
+  }, []);
   return (
     <div className="space-y-6">
       <Breadcrumbs>
@@ -146,17 +195,24 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
           </CardHeader>
           <CardBody className="space-y-4">
             <div className="flex gap-6 flex-col sm:flex-row">
-              <div className="w-full sm:w-1/3">
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
+              <div className="flex flex-col">
+                <span className="block text-sm font-medium text-neutral-700 mb-2">
                   Foto de perfil (opcional)
-                </label>
-                <div className="flex flex-col gap-4">
+                </span>
+                <div className="flex flex-col gap-4 ">
                   {company?.avatar ? (
-                    <div>
-                      <Avatar src={company.avatar} />
-                      <div className="[w-10px]">
+                    <div className="flex items-end">
+                      <div>
+                        <Image
+                          src={company.avatar}
+                          className="w-32"
+                          radius="full"
+                        />
+                      </div>
+
+                      <div>
                         <FileUpload
-                          onFilesSelected={setSelectedFiles}
+                          onFilesSelected={handleChangeAvatar}
                           maxFiles={1}
                           maxSizeInMB={10}
                           multiple={false}
@@ -165,22 +221,16 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
                       </div>
                     </div>
                   ) : (
-                    <FileUpload
-                      onFilesSelected={setSelectedFiles}
-                      maxFiles={1}
-                      maxSizeInMB={10}
-                      multiple={false}
-                      accept=".jpg,.jpeg,.png"
-                    />
+                    <div className="self-center">
+                      <FileUpload
+                        onFilesSelected={handleChangeAvatar}
+                        maxFiles={1}
+                        maxSizeInMB={10}
+                        multiple={false}
+                        accept=".jpg,.jpeg,.png"
+                      />
+                    </div>
                   )}
-
-                  <Button
-                    isDisabled={!company?.id}
-                    onPress={uploadImage}
-                    color="primary"
-                  >
-                    Salvar
-                  </Button>
                 </div>
               </div>
               <div className="flex-1 space-y-4">
@@ -249,7 +299,7 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
             <Subtitle>Endereço</Subtitle>
           </CardHeader>
           <CardBody className="space-y-4">
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 gap-4 ">
               <Input
                 label="CEP"
                 placeholder="00000-000"
@@ -259,10 +309,20 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
                 errorMessage={errors.address?.zip?.message}
                 onBlur={handleSearchZip}
               />
-              <Input label="Estado" isDisabled {...register("address.state")} />
+              <Button
+                onPress={handleSearchZip}
+                isDisabled={!postalCode}
+                color="primary"
+                isLoading={isLoadingPostalCode}
+                isIconOnly
+                size="lg"
+              >
+                <CiSearch size={20}/>
+              </Button>
             </div>
-            <Input label="Cidade" isDisabled {...register("address.city")} />
-            <Input label="Rua" isDisabled {...register("address.address")} />
+            <Input label="Estado" isDisabled {...register("address.state")}  value={address.address_state}/>
+            <Input label="Cidade" isDisabled {...register("address.city")} value={address.address_city}/>
+            <Input label="Rua" isDisabled {...register("address.address")} value={address.address_street}/>
           </CardBody>
         </Card>
 

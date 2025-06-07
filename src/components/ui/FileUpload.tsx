@@ -95,7 +95,7 @@ const FileUpload = ({
   }, [previewUrl]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 ">
       <input
         ref={inputRef}
         type="file"
@@ -135,7 +135,7 @@ const FileUpload = ({
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-center">
+        <div className="flex">
           {previewUrl ? (
             <div className="relative w-32 h-32">
               <img
@@ -159,7 +159,7 @@ const FileUpload = ({
             <button
               type="button"
               onClick={openFileDialog}
-              className="w-32 h-32 flex items-center justify-center rounded-full border-2 border-dashed text-neutral-400 hover:border-primary-500 hover:text-primary-500 transition-colors"
+              className="p-3 flex items-center justify-center rounded-full border-2 border-dashed text-neutral-400 hover:border-primary-500 hover:text-primary-500 transition-colors "
             >
               <FiUpload className="w-8 h-8" />
             </button>

@@ -76,6 +76,10 @@ export const createCompany = async (data: CreateCompanyProps) => {
   const response = await api.post('/companies', data);
   return response.data.result;
 };
+export const updateCompany = async (id:string,data: CreateCompanyProps) => {
+  const response = await api.put(`/companies/${id}`, data);
+  return response.data.result;
+};
 export const uploadCompanyImage = async (company_id: string, files: FormData) => {
   const response = await api.patch(`/companies/${company_id}/file`, files,{
     headers: {

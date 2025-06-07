@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useAuthStore } from '../../stores/authStore';
 import { getCompaniesByOwnerId } from '../../api/companies';
-import { Button, Card, CardBody, CardHeader, Link } from '@heroui/react';
+import { Avatar, Button, Card, CardBody, CardHeader, Link } from '@heroui/react';
 import { Subtitle } from '../../components/ui/Subtitle';
 import { Title } from '../../components/ui/Title';
 import { Text } from '../../components/ui/Text';
@@ -75,9 +75,7 @@ const CompaniesPage = () => {
                 >
                   <div className="p-4 rounded-lg border border-neutral-200 hover:border-primary-300 hover:shadow-sm transition-all">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-medium text-lg shrink-0">
-                        {company.name.charAt(0)}
-                      </div>
+                      <Avatar src={company.avatar} name={company.name} size='lg'/>
                       <div>
                         <h4 className="font-medium">{company.name}</h4>
                         <p className="text-sm text-neutral-500">
