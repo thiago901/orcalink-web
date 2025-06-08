@@ -122,7 +122,7 @@ export const UserLayout = () => {
                       <p className="font-semibold">Logado como:</p>
                       <p className="font-semibold">{user?.email}</p>
                     </DropdownItem>
-                    <DropdownItem key="settings">Perfil</DropdownItem>
+                    <DropdownItem key="settings" href="/profile">Perfil</DropdownItem>
                     <DropdownItem key="bugets" href="my-budgets">
                       Meus orçamentos
                     </DropdownItem>

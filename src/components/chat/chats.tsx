@@ -1,4 +1,4 @@
-import { Avatar, Chip, Listbox, ListboxItem, cn } from "@heroui/react";
+import { Avatar, Chip, Listbox, ListboxItem, } from "@heroui/react";
 import { useState } from "react";
 import { Chat } from "./chat";
 
@@ -6,7 +6,8 @@ import { Chat } from "./chat";
 import { getEstimateRequestMessagesByCompany } from "../../api/estimate-requests-messages";
 import { useQuery } from "@tanstack/react-query";
 
-const ChevronRightIcon = (props) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ChevronRightIcon = (props:any) => {
   return (
     <svg
       aria-hidden="true"
@@ -27,7 +28,7 @@ const ChevronRightIcon = (props) => {
   );
 };
 
-const ItemCounter = ({ number }) => (
+const ItemCounter = ({ number }:{number:number}) => (
   <div className="flex items-center gap-1 text-default-400">
     <Chip color="primary" className="text-small">{number}</Chip>
     <ChevronRightIcon className="text-xl" />
@@ -53,7 +54,7 @@ export function Chats({ contacts, estimate_request_id ,sender}: ChatsProps) {
   const [contact, setContact] = useState<ChatContacts | null>(null);
   const {
     data: estimate_request_messages,
-    isLoading: isLoadingRequestMessages,
+    
   } = useQuery({
     queryKey: ["estimateRequestMessages", companyId, estimate_request_id],
     queryFn: () =>

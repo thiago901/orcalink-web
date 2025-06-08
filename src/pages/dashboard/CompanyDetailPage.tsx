@@ -50,7 +50,7 @@ const CompanyDetailPage = () => {
 
   const [radius, setRadius] = useState(RADIUS_OPTIONS[0].key);
   const [selected, setSelected] = useState<TabSelect >("dashboard");
-  const [sortBy, setSortBy] = useState<"date" | "distance">("date");
+  
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isProposalFormOpen, setIsProposalFormOpen] = useState(false);
@@ -124,13 +124,13 @@ const CompanyDetailPage = () => {
     );
   }
 
-  const sortedRequests = requests?.sort((a, b) => {
-    if (sortBy === "date") {
+  const sortedRequests = requests?.sort((a:any, b:any) => {
+
       return (
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
-    }
-    return 0;
+
+
   });
 
   const handleSubmitProposal = () => {
@@ -140,7 +140,7 @@ const CompanyDetailPage = () => {
 
   const hasSubmittedProposal = (requestId: string) => {
     return proposals?.some(
-      (proposal) => proposal.estimate_request_id === requestId
+      (proposal:any) => proposal.estimate_request_id === requestId
     );
   };
 
@@ -325,7 +325,7 @@ const CompanyDetailPage = () => {
                   ) : (
                     <div className="space-y-4">
                       <Listbox>
-                        {sortedRequests.map((request, index) => (
+                        {sortedRequests.map((request:any, index:number) => (
                           <ListboxItem
                             key={request.id}
                             showDivider={sortedRequests.length - 1 !== index}
@@ -478,7 +478,7 @@ const CompanyDetailPage = () => {
                   ) : (
                     <div className="space-y-4">
                       <Listbox>
-                        {jobs.map((request, index) => (
+                        {jobs.map((request:any, index:number) => (
                           <ListboxItem
                             key={request.id}
                             showDivider={sortedRequests.length - 1 !== index}

@@ -63,7 +63,7 @@ export function MyBudgetsDetailPage() {
 
   const handleApprove = async () => {
     if (!selectedProposal) return;
-
+    
     setIsActionLoading(true);
     try {
       await approveProposal(selectedProposal.id);

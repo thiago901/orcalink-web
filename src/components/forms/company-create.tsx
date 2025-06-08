@@ -6,7 +6,7 @@ import { Title } from "../../components/ui/Title";
 import { Text } from "../../components/ui/Text";
 import { Subtitle } from "../../components/ui/Subtitle";
 import {
-  Avatar,
+  
   BreadcrumbItem,
   Breadcrumbs,
   Button,
@@ -16,7 +16,7 @@ import {
   Image,
   Input,
   Textarea,
-  Tooltip,
+  
 } from "@heroui/react";
 import {
   Company,
@@ -40,16 +40,15 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
   const [isLoading, setIsLoading] = useState(false);
   const [changedFile, setChangedFile] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [companyId, setCompanyId] = useState<string | null>(null);
+
   const navigate = useNavigate();
   const [isLoadingPostalCode, setIsLoadingPostalCode] = useState(false);
-  
 
   const [address, setAddress] = useState(
     {} as {
       address_state: string;
       address_city: string;
-      
+
       address_street: string;
     }
   );
@@ -109,7 +108,6 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
         toast.success("Empresa atualizada com sucesso!");
       } else {
         const response = await createCompany(payload);
-        setCompanyId(response.id);
 
         toast.success("Empresa criada com sucesso!");
         if (changedFile) {
@@ -128,12 +126,17 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
     }
   };
 
-  
   const handleSearchZip = useCallback(async () => {
     try {
       const postal_code = getValues("address.zip");
+      if(!postal_code.trim()){
+        toast.error(
+          "Preencha o campo de CEP"
+        );
+        return
+      }
       setIsLoadingPostalCode(true);
-      const { logradouro, estado, uf} = await searchByZipCode(postal_code);
+      const { logradouro, estado, uf } = await searchByZipCode(postal_code.trim());
       setValue("address.address", logradouro, {
         shouldDirty: true,
         shouldTouch: true,
@@ -147,14 +150,17 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
         shouldTouch: true,
       });
       setAddress({
-        address_city:estado,
-        
-        address_state:uf,
-        address_street:logradouro,
+        address_city: estado,
 
-      })
+        address_state: uf,
+        address_street: logradouro,
+      });
     } catch (error) {
       console.log("erros", error);
+      toast.error(
+        "Erro ao buscar CEP, verifique se o CEP está correto e tente novamente"
+      );
+      
     } finally {
       setIsLoadingPostalCode(false);
     }
@@ -307,7 +313,7 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
                 {...register("address.zip", { required: "Campo obrigatório" })}
                 isInvalid={!!errors.address?.zip}
                 errorMessage={errors.address?.zip?.message}
-                onBlur={handleSearchZip}
+                
               />
               <Button
                 onPress={handleSearchZip}
@@ -317,12 +323,27 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
                 isIconOnly
                 size="lg"
               >
-                <CiSearch size={20}/>
+                <CiSearch size={20} />
               </Button>
             </div>
-            <Input label="Estado" isDisabled {...register("address.state")}  value={address.address_state}/>
-            <Input label="Cidade" isDisabled {...register("address.city")} value={address.address_city}/>
-            <Input label="Rua" isDisabled {...register("address.address")} value={address.address_street}/>
+            <Input
+              label="Estado"
+              isDisabled
+              {...register("address.state")}
+              value={address.address_state}
+            />
+            <Input
+              label="Cidade"
+              isDisabled
+              {...register("address.city")}
+              value={address.address_city}
+            />
+            <Input
+              label="Rua"
+              isDisabled
+              {...register("address.address")}
+              value={address.address_street}
+            />
           </CardBody>
         </Card>
 

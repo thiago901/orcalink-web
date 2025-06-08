@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
@@ -107,8 +107,15 @@ export function MyBudgetsCreatePage() {
       try {
         const postal_code = getValues('address_postal_code')
       setIsLoadingPostalCode(true)
+
+      if(!postal_code.trim()){
+        toast.error(
+          "Preencha o campo de CEP"
+        );
+        return
+      }
       const { logradouro, estado, uf, bairro } = await searchByZipCode(
-        postal_code
+        postal_code.trim()
       );
       setValue("address_state", uf, { shouldDirty: true, shouldTouch: true });
       setValue("address_city", estado, {
@@ -131,6 +138,9 @@ export function MyBudgetsCreatePage() {
       });
       } catch (error) {
         console.log('erros',error);
+        toast.error(
+          "Erro ao buscar CEP, verifique se o CEP está correto e tente novamente"
+        );
         
       }finally{
         setIsLoadingPostalCode(false)
@@ -302,21 +312,7 @@ export function MyBudgetsCreatePage() {
               
               
 
-              {/* {!position && (
-                <div className="mt-4">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    startContent={<CiMapPin size={18} />}
-                    onPress={getCurrentPosition}
-                  >
-                    Usar minha localização atual
-                  </Button>
-                  {geolocationError && (
-                    <p className="mt-2 text-sm text-error-500">{geolocationError}</p>
-                  )}
-                </div>
-              )} */}
+    
             </CardBody>
           </Card>
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/stores/useSocketStore.ts
 import { create } from 'zustand';
 import { io, Socket } from 'socket.io-client';

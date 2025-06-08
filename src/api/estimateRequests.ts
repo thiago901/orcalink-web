@@ -59,6 +59,10 @@ export type EstimateRequest={
   address:{
     city:string;
     state:string
+    postal_code:string
+    neighborhood:string;
+    street:string;
+    number:number
   },
   created_at:Date,
   updated_at:Date,

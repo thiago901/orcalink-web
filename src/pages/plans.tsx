@@ -18,7 +18,7 @@ import { Text } from "../components/ui/Text";
 
 export function ProviderPlans() {
   const [isAnnual, setIsAnnual] = useState(false);
-  const [currentPlan, setCurrentPlan] = useState("basic");
+  const [currentPlan] = useState("basic");
 
   const plans = [
     {

@@ -37,7 +37,7 @@ const CompanyEstimateRequestDetailPage = () => {
 
     const {
       data: estimate_request_messages,
-      isLoading: isLoadingRequestMessages,
+      
     } = useQuery({
       queryKey: ["estimateRequestMessages", id, estimate_id],
       queryFn: () =>
@@ -63,7 +63,7 @@ const CompanyEstimateRequestDetailPage = () => {
     );
 
     setStatusProposals({
-      hasProposal: proposal,
+      hasProposal: !!proposal,
       wasApproved: !!proposal?.approved_at,
       isSameCompany: proposal?.company_id === id,
     });
