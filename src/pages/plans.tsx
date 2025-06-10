@@ -15,6 +15,7 @@ import {
   Tabs,
 } from "@heroui/react";
 import { Text } from "../components/ui/Text";
+import { CheckoutButton } from "../components/payment/checkout-button";
 
 export function ProviderPlans() {
   const [isAnnual, setIsAnnual] = useState(false);
@@ -203,7 +204,9 @@ export function ProviderPlans() {
               {plan.popular && (
                 <div className="w-full bg-blue-500 flex gap-2 justify-center items-center">
                   <HiSparkles />
-                  <Text type="normal" color="light">Mais Popular</Text>
+                  <Text type="normal" color="light">
+                    Mais Popular
+                  </Text>
                 </div>
               )}
 
@@ -217,7 +220,9 @@ export function ProviderPlans() {
                   <Text type="subtitle" align="center">
                     {plan.name}
                   </Text>
-                  <Text type="small" align="center" color="muted">{plan.description}</Text>
+                  <Text type="small" align="center" color="muted">
+                    {plan.description}
+                  </Text>
 
                   <div className="py-4">
                     <div className="text-3xl font-bold text-gray-900">
@@ -257,7 +262,13 @@ export function ProviderPlans() {
                 </div>
 
                 <Button
-                  color={isCurrentPlan?'default':plan.popular? 'secondary':'primary'}
+                  color={
+                    isCurrentPlan
+                      ? "default"
+                      : plan.popular
+                      ? "secondary"
+                      : "primary"
+                  }
                   isDisabled={isCurrentPlan}
                 >
                   {isCurrentPlan
@@ -266,6 +277,10 @@ export function ProviderPlans() {
                     ? "Começar Grátis"
                     : "Assinar Agora"}
                 </Button>
+                <CheckoutButton
+                  email="teste@mail.com"
+                  priceId="price_1RXsbOQitTm5wxzyAXu2MX6v" // vem do Stripe Dashboard
+                />
               </CardBody>
             </Card>
           );
@@ -274,7 +289,7 @@ export function ProviderPlans() {
 
       {/* Additional Information */}
       <Tabs defaultSelectedKey="features" fullWidth>
-        <Tab key="features" title="Recursos Detalhados" >
+        <Tab key="features" title="Recursos Detalhados">
           <Card>
             <CardHeader>
               <Text type="subtitle">Comparação Detalhada de Recursos</Text>
@@ -331,7 +346,7 @@ export function ProviderPlans() {
           </Card>
         </Tab>
 
-        <Tab key="faq" title="Perguntas Frequentes" >
+        <Tab key="faq" title="Perguntas Frequentes">
           <Card>
             <CardHeader>
               <Text type="subtitle">Perguntas Frequentes</Text>
@@ -376,7 +391,7 @@ export function ProviderPlans() {
           </Card>
         </Tab>
 
-        <Tab key="support" title="Suporte" >
+        <Tab key="support" title="Suporte">
           <Card>
             <CardHeader>
               <Text type="subtitle">Precisa de Ajuda?</Text>

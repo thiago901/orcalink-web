@@ -30,6 +30,16 @@ import { Partners } from "./pages/user/partners";
 import { PartnersDetail } from "./pages/user/partners-detail";
 import { CompanyCreatePage } from "./pages/user/company-create-page";
 import { ProviderPlans } from "./pages/plans";
+import { Success } from "./pages/payments/success";
+import { Canceled } from "./pages/payments/canceled";
+import { HomeCompany } from "./pages/company/home-company";
+import { CompanyInformationsPage } from "./pages/company/company-informations";
+import { CompanyBudgetPage } from "./pages/company/company-budgets";
+import { CompanyProposalsPage } from "./pages/company/company-proposals";
+import { CompanyJobsPage } from "./pages/company/company-jobs";
+import { CompanyInformationsCreatePage } from "./pages/company/company-informations-create";
+import { CompanyInformationsEditPage } from "./pages/company/company-informations-edit";
+import { CompanyBudgetsDetailPage } from "./pages/company/company-budgets-detail";
 
 function App() {
   const { checkAuth } = useAuthStore();
@@ -59,6 +69,10 @@ function App() {
         <Route element={<Partners />} path="partners" />
         <Route element={<PartnersDetail />} path="partners/:id" />
         <Route element={<CompanyCreatePage />} path="company/new" />
+        <Route path="/payments">
+          <Route path="success" element={<Success />} />
+          <Route path="canceled" element={<Canceled />} />
+        </Route>
       </Route>
       {/* Protected routes */}
       <Route
@@ -91,6 +105,29 @@ function App() {
         <Route path="companies/jobs/:id" element={<JobDetailPage />} />
         <Route path="proposals" element={<ProposalsPage />} />
         <Route path="proposals/:id" element={<ProposalDetailPage />} />
+      </Route>
+
+      <Route
+        path="/company"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<HomeCompany />} />
+        <Route path="profile" element={<CompanyInformationsPage />} />
+        <Route path="profile/new" element={<CompanyInformationsCreatePage />} />
+        <Route path="profile/edit" element={<CompanyInformationsEditPage />} />
+        <Route path="budgets" element={<CompanyBudgetPage />} />
+        <Route
+          path="budgets/:estimate_id"
+          element={<CompanyBudgetsDetailPage />}
+        />
+        <Route path="proposals" element={<CompanyProposalsPage/>} />
+        <Route path="jobs" element={<CompanyJobsPage/>} />
+
+        
       </Route>
 
       {/* 404 and redirects */}

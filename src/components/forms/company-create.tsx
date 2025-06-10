@@ -6,9 +6,7 @@ import { Title } from "../../components/ui/Title";
 import { Text } from "../../components/ui/Text";
 import { Subtitle } from "../../components/ui/Subtitle";
 import {
-  
-  BreadcrumbItem,
-  Breadcrumbs,
+
   Button,
   Card,
   CardBody,
@@ -115,7 +113,7 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
         }
       }
 
-      navigate("/dashboard/companies");
+      navigate("/company");
     } catch (err) {
       console.error(err);
       toast.error(
@@ -172,18 +170,7 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
   }, []);
   return (
     <div className="space-y-6">
-      <Breadcrumbs>
-        <BreadcrumbItem href="/dashboard">Dashboard</BreadcrumbItem>
-        {company?.id ? (
-          <BreadcrumbItem href={`dashboard/companies/${company?.id}`}>
-            Empresa
-          </BreadcrumbItem>
-        ) : (
-          <BreadcrumbItem href={`dashboard/companies`}>
-            Criar Empresa
-          </BreadcrumbItem>
-        )}
-      </Breadcrumbs>
+   
       <div>
         <Title>{company ? "Editar Empresa" : "Nova Empresa"}</Title>
         <Text className="text-neutral-600">

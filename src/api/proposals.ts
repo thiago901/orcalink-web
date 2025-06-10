@@ -33,7 +33,7 @@ export const getProposalById = async (id: string) => {
 };
 
 export const getProposalsByCompanyId = async (companyId: string) => {
-  const response = await api.get(`/proposals/company/${companyId}`);
+  const response = await api.get<ResponseAPI<Proposal[]>>(`/proposals/company/${companyId}`);
 
   return response.data.result;
 };
