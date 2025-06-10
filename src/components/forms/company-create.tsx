@@ -28,6 +28,7 @@ import { FiFileText } from "react-icons/fi";
 import { CiMapPin, CiSearch } from "react-icons/ci";
 import { searchByZipCode } from "../../utils/search-zip-address";
 import { useNavigate } from "react-router-dom";
+import { useCompanyStore } from "../../stores/companyStore";
 
 type CompanyCreateFormProp = {
   company?: Company;
@@ -35,6 +36,7 @@ type CompanyCreateFormProp = {
 
 export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
   const { user } = useAuthStore();
+  const { getCompanies } = useCompanyStore();
   const [isLoading, setIsLoading] = useState(false);
   const [changedFile, setChangedFile] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -102,7 +104,7 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
         if (changedFile) {
           await uploadImage(company.id);
         }
-
+        
         toast.success("Empresa atualizada com sucesso!");
       } else {
         const response = await createCompany(payload);
@@ -113,6 +115,9 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
         }
       }
 
+      if(user){
+        await getCompanies(user.id)
+      }
       navigate("/company");
     } catch (err) {
       console.error(err);

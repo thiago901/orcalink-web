@@ -79,7 +79,9 @@ export const useCompanyStore = create<CompanyState>()(
           const companies = response;
           
           if (companies.length > 0) {
-            set({ current_company: companies[0], isLoading: false,companies });
+            const {current_company} = get();
+            const hasCurrent = companies.find(item=>item.id ===current_company.id)
+            set({ current_company: hasCurrent? hasCurrent:companies[0], isLoading: false,companies });
           } else {
             set({ isLoading: false, error: "No companies found" });
           }

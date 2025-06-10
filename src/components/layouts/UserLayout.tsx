@@ -132,7 +132,7 @@ export const UserLayout = () => {
                     {!!companies &&
                     user?.role === "company" &&
                     companies?.length > 0 ? (
-                      <DropdownItem key="my-companies" href="/dashboard">
+                      <DropdownItem key="my-companies" href="/company">
                         Acessar dashboard
                       </DropdownItem>
                     ) : user?.role === "company" ? (

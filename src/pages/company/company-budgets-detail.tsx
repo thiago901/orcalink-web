@@ -24,9 +24,12 @@ import { FiLoader } from "react-icons/fi";
 import { CiCalendar, CiMail, CiMapPin, CiPhone } from "react-icons/ci";
 import { Chat } from "../../components/chat/chat";
 import { getEstimateRequestMessagesByCompany } from "../../api/estimate-requests-messages";
+import { useCompanyStore } from "../../stores/companyStore";
 
 export function CompanyBudgetsDetailPage() {
-  const { estimate_id, id } = useParams<{ estimate_id: string; id: string }>();
+  const { estimate_id } = useParams<{ estimate_id: string }>();
+  const {current_company} = useCompanyStore()
+  const id = current_company.id
 
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [statusProposals, setStatusProposals] = useState({

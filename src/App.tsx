@@ -6,20 +6,9 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 import DashboardLayout from "./components/layouts/DashboardLayout";
 import HomePage from "./pages/HomePage";
-import DashboardPage from "./pages/dashboard/DashboardPage";
-import ProfilePage from "./pages/dashboard/ProfilePage";
-import EstimateRequestsPage from "./pages/dashboard/EstimateRequestsPage";
-import EstimateRequestDetailPage from "./pages/dashboard/EstimateRequestDetailPage";
-import CreateEstimateRequestPage from "./pages/dashboard/CreateEstimateRequestPage";
-import CompaniesPage from "./pages/dashboard/CompaniesPage";
-import CompanyDetailPage from "./pages/dashboard/CompanyDetailPage";
-import ProposalsPage from "./pages/dashboard/ProposalsPage";
-import ProposalDetailPage from "./pages/dashboard/ProposalDetailPage";
+import ProfilePage from "./pages/user/ProfilePage";
 import PageNotFound from "./pages/PageNotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
-import CreateCompanyPage from "./pages/dashboard/CreateCompanyPage";
-import CompanyEstimateRequestDetailPage from "./pages/dashboard/CompanyEstimateRequestDetailPage";
-import JobDetailPage from "./pages/dashboard/JobDetailPage";
 import { UserLayout } from "./components/layouts/UserLayout";
 import { Posts } from "./pages/user/posts";
 
@@ -74,38 +63,7 @@ function App() {
           <Route path="canceled" element={<Canceled />} />
         </Route>
       </Route>
-      {/* Protected routes */}
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <DashboardLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<DashboardPage />} />
-        <Route path="profile" element={<ProfilePage />} />
-        <Route path="estimate-requests" element={<EstimateRequestsPage />} />
-        <Route
-          path="estimate-requests/new"
-          element={<CreateEstimateRequestPage />}
-        />
-        <Route
-          path="estimate-requests/:id"
-          element={<EstimateRequestDetailPage />}
-        />
-        <Route path="companies" element={<CompaniesPage />} />
-        <Route path="companies/new" element={<CreateCompanyPage />} />
-        <Route path="companies/:id" element={<CompanyDetailPage />} />
-        <Route path="companies/:id/edit" element={<CreateCompanyPage />} />
-        <Route
-          path="companies/:id/estimate_request/:estimate_id"
-          element={<CompanyEstimateRequestDetailPage />}
-        />
-        <Route path="companies/jobs/:id" element={<JobDetailPage />} />
-        <Route path="proposals" element={<ProposalsPage />} />
-        <Route path="proposals/:id" element={<ProposalDetailPage />} />
-      </Route>
+ 
 
       <Route
         path="/company"
