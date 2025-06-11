@@ -1,6 +1,13 @@
 import { useState } from "react";
 
-import { FiCheck,FiUsers, FiBarChart, FiX, FiStar, FiZap } from "react-icons/fi";
+import {
+  FiCheck,
+  FiUsers,
+  FiBarChart,
+  FiX,
+  FiStar,
+  FiZap,
+} from "react-icons/fi";
 
 import {
   Badge,
@@ -9,6 +16,7 @@ import {
   CardBody,
   CardHeader,
   Chip,
+  Link,
   Switch,
   Tab,
   Tabs,
@@ -19,11 +27,11 @@ import { useAuthStore } from "../stores/authStore";
 import { useQuery } from "@tanstack/react-query";
 import { listAllPlans, Plan } from "../api/plan";
 
-const icons ={
-  'free':FiUsers,
-  'basic':FiStar,
-  'profissional':FiZap
-}
+const icons = {
+  free: FiUsers,
+  basic: FiStar,
+  profissional: FiZap,
+};
 
 export function ProviderPlans() {
   const { user } = useAuthStore();
@@ -31,21 +39,20 @@ export function ProviderPlans() {
   const { data: plans, isLoading: isLoadingPlans } = useQuery({
     queryKey: ["plans"],
     queryFn: () => listAllPlans(),
-    enabled: !!user?.id,
+    enabled: true,
   });
 
   const [isAnnual, setIsAnnual] = useState(false);
-  
 
   const currentPlanData = plans?.find((plan) => plan.id === user?.plan_id);
-  const PlanIconCurrent = icons[currentPlanData?.id as keyof typeof icons]
-  const getPrice = (plan:Plan) => {
+  const PlanIconCurrent = icons[currentPlanData?.id as keyof typeof icons];
+  const getPrice = (plan: Plan) => {
     if (plan.price_month === 0) return "Grátis";
     const price = isAnnual ? plan.price_year / 12 : plan.price_month;
     return `R$ ${price.toFixed(2)}`;
   };
 
-  const getSavings = (plan:Plan) => {
+  const getSavings = (plan: Plan) => {
     if (plan.price_month === 0) return null;
     const monthlyCost = plan.price_month * 12;
     const savings = monthlyCost - plan.price_year;
@@ -62,30 +69,6 @@ export function ProviderPlans() {
         <p className="text-xl text-gray-600 mb-8">
           Escolha o plano ideal para fazer seu negócio crescer
         </p>
-
-        {/* Billing Toggle */}
-        <div className="flex items-center justify-center space-x-4 mb-8">
-          <span
-            className={`text-sm ${
-              !isAnnual ? "text-brand-600 font-medium" : "text-gray-600"
-            }`}
-          >
-            Mensal
-          </span>
-          <Switch
-            isSelected={isAnnual}
-            onValueChange={setIsAnnual}
-            className="data-[state=checked]:bg-brand-600"
-          />
-          <span
-            className={`text-sm ${
-              isAnnual ? "text-brand-600 font-medium" : "text-gray-600"
-            }`}
-          >
-            Anual
-          </span>
-          {isAnnual && <Chip color="secondary">Economize até 20%</Chip>}
-        </div>
       </div>
 
       {/* Current Plan Info */}
@@ -96,8 +79,7 @@ export function ProviderPlans() {
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-brand-100 rounded-lg flex items-center justify-center">
                   {/* <currentPlanData.icon className="h-6 w-6 text-brand-600" /> */}
-                  <PlanIconCurrent size={30}/>
-                  
+                  <PlanIconCurrent size={30} />
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-brand-900">
@@ -109,22 +91,16 @@ export function ProviderPlans() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <Badge className="bg-brand-600">Ativo</Badge>
-                <Button variant="ghost">Gerenciar Assinatura</Button>
-              </div>
             </div>
           </CardBody>
         </Card>
       )}
 
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-12">
         {plans?.map((plan) => {
           const PlanIcon = icons[plan.id as keyof typeof icons];
           const isCurrentPlan = plan.id === user?.plan_id;
-          
-          
+
           return (
             <Card
               key={plan.id}
@@ -134,7 +110,7 @@ export function ProviderPlans() {
               <CardHeader className={`text-center  pt-6}`}>
                 <div className="flex flex-col w-full justify-center justify-items-center">
                   <div className="flex justify-end">
-                    {isCurrentPlan?<Chip color="primary">Atual</Chip>:<></>}
+                    {isCurrentPlan ? <Chip color="primary">Atual</Chip> : <></>}
                   </div>
                   <div className="w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <PlanIcon className="h-8 w-8 text-brand-600" />
@@ -184,17 +160,26 @@ export function ProviderPlans() {
                     )
                   )}
                 </div>
-                  
-                  
-               
-                <CheckoutButton
-                  isDisabled={isCurrentPlan}
-                  fullWidth
-                  className="h-16"
-                  color={isCurrentPlan?'default':'primary'}
-                  email="teste@mail.com"
-                  priceId="price_1RXsbOQitTm5wxzyAXu2MX6v" // vem do Stripe Dashboard
-                />
+
+                {!user ? (
+                  <Button
+                    as={Link}
+                    href="/login"
+                    color="primary"
+                    className="h-16"
+                  >
+                    Assinar plano
+                  </Button>
+                ) : (
+                  <CheckoutButton
+                    isDisabled={isCurrentPlan}
+                    fullWidth
+                    className="h-16"
+                    color={isCurrentPlan ? "default" : "primary"}
+                    email={user.email}
+                    priceId={plan.price_id}
+                  />
+                )}
               </CardBody>
             </Card>
           );
@@ -215,12 +200,8 @@ export function ProviderPlans() {
                     <tr className="border-b">
                       <th className="text-left py-3 font-medium">Recurso</th>
                       <th className="text-center py-3 font-medium">Gratuito</th>
-                      <th className="text-center py-3 font-medium">Básico</th>
                       <th className="text-center py-3 font-medium">
                         Profissional
-                      </th>
-                      <th className="text-center py-3 font-medium">
-                        Empresarial
                       </th>
                     </tr>
                   </thead>
@@ -228,30 +209,37 @@ export function ProviderPlans() {
                     <tr>
                       <td className="py-3">Propostas por mês</td>
                       <td className="text-center">5</td>
-                      <td className="text-center">50</td>
-                      <td className="text-center">Ilimitadas</td>
                       <td className="text-center">Ilimitadas</td>
                     </tr>
                     <tr>
                       <td className="py-3">Empresas</td>
                       <td className="text-center">1</td>
-                      <td className="text-center">1</td>
-                      <td className="text-center">3</td>
                       <td className="text-center">Ilimitadas</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3">Destaque nas buscas</td>
+                      <td className="text-center">Não</td>
+                      <td className="text-center">Sim</td>
                     </tr>
                     <tr>
                       <td className="py-3">Analytics</td>
                       <td className="text-center">-</td>
-                      <td className="text-center">Básico</td>
-                      <td className="text-center">Avançado</td>
-                      <td className="text-center">Completo</td>
+                      <td className="text-center">Avançado (em breve)</td>
                     </tr>
                     <tr>
                       <td className="py-3">Suporte</td>
-                      <td className="text-center">Email</td>
-                      <td className="text-center">Email + Chat</td>
-                      <td className="text-center">Email + Chat + Telefone</td>
-                      <td className="text-center">Dedicado</td>
+                      <td className="text-center">Básico</td>
+                      <td className="text-center">Prioritário</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3">Novidades antecipadas</td>
+                      <td className="text-center">Não</td>
+                      <td className="text-center">Sim</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3">Personalização de marca</td>
+                      <td className="text-center">Não</td>
+                      <td className="text-center">Sim (em breve)</td>
                     </tr>
                   </tbody>
                 </table>
@@ -272,7 +260,8 @@ export function ProviderPlans() {
                 </h4>
                 <p className="text-gray-600 text-sm">
                   Sim, você pode cancelar sua assinatura a qualquer momento. Não
-                  há multas ou taxas de cancelamento.
+                  há multas ou taxas de cancelamento — após o cancelamento, você
+                  continuará com acesso até o fim do ciclo vigente.
                 </p>
               </div>
 
@@ -281,8 +270,10 @@ export function ProviderPlans() {
                   Como funciona o período de teste?
                 </h4>
                 <p className="text-gray-600 text-sm">
-                  Todos os planos pagos oferecem 14 dias de teste gratuito. Você
-                  pode testar todos os recursos sem compromisso.
+                  Todos os novos assinantes ganham 14 dias gratuitos para testar
+                  os recursos pagos. Após esse período, a cobrança da
+                  mensalidade será iniciada automaticamente, sem compromisso
+                  durante o teste.
                 </p>
               </div>
 
@@ -290,15 +281,19 @@ export function ProviderPlans() {
                 <h4 className="font-medium mb-2">Posso mudar de plano?</h4>
                 <p className="text-gray-600 text-sm">
                   Sim, você pode fazer upgrade ou downgrade do seu plano a
-                  qualquer momento. As alterações são aplicadas imediatamente.
+                  qualquer momento. O downgrade será aplicado ao final do ciclo
+                  atual. Em caso de upgrade, a cobrança da diferença será feita
+                  no próximo ciclo.
                 </p>
               </div>
 
               <div>
                 <h4 className="font-medium mb-2">Como funciona a cobrança?</h4>
                 <p className="text-gray-600 text-sm">
-                  A cobrança é feita automaticamente no cartão de crédito
-                  cadastrado, de acordo com o ciclo escolhido (mensal ou anual).
+                  Trabalhamos apenas com planos mensais. A cobrança é feita
+                  automaticamente no cartão de crédito após o término do período
+                  de teste gratuito e se repete a cada 30 dias, até que você
+                  cancele.
                 </p>
               </div>
             </CardBody>

@@ -45,10 +45,10 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
       <Route path="/" element={<UserLayout />}>
+        <Route index path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
 
         <Route path="/register" element={<RegisterPage />} />
-        <Route index path="/" element={<HomePage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route element={<Posts />} path="posts" />
         <Route path="/plans" element={<ProviderPlans />} />

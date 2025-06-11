@@ -1,6 +1,7 @@
 import { loadStripe } from "@stripe/stripe-js";
 import api from "../../api/axios";
 import { Button, ButtonProps } from "@heroui/react";
+import { createCustomer } from "../../api/payments";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY); // pegue no dashboard
 
@@ -15,15 +16,13 @@ export function CheckoutButton({
   ...rest
 }: CheckoutButtonProps) {
   const handleClick = async () => {
-    // const customerRes = await fetch('/api/stripe/create-customer', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ email }),
-    // });
-    // const { id: customerId } = await customerRes.json();
-
+  
+    const customer = await createCustomer({email});
+    
+    
+    
     const checkoutRes = await api.post("/payments/session", {
-      customer_id: "cus_ST8ZBT5Q33gHVO",
+      customer_id: customer.id,
       price_id: priceId,
     });
 

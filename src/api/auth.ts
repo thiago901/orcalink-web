@@ -35,6 +35,10 @@ export const registerUser = async (data: CreateUserProps) => {
 };
 
 export const forgotPassword = async (data: RecoverPasswordProps) => {
-  const response = await api.post('/forgot-password', data);
+  const response = await api.post('/sessions/forgot-password', data);
+  return response.data.result;
+};
+export const refreshToken = async () => {
+  const response = await api.post('/sessions/refresh');
   return response.data.result;
 };

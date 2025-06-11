@@ -50,11 +50,14 @@ const DashboardLayout = () => {
   useEffect(() => {
     async function load() {
       if (user) {
+        if(user.role==='customer'){
+          navigate('/')
+        }
         await getCompanies(user.id);
       }
     }
     load();
-  }, [user, getCompanies]);
+  }, [user, getCompanies,navigate]);
 
   const handleLogout = () => {
     logout();

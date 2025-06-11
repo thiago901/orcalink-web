@@ -1,6 +1,6 @@
 import { useAuthStore } from "../stores/authStore";
 
-import { Button, Link } from "@heroui/react";
+import { Button, link, Link } from "@heroui/react";
 import { FaBuilding, FaClipboardList, FaShield } from "react-icons/fa6";
 import { FiBarChart } from "react-icons/fi";
 
@@ -96,11 +96,27 @@ const HomePage = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {isAuthenticated && user?.role === "company" ? (
-              <Link href="/dashboard">
-                <Button variant="ghost" size="lg" className="w-full sm:w-auto">
+              <>
+                <Button
+                  size="lg"
+                  as={Link}
+                  href="/my-budgets"
+                  color="primary"
+                  className="w-full sm:w-auto"
+                >
+                  Solicitar Orçamento
+                </Button>
+
+                <Button
+                  as={Link}
+                  variant="ghost"
+                  size="lg"
+                  className="w-full sm:w-auto"
+                  href="/company"
+                >
                   Acessar painel
                 </Button>
-              </Link>
+              </>
             ) : !isAuthenticated ? (
               <>
                 <Link href="/register">
@@ -123,7 +139,15 @@ const HomePage = () => {
                 </Link>
               </>
             ) : (
-              <></>
+              <Button
+                size="lg"
+                as={Link}
+                href="/my-budgets"
+                color="primary"
+                className="w-full sm:w-auto"
+              >
+                Solicitar Orçamento
+              </Button>
             )}
           </div>
         </div>

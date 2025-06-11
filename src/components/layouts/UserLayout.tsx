@@ -29,7 +29,7 @@ const navbarItems = [
   { label: "Inicial", href: "/" },
   { label: "Meus orçamentos", href: "/my-budgets" },
   { label: "Parceiros", href: "/partners" },
-  { label: "Planos", href: "/plans" },
+  { label: "Para Empresas", href: "/plans" },
 ];
 export const UserLayout = () => {
   const { isAuthenticated, user, logout } = useAuthStore();
@@ -61,6 +61,14 @@ export const UserLayout = () => {
     },
     [pathname]
   );
+  function shouldHide(url:string){
+    const rules ={
+      "/my-budgets": url === "/my-budgets" && !isAuthenticated,
+      "/plans": url === "/plans" &&isAuthenticated&& user?.role==='customer'
+    }
+
+    return rules[url as keyof typeof rules] || false
+  }
 
   return (
     <div>
@@ -79,7 +87,7 @@ export const UserLayout = () => {
               <NavbarItem
                 key={index}
                 isActive={isActive(item.href)}
-                hidden={item.href === "/my-budgets" && !isAuthenticated}
+                hidden={shouldHide(item.href)}
               >
                 <Link
                   color={isActive(item.href) ? "primary" : "foreground"}

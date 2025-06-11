@@ -1,6 +1,13 @@
 import { Image, Link } from "@heroui/react";
+import { useAuthStore } from "../../stores/authStore";
+import { useEffect } from "react";
 
 export function Success() {
+  const {refetchProfile} = useAuthStore()
+
+  useEffect(()=>{
+    refetchProfile()
+  },[refetchProfile])
   return (
     <div className="flex flex-col items-center p-6 text-center">
       <Image src="/public/ilustrations/payment.png" />

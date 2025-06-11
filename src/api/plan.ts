@@ -13,6 +13,7 @@ export interface Plan {
   resources: ResourcePlan[];
   price_month:number;
   price_year:number;
+  price_id:string;
   description:string;
   created_at: Date;
   updated_at: Date;
