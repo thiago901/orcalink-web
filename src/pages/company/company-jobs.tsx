@@ -1,8 +1,4 @@
- 
-
 import { useQuery } from "@tanstack/react-query";
-
-import { getCompanyById } from "../../api/companies";
 
 import {
   Card,
@@ -17,21 +13,16 @@ import { getJobsByCompany } from "../../api/jobs-service";
 
 import { CiCalendar, CiMapPin } from "react-icons/ci";
 import { useCompanyStore } from "../../stores/companyStore";
-import { getEstimateRequestById } from "../../api/estimateRequests";
 
 export function CompanyJobsPage() {
   const { current_company } = useCompanyStore();
-    const id = current_company.id;
+  const id = current_company.id;
 
-
-  const { data: jobs,isLoading:isLoadingJob } = useQuery({
+  const { data: jobs } = useQuery({
     queryKey: ["jobs", id],
     queryFn: () => getJobsByCompany(id!),
     enabled: !!id,
   });
-
-
-
 
   if (!current_company.id) {
     return (
@@ -78,12 +69,13 @@ export function CompanyJobsPage() {
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                         <div>
                           <h4 className="font-medium">
-                            {request.estimate_request.name }
+                            {request.estimate_request.name}
                           </h4>
 
                           <p className="mt-2 text-sm text-neutral-600">
-                          {request.estimate_request.description.slice(0,300) }
-                          {request.estimate_request.description.length>300 && "..."}
+                            {request.estimate_request.description.slice(0, 300)}
+                            {request.estimate_request.description.length >
+                              300 && "..."}
                           </p>
                           <div className="mt-4 flex flex-wrap gap-4 text-sm ">
                             <div className="flex items-center gap-1">
