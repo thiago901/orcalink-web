@@ -94,7 +94,7 @@ export function MyBudgetsCreatePage() {
       }
 
       toast.success("Solicitação de orçamento criada com sucesso!");
-      navigate(`/dashboard/estimate-requests/${response.id}`);
+      navigate(`/my-budgets/${response.id}`);
     } catch (error) {
       console.log("error", error);
       toast.error("Erro ao criar solicitação de orçamento");

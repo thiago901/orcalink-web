@@ -40,6 +40,7 @@ interface CompanyState {
   error: string | null;
   getCompanies: (user_id: string) => Promise<void>;
   setCompany: (company: Company) => void;
+  resetCompany: () => void;
 }
 
 export const useCompanyStore = create<CompanyState>()(
@@ -71,6 +72,9 @@ export const useCompanyStore = create<CompanyState>()(
       companies: [],
       isLoading: false,
       error: null,
+      resetCompany:()=>{
+        set({ current_company: {} as Company, isLoading: false,companies:[] });
+      },
       setCompany: (company) => set({ current_company: company }),
       getCompanies: async (user_id: string) => {
         set({ isLoading: true, error: null });

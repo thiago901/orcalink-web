@@ -82,7 +82,7 @@ export function CompanyJobsPage() {
                     <ListboxItem
                       key={request.id}
                       as={Link}
-                      href={`/dashboard/companies/jobs/${request.id}`}
+                      href={`/company/budgets/${request.id}`}
                     >
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                         <div>

@@ -130,7 +130,7 @@ const { isAuthenticated } = useAuthStore();
                   <div className="space-x-4">
                     {isAuthenticated ? (
                       
-                        <Button as={Link} href="/dashboard">Minha Conta</Button>
+                        <Button as={Link} href="/comoany">Minha Conta</Button>
                       
                     ) : (
                       <>

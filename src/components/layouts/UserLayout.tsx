@@ -146,7 +146,7 @@ export const UserLayout = () => {
                     ) : user?.role === "company" ? (
                       <DropdownItem
                         key="my-companies"
-                        href="/dashboard/companies/new"
+                        href="/company/profile/new"
                       >
                         Criar empresa
                       </DropdownItem>
