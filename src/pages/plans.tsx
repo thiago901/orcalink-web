@@ -1,8 +1,7 @@
 import { useState } from "react";
 
-import { FiCheck, FiStar, FiZap, FiUsers, FiBarChart } from "react-icons/fi";
-import { MdBusinessCenter } from "react-icons/md";
-import { HiSparkles } from "react-icons/hi2";
+import { FiCheck,FiUsers, FiBarChart, FiX, FiStar, FiZap } from "react-icons/fi";
+
 import {
   Badge,
   Button,
@@ -16,112 +15,43 @@ import {
 } from "@heroui/react";
 import { Text } from "../components/ui/Text";
 import { CheckoutButton } from "../components/payment/checkout-button";
+import { useAuthStore } from "../stores/authStore";
+import { useQuery } from "@tanstack/react-query";
+import { listAllPlans, Plan } from "../api/plan";
+
+const icons ={
+  'free':FiUsers,
+  'basic':FiStar,
+  'profissional':FiZap
+}
 
 export function ProviderPlans() {
+  const { user } = useAuthStore();
+
+  const { data: plans, isLoading: isLoadingPlans } = useQuery({
+    queryKey: ["plans"],
+    queryFn: () => listAllPlans(),
+    enabled: !!user?.id,
+  });
+
   const [isAnnual, setIsAnnual] = useState(false);
-  const [currentPlan] = useState("basic");
+  
 
-  const plans = [
-    {
-      id: "free",
-      name: "Gratuito",
-      description: "Ideal para começar",
-      icon: FiUsers,
-      monthlyPrice: 0,
-      annualPrice: 0,
-      popular: false,
-      features: [
-        "Até 5 propostas por mês",
-        "Perfil básico da empresa",
-        "Chat com clientes",
-        "Suporte por email",
-        "Acesso a orçamentos públicos",
-      ],
-      limitations: [
-        "Sem destaque nas buscas",
-        "Sem analytics avançados",
-        "Sem múltiplas empresas",
-      ],
-    },
-    {
-      id: "basic",
-      name: "Básico",
-      description: "Para profissionais ativos",
-      icon: FiStar,
-      monthlyPrice: 39.9,
-      annualPrice: 399.0,
-      popular: false,
-      features: [
-        "Até 50 propostas por mês",
-        "Perfil destacado",
-        "Chat ilimitado",
-        "Agenda integrada",
-        "Suporte prioritário",
-        "Analytics básicos",
-        "Notificações em tempo real",
-      ],
-      limitations: ["Uma empresa por conta", "Sem recursos premium"],
-    },
-    {
-      id: "professional",
-      name: "Profissional",
-      description: "Para empresas em crescimento",
-      icon: FiZap,
-      monthlyPrice: 79.9,
-      annualPrice: 799.0,
-      popular: true,
-      features: [
-        "Propostas ilimitadas",
-        "Destaque premium nas buscas",
-        "Múltiplas empresas (até 3)",
-        "Analytics avançados",
-        "Relatórios detalhados",
-        "Integração com calendário",
-        "Suporte telefônico",
-        "Badge de verificação",
-        "Prioridade em orçamentos",
-      ],
-      limitations: [],
-    },
-    {
-      id: "enterprise",
-      name: "Empresarial",
-      description: "Para grandes empresas",
-      icon: MdBusinessCenter,
-      monthlyPrice: 149.9,
-      annualPrice: 1499.0,
-      popular: false,
-      features: [
-        "Todos os recursos do Profissional",
-        "Empresas ilimitadas",
-        "API personalizada",
-        "Dashboard executivo",
-        "Gestor de conta dedicado",
-        "Treinamento personalizado",
-        "Relatórios customizados",
-        "Integração com CRM",
-        "White label disponível",
-      ],
-      limitations: [],
-    },
-  ];
-
-  const currentPlanData = plans.find((plan) => plan.id === currentPlan);
-
-  const getPrice = (plan: (typeof plans)[0]) => {
-    if (plan.monthlyPrice === 0) return "Grátis";
-    const price = isAnnual ? plan.annualPrice / 12 : plan.monthlyPrice;
+  const currentPlanData = plans?.find((plan) => plan.id === user?.plan_id);
+  const PlanIconCurrent = icons[currentPlanData?.id as keyof typeof icons]
+  const getPrice = (plan:Plan) => {
+    if (plan.price_month === 0) return "Grátis";
+    const price = isAnnual ? plan.price_year / 12 : plan.price_month;
     return `R$ ${price.toFixed(2)}`;
   };
 
-  const getSavings = (plan: (typeof plans)[0]) => {
-    if (plan.monthlyPrice === 0) return null;
-    const monthlyCost = plan.monthlyPrice * 12;
-    const savings = monthlyCost - plan.annualPrice;
+  const getSavings = (plan:Plan) => {
+    if (plan.price_month === 0) return null;
+    const monthlyCost = plan.price_month * 12;
+    const savings = monthlyCost - plan.price_year;
     const percentage = (savings / monthlyCost) * 100;
     return percentage.toFixed(0);
   };
-
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Header */}
@@ -165,7 +95,9 @@ export function ProviderPlans() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-brand-100 rounded-lg flex items-center justify-center">
-                  <currentPlanData.icon className="h-6 w-6 text-brand-600" />
+                  {/* <currentPlanData.icon className="h-6 w-6 text-brand-600" /> */}
+                  <PlanIconCurrent size={30}/>
+                  
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-brand-900">
@@ -173,7 +105,7 @@ export function ProviderPlans() {
                   </h3>
                   <p className="text-brand-700">
                     {getPrice(currentPlanData)}
-                    {currentPlanData.monthlyPrice > 0 && "/mês"}
+                    {currentPlanData.price_month > 0 && "/mês"}
                   </p>
                 </div>
               </div>
@@ -186,34 +118,24 @@ export function ProviderPlans() {
         </Card>
       )}
 
-      {/* Plans Grid */}
+      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-        {plans.map((plan) => {
-          const PlanIcon = plan.icon;
-          const isCurrentPlan = plan.id === currentPlan;
-
+        {plans?.map((plan) => {
+          const PlanIcon = icons[plan.id as keyof typeof icons];
+          const isCurrentPlan = plan.id === user?.plan_id;
+          
+          
           return (
             <Card
               key={plan.id}
-              className={`transition-all hover:shadow-lg ${
-                plan.popular
-                  ? "border-brand-500 shadow-lg scale-105"
-                  : "border-gray-200"
+              className={`transition-all hover:shadow-lg border-gray-200
               } ${isCurrentPlan ? "ring-2 ring-brand-500" : ""}`}
             >
-              {plan.popular && (
-                <div className="w-full bg-blue-500 flex gap-2 justify-center items-center">
-                  <HiSparkles />
-                  <Text type="normal" color="light">
-                    Mais Popular
-                  </Text>
-                </div>
-              )}
-
-              <CardHeader
-                className={`text-center ${plan.popular ? "pt-12" : "pt-6"}`}
-              >
+              <CardHeader className={`text-center  pt-6}`}>
                 <div className="flex flex-col w-full justify-center justify-items-center">
+                  <div className="flex justify-end">
+                    {isCurrentPlan?<Chip color="primary">Atual</Chip>:<></>}
+                  </div>
                   <div className="w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <PlanIcon className="h-8 w-8 text-brand-600" />
                   </div>
@@ -227,13 +149,13 @@ export function ProviderPlans() {
                   <div className="py-4">
                     <div className="text-3xl font-bold text-gray-900">
                       {getPrice(plan)}
-                      {plan.monthlyPrice > 0 && (
+                      {plan.price_month > 0 && (
                         <span className="text-lg font-normal text-gray-600">
                           /mês
                         </span>
                       )}
                     </div>
-                    {isAnnual && plan.monthlyPrice > 0 && (
+                    {isAnnual && plan.price_year > 0 && (
                       <div className="text-sm text-green-600">
                         Economize {getSavings(plan)}% no plano anual
                       </div>
@@ -244,40 +166,32 @@ export function ProviderPlans() {
 
               <CardBody className="px-6 pb-6 flex-1">
                 <div className="space-y-3 mb-6 h-full">
-                  {plan.features.map((feature, index) => (
-                    <div key={index} className="flex items-start">
-                      <FiCheck className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-gray-700">{feature} </span>
-                    </div>
-                  ))}
-
-                  {plan.limitations.map((limitation, index) => (
-                    <div key={index} className="flex items-start opacity-60">
-                      <span className="text-gray-400 mr-3 mt-0.5">×</span>
-                      <span className="text-sm text-gray-500">
-                        {limitation}
-                      </span>
-                    </div>
-                  ))}
+                  {plan.resources.map((feature, index) =>
+                    feature.active ? (
+                      <div key={index} className="flex items-start">
+                        <FiCheck className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-sm text-gray-700">
+                          {feature.label}{" "}
+                        </span>
+                      </div>
+                    ) : (
+                      <div key={index} className="flex items-start opacity-60">
+                        <FiX className="h-5 w-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-sm text-gray-500">
+                          {feature.label}
+                        </span>
+                      </div>
+                    )
+                  )}
                 </div>
-
-                <Button
-                  color={
-                    isCurrentPlan
-                      ? "default"
-                      : plan.popular
-                      ? "secondary"
-                      : "primary"
-                  }
-                  isDisabled={isCurrentPlan}
-                >
-                  {isCurrentPlan
-                    ? "Plano Atual"
-                    : plan.monthlyPrice === 0
-                    ? "Começar Grátis"
-                    : "Assinar Agora"}
-                </Button>
+                  
+                  
+               
                 <CheckoutButton
+                  isDisabled={isCurrentPlan}
+                  fullWidth
+                  className="h-16"
+                  color={isCurrentPlan?'default':'primary'}
                   email="teste@mail.com"
                   priceId="price_1RXsbOQitTm5wxzyAXu2MX6v" // vem do Stripe Dashboard
                 />
