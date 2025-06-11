@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 
 import { useQuery } from "@tanstack/react-query";
 
@@ -14,35 +14,26 @@ import {
 } from "@heroui/react";
 import { Subtitle } from "../../components/ui/Subtitle";
 import { getJobsByCompany } from "../../api/jobs-service";
-import { FiLoader } from "react-icons/fi";
+
 import { CiCalendar, CiMapPin } from "react-icons/ci";
 import { useCompanyStore } from "../../stores/companyStore";
+import { getEstimateRequestById } from "../../api/estimateRequests";
 
 export function CompanyJobsPage() {
   const { current_company } = useCompanyStore();
     const id = current_company.id;
 
-  const { data: company, isLoading: isLoadingCompany } = useQuery({
-    queryKey: ["company", id],
-    queryFn: () => getCompanyById(id!),
-    enabled: !!id,
-  });
 
-  const { data: jobs } = useQuery({
+  const { data: jobs,isLoading:isLoadingJob } = useQuery({
     queryKey: ["jobs", id],
     queryFn: () => getJobsByCompany(id!),
     enabled: !!id,
   });
 
-  if (isLoadingCompany) {
-    return (
-      <div className="flex justify-center py-8">
-        <FiLoader className="w-8 h-8 animate-spin " />
-      </div>
-    );
-  }
 
-  if (!company) {
+
+
+  if (!current_company.id) {
     return (
       <div className="text-center py-8">
         <h3 className="text-lg font-medium mb-2">Empresa não encontrada</h3>
@@ -78,7 +69,7 @@ export function CompanyJobsPage() {
             ) : (
               <div className="space-y-4">
                 <Listbox>
-                  {jobs.map((request: any) => (
+                  {jobs.map((request) => (
                     <ListboxItem
                       key={request.id}
                       as={Link}
@@ -87,11 +78,12 @@ export function CompanyJobsPage() {
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                         <div>
                           <h4 className="font-medium">
-                            {request.name || "FAKE NAME"}
+                            {request.estimate_request.name }
                           </h4>
 
                           <p className="mt-2 text-sm text-neutral-600">
-                            {"FAKE Descrição "}
+                          {request.estimate_request.description.slice(0,300) }
+                          {request.estimate_request.description.length>300 && "..."}
                           </p>
                           <div className="mt-4 flex flex-wrap gap-4 text-sm ">
                             <div className="flex items-center gap-1">

@@ -1,48 +1,31 @@
-
 import { useQuery } from "@tanstack/react-query";
 
-import { getCompanyById } from "../../api/companies";
 import { getProposalsByCompanyId } from "../../api/proposals";
 
-import { Card, CardBody, CardHeader, Chip } from "@heroui/react";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Chip,
+  Link,
+  Listbox,
+  ListboxItem,
+} from "@heroui/react";
 import { Subtitle } from "../../components/ui/Subtitle";
-import { Text } from "../../components/ui/Text";
+
 import { FiFileText, FiLoader } from "react-icons/fi";
 import { useCompanyStore } from "../../stores/companyStore";
+import { CiCalendar, CiMapPin } from "react-icons/ci";
 
 export function CompanyProposalsPage() {
   const { current_company } = useCompanyStore();
-    const id = current_company.id;
-  const { data: company, isLoading: isLoadingCompany } = useQuery({
-    queryKey: ["company", id],
-    queryFn: () => getCompanyById(id!),
-    enabled: !!id,
-  });
+  const id = current_company.id;
 
   const { data: proposals, isLoading: isLoadingProposals } = useQuery({
     queryKey: ["companyProposals", id],
     queryFn: () => getProposalsByCompanyId(id!),
     enabled: !!id,
   });
-
-  if (isLoadingCompany) {
-    return (
-      <div className="flex justify-center py-8">
-        <FiLoader className="w-8 h-8 animate-spin " />
-      </div>
-    );
-  }
-
-  if (!company) {
-    return (
-      <div className="text-center py-8">
-        <h3 className="text-lg font-medium mb-2">Empresa não encontrada</h3>
-        <p className="text-neutral-600">
-          A empresa que você está procurando não existe ou foi removida.
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div>
@@ -70,47 +53,72 @@ export function CompanyProposalsPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {proposals.map((proposal) => (
-                  <div key={proposal.id} className="p-4 rounded-lg ">
-                    <div className="flex justify-between items-start gap-4">
-                      <div>
-                        <h4 className="font-medium">
-                          {/* {proposal.estimate_request.name} */}
-                          {proposal.id}
-                        </h4>
-                        <p className="text-sm  mt-1">
-                          {/* {proposal.estimate_request.address_city}, {proposal.estimate_request.address_state} */}
-                          Endereco
-                        </p>
-                        <Text className="mt-2">{proposal.description}</Text>
-                      </div>
-                      <div className="text-right">
-                        <Subtitle>
-                          {new Intl.NumberFormat("pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                          }).format(proposal.amount)}
-                        </Subtitle>
-                        <Chip
-                          className="mt-2"
-                          color={
-                            proposal.approved_at
-                              ? "success"
+                <Listbox>
+                  {proposals?.map((proposal, index) => (
+                    <ListboxItem
+                      key={proposal.id}
+                      showDivider={proposals.length - 1 !== index}
+                      as={Link}
+                      href={`/company/budgets/${proposal.estimate_request_id}`}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                        <div>
+                          <h4 className="font-medium">
+                            {proposal.estimate_request.name}
+                          </h4>
+                          <div className="flex items-center gap-2 mt-1 text-sm ">
+                            <CiMapPin size={14} />
+                            <span>
+                              {proposal.estimate_request.address.city},{" "}
+                              {proposal.estimate_request.address.state}
+                            </span>
+                          </div>
+                          <p className="mt-2 text-sm text-neutral-600">
+                            {proposal.description.slice(0, 150)}
+                          </p>
+                          <div className="mt-4 flex flex-wrap gap-4 text-sm ">
+                            <div className="flex items-center gap-1">
+                              <CiCalendar size={14} />
+                              <span>
+                                {new Date(
+                                  proposal.created_at
+                                ).toLocaleDateString("pt-BR")}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <CiMapPin size={14} />
+                              <span>{proposal.estimate_request.footage}m²</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div>
+                          <Subtitle>
+                            {new Intl.NumberFormat("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                            }).format(proposal.amount)}
+                          </Subtitle>
+                          <Chip
+                            className="mt-2"
+                            color={
+                              proposal.approved_at
+                                ? "success"
+                                : proposal.reject_at
+                                ? "danger"
+                                : "warning"
+                            }
+                          >
+                            {proposal.approved_at
+                              ? "Aprovado"
                               : proposal.reject_at
-                              ? "danger"
-                              : "warning"
-                          }
-                        >
-                          {proposal.approved_at
-                            ? "Aprovado"
-                            : proposal.reject_at
-                            ? "Rejeitado"
-                            : "Pendente"}
-                        </Chip>
+                              ? "Rejeitado"
+                              : "Pendente"}
+                          </Chip>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                ))}
+                    </ListboxItem>
+                  ))}
+                </Listbox>
               </div>
             )}
           </CardBody>

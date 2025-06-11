@@ -17,6 +17,26 @@ export type Proposal = {
   updated_at: Date;
   reject_at: Date;
   approved_at: Date;
+  estimate_request: {
+    id: string;
+    footage: string;
+    address: {
+      latitude: number;
+      longitude: number;
+      city: string;
+      neighborhood: string;
+      number: string;
+      postal_code: string;
+      state: string;
+      street: string;
+    };
+    description: string;
+    email: string;
+    name: string;
+    phone: string;
+    created_at: Date;
+    updated_at: Date;
+  };
   company: {
     about: string;
     avatar: string;
@@ -33,7 +53,9 @@ export const getProposalById = async (id: string) => {
 };
 
 export const getProposalsByCompanyId = async (companyId: string) => {
-  const response = await api.get<ResponseAPI<Proposal[]>>(`/proposals/company/${companyId}`);
+  const response = await api.get<ResponseAPI<Proposal[]>>(
+    `/proposals/company/${companyId}`
+  );
 
   return response.data.result;
 };
@@ -44,7 +66,9 @@ export const getProposalsByUserId = async (companyId: string) => {
 };
 
 export const getProposalsByEstimateId = async (estimateId: string) => {
-  const response = await api.get<ResponseAPI<Proposal[]>>(`/proposals/estimate/${estimateId}`);
+  const response = await api.get<ResponseAPI<Proposal[]>>(
+    `/proposals/estimate/${estimateId}`
+  );
   return response.data.result;
 };
 
