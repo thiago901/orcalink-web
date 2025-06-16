@@ -1,26 +1,21 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+
 import { toast } from 'react-hot-toast';
 
 import { useAuthStore } from '../../stores/authStore';
 import { AuthenticateUserProps } from '../../api/auth';
-import { Button, Card, CardBody, CardHeader, Input } from '@heroui/react';
+import { Button, Card, CardBody, CardHeader, Input, Link } from '@heroui/react';
 import { FiLock, FiMail } from 'react-icons/fi';
 import { CiLogin } from 'react-icons/ci';
 
 
 const LoginPage = () => {
-  const { login ,isAuthenticated} = useAuthStore();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { login} = useAuthStore();
+
   const [isLoading, setIsLoading] = useState(false);
 
-  // Get the return URL from location state or default to dashboard
-  const from = location.state?.from?.pathname || '/';
-  if(isAuthenticated){
-    navigate(from, { replace: true });
-  }
+
   
   const {
     register,
@@ -31,11 +26,12 @@ const LoginPage = () => {
   const onSubmit = async (data: AuthenticateUserProps) => {
     setIsLoading(true);
     try {
+      
       await login(data.email, data.password);
       toast.success('Login realizado com sucesso!');
-      // navigate(from, { replace: true });
+      
     } catch (error) {
-      console.log('error',error);
+      console.error('LoginPage:onSubmit',error);
       toast.error('Falha ao realizar login. Verifique suas credenciais.');
     } finally {
       setIsLoading(false);
@@ -89,7 +85,7 @@ const LoginPage = () => {
 
             <div className="text-right">
               <Link
-                to="/forgot-password"
+                href="/forgot-password"
                 className="text-sm text-primary-600 hover:text-primary-700"
               >
                 Esqueceu sua senha?
@@ -111,7 +107,7 @@ const LoginPage = () => {
             <p className="text-neutral-600">
               Não tem uma conta?{' '}
               <Link
-                to="/register"
+                href="/register"
                 className="text-primary-600 hover:text-primary-700 font-medium"
               >
                 Registre-se

@@ -39,6 +39,10 @@ export const createUser = async (data: CreateUserProps) => {
   const response = await api.post("/users", data);
   return response.data.result;
 };
+export const verifyUser = async (id: string) => {
+  const response = await api.post(`/users/activate/${id}`);
+  return response.data.result;
+};
 
 export const updateUser = async (id: string, data: UpdateUserProps) => {
   const response = await api.put<ResponseAPI<User>>(`/users/${id}`, data);

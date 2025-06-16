@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { jwtDecode } from "jwt-decode";
 import { loginUser, refreshToken } from "../api/auth";
+import { CredentialsInvalidError } from "../errors/credentials-invalid";
 
 
 interface User {
@@ -97,12 +98,13 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
           });
         } catch (error) {
-          console.log("error", error);
+          
 
           set({
             isLoading: false,
             error: error instanceof Error ? error.message : "Failed to login",
           });
+          throw new CredentialsInvalidError()
         }
       },
 

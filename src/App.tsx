@@ -29,6 +29,7 @@ import { CompanyJobsPage } from "./pages/company/company-jobs";
 import { CompanyInformationsCreatePage } from "./pages/company/company-informations-create";
 import { CompanyInformationsEditPage } from "./pages/company/company-informations-edit";
 import { CompanyBudgetsDetailPage } from "./pages/company/company-budgets-detail";
+import { UserVerifyPage } from "./pages/auth/user-verify-page";
 
 function App() {
   const { checkAuth } = useAuthStore();
@@ -43,10 +44,11 @@ function App() {
       {/* Public routes */}
 
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-
+      <Route path="/user/activation/:id" element={<UserVerifyPage />} />
       <Route path="/" element={<UserLayout />}>
         <Route index path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
+        
 
         <Route path="/register" element={<RegisterPage />} />
         <Route path="profile" element={<ProfilePage />} />

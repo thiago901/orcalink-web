@@ -40,7 +40,7 @@ api.interceptors.response.use(
       // Automatically logout on 401 unauthorized
       useAuthStore.getState().logout();
       // Redirect to login page if needed
-      window.location.href = '/login';
+      // window.location.href = '/login';
     }
     return Promise.reject(error);
   }
