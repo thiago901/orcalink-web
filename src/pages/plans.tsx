@@ -29,7 +29,7 @@ import { listAllPlans, Plan } from "../api/plan";
 
 const icons = {
   free: FiUsers,
-  basic: FiStar,
+  essential: FiStar,
   profissional: FiZap,
 };
 
@@ -59,6 +59,32 @@ export function ProviderPlans() {
     const percentage = (savings / monthlyCost) * 100;
     return percentage.toFixed(0);
   };
+
+  const allResourceKeys = Array.from(
+    new Set(plans?.flatMap((plan) => plan.resources.map((r) => r.key)))
+  );
+
+  const table = allResourceKeys.map((resourceKey) => {
+    const row: Record<string, string> = { resource: resourceKey };
+
+    plans?.forEach((plan) => {
+      const resource = plan.resources.find((r) => r.key === resourceKey);
+
+      if (!resource) {
+        row[plan.id] = "❌ Não disponível";
+      } else if (resource.limit !== undefined) {
+        row[plan.id] = `✅ ${resource.label} (Limite: ${resource.limit})`;
+      } else if (resource.active) {
+        row[plan.id] = `✅ ${resource.label}`;
+      } else {
+        row[plan.id] = `❌ ${resource.label}`;
+      }
+    });
+
+    return row;
+  })
+  console.log('table',table);
+  
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Header */}
@@ -177,7 +203,7 @@ export function ProviderPlans() {
                     className="h-16"
                     color={isCurrentPlan ? "default" : "primary"}
                     email={user.email}
-                    priceId={plan.price_id}
+                    priceId={plan.price_id_month}
                   />
                 )}
               </CardBody>
@@ -199,48 +225,22 @@ export function ProviderPlans() {
                   <thead>
                     <tr className="border-b">
                       <th className="text-left py-3 font-medium">Recurso</th>
-                      <th className="text-center py-3 font-medium">Gratuito</th>
-                      <th className="text-center py-3 font-medium">
-                        Profissional
-                      </th>
+                      {plans?.map((plan) => (
+                        <th className="text-center py-3 font-medium">
+                          {plan.name}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody className="divide-y">
-                    <tr>
-                      <td className="py-3">Propostas por mês</td>
-                      <td className="text-center">5</td>
-                      <td className="text-center">Ilimitadas</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3">Empresas</td>
-                      <td className="text-center">1</td>
-                      <td className="text-center">Ilimitadas</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3">Destaque nas buscas</td>
-                      <td className="text-center">Não</td>
-                      <td className="text-center">Sim</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3">Analytics</td>
-                      <td className="text-center">-</td>
-                      <td className="text-center">Avançado (em breve)</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3">Suporte</td>
-                      <td className="text-center">Básico</td>
-                      <td className="text-center">Prioritário</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3">Novidades antecipadas</td>
-                      <td className="text-center">Não</td>
-                      <td className="text-center">Sim</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3">Personalização de marca</td>
-                      <td className="text-center">Não</td>
-                      <td className="text-center">Sim (em breve)</td>
-                    </tr>
+                    {table?.map((item) => (
+                      <tr>
+                        <td className="py-3">{item.resource}</td>
+                        <td className="text-center">{item.free}</td>
+                        <td className="text-center">{item.essential}</td>
+                      </tr>
+                    ))}
+                   
                   </tbody>
                 </table>
               </div>

@@ -8,10 +8,12 @@ import { AuthenticateUserProps } from '../../api/auth';
 import { Button, Card, CardBody, CardHeader, Input, Link } from '@heroui/react';
 import { FiLock, FiMail } from 'react-icons/fi';
 import { CiLogin } from 'react-icons/ci';
+import { useNavigate } from 'react-router-dom';
 
 
 const LoginPage = () => {
   const { login} = useAuthStore();
+  const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,7 +31,7 @@ const LoginPage = () => {
       
       await login(data.email, data.password);
       toast.success('Login realizado com sucesso!');
-      
+      navigate('/');
     } catch (error) {
       console.error('LoginPage:onSubmit',error);
       toast.error('Falha ao realizar login. Verifique suas credenciais.');
