@@ -111,7 +111,7 @@ const DashboardLayout = () => {
               <FiMenu size={24} />
             </Button>
             <div className="lg:hidden flex-1 text-center font-bold text-primary-700 ">
-              OrçaFacil
+              OrçaLink
             </div>
             <div className="hidden lg:block"></div>
           </header>

@@ -7,13 +7,15 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated,user } = useAuthStore();
   const location = useLocation();
   
   
   if (!isAuthenticated) {
     // Redirect to login page with the return url
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }else if (!user?.active){
+    return <Navigate to="/email-not-verified" replace />;
   }
 
   return <>{children}</>;

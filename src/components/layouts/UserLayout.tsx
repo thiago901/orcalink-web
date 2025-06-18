@@ -78,7 +78,7 @@ export const UserLayout = () => {
             <div className="flex items-center justify-between h-16  flex-shrink-0 min-w-0 ">
               <Link href="/" className="flex items-center">
                 <Image src="./favicon.png" className="w-10 h-10" />
-                <h1 className="text-xl font-bold">OrçaFacil</h1>
+                <h1 className="text-xl font-bold">OrçaLink</h1>
               </Link>
             </div>
           </NavbarBrand>

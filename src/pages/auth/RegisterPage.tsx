@@ -98,7 +98,7 @@ const RegisterPage = () => {
     <div className="w-[400px] m-auto mt-6">
       <Card className="shadow-lg">
         <CardHeader className="text-center">
-          <h1 className="text-3xl font-bold text-primary-700">OrçaFácil</h1>
+          <h1 className="text-3xl font-bold text-primary-700">OrçaLink</h1>
           <p className="text-neutral-600 mt-1">
             {isCompany
               ? "Crie sua conta empresarial para começar"

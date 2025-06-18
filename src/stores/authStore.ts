@@ -13,6 +13,7 @@ interface User {
   role: "company" | "customer";
   avatar?: string;
   plan_id: string;
+  active:boolean
 }
 
 interface JwtPayload {
@@ -20,6 +21,7 @@ interface JwtPayload {
   name: string;
   email: string;
   phone: string;
+  active: boolean;
   role: "company" | "customer";
   avatar?: string;
   plan_id: string;
@@ -67,6 +69,7 @@ export const useAuthStore = create<AuthState>()(
             role: decoded.role,
             phone: decoded.phone,
             plan_id: decoded.plan_id,
+            active: decoded.active,
           },
           isAuthenticated: true,
           isLoading: false,
@@ -93,6 +96,7 @@ export const useAuthStore = create<AuthState>()(
               role: decoded.role,
               phone: decoded.phone,
               plan_id: decoded.plan_id,
+              active: decoded.active,
             },
             isAuthenticated: true,
             isLoading: false,

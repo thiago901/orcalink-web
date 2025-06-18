@@ -37,7 +37,7 @@ const ForgotPasswordPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary-700">OrçaFacil</h1>
+          <h1 className="text-3xl font-bold text-primary-700">OrçaLink</h1>
           <p className="text-neutral-600 mt-2">
             Recupere o acesso à sua conta
           </p>

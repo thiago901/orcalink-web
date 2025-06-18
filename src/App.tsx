@@ -30,6 +30,7 @@ import { CompanyInformationsCreatePage } from "./pages/company/company-informati
 import { CompanyInformationsEditPage } from "./pages/company/company-informations-edit";
 import { CompanyBudgetsDetailPage } from "./pages/company/company-budgets-detail";
 import { UserVerifyPage } from "./pages/auth/user-verify-page";
+import { EmailNotVerified } from "./pages/email-not-verified";
 
 function App() {
   const { checkAuth } = useAuthStore();
@@ -45,10 +46,11 @@ function App() {
 
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/user/activation/:id" element={<UserVerifyPage />} />
+
       <Route path="/" element={<UserLayout />}>
+        <Route path="/email-not-verified" element={<EmailNotVerified />} />
         <Route index path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
-        
 
         <Route path="/register" element={<RegisterPage />} />
         <Route path="profile" element={<ProfilePage />} />
@@ -65,7 +67,6 @@ function App() {
           <Route path="canceled" element={<Canceled />} />
         </Route>
       </Route>
- 
 
       <Route
         path="/company"
@@ -84,10 +85,8 @@ function App() {
           path="budgets/:estimate_id"
           element={<CompanyBudgetsDetailPage />}
         />
-        <Route path="proposals" element={<CompanyProposalsPage/>} />
-        <Route path="jobs" element={<CompanyJobsPage/>} />
-
-        
+        <Route path="proposals" element={<CompanyProposalsPage />} />
+        <Route path="jobs" element={<CompanyJobsPage />} />
       </Route>
 
       {/* 404 and redirects */}

@@ -125,7 +125,7 @@ const { isAuthenticated } = useAuthStore();
               <header className="bg-white shadow-sm border-b border-neutral-200">
                 <div className="container mx-auto px-4 py-4 flex items-center justify-between">
                   <div className="flex items-center">
-                    <h1 className="text-xl font-bold text-primary-700">OrçaFacil</h1>
+                    <h1 className="text-xl font-bold text-primary-700">OrçaLink</h1>
                   </div>
                   <div className="space-x-4">
                     {isAuthenticated ? (

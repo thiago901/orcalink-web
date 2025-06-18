@@ -46,7 +46,7 @@ const LoginPage = () => {
         
         <CardHeader>
           <div className="my-0 mx-auto text-center">
-            <h1 className="text-3xl font-bold text-primary-700">OrçaFacil</h1>
+            <h1 className="text-3xl font-bold text-primary-700">OrçaLink</h1>
             <p className="text-neutral-600 mt-1">Faça login para acessar sua conta</p>
           </div>
         </CardHeader>
