@@ -10,6 +10,7 @@ import {
   PiHouseLineThin,
   PiListChecksThin,
   PiPlusCircle,
+  PiMessengerLogoThin
 } from "react-icons/pi";
 
 import {
@@ -92,6 +93,11 @@ const DashboardLayout = () => {
       to: "/company/jobs",
       icon: <PiBriefcaseThin size={20} />,
       label: "Trabalhos",
+    },
+    {
+      to: "/company/chats",
+      icon: <PiMessengerLogoThin size={20} />,
+      label: "Conversas",
     },
   ];
 

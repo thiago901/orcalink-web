@@ -15,6 +15,7 @@ export interface EstimateRequestMessage {
   estimate_request_id: string;
   sender: string;
   type: string;
+  read: boolean;
   user_name: string;
   created_at: Date;
   updated_at: Date;
@@ -36,6 +37,7 @@ export type EstimateRequestMessageGrouped = {
   };
   user: {
     name: string;
+    id: string;
   };
   estimate_request: {
     id: string;
@@ -77,5 +79,26 @@ export const createEstimateRequestMessage = async (
   data: CreateEstimateRequestMessageProps
 ) => {
   const response = await api.post<ResponseAPI<EstimateRequestMessage>>(`/estimate-requests-message`, data);
+  return response.data.result;
+};
+
+export const getEstimateRequestMessagesFromCompany = async (
+  company_id: string
+) => {
+  
+  
+  const response = await api.get<ResponseAPI<EstimateRequestMessageGrouped[]>>(
+    `/estimate-requests-message/company/${company_id}/`
+  );
+  return response.data.result;
+};
+export const getEstimateRequestMessagesFromCustomer = async (
+  customer_id: string
+) => {
+  
+  
+  const response = await api.get<ResponseAPI<EstimateRequestMessageGrouped[]>>(
+    `/estimate-requests-message/customer/${customer_id}`
+  );
   return response.data.result;
 };

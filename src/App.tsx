@@ -31,6 +31,7 @@ import { CompanyInformationsEditPage } from "./pages/company/company-information
 import { CompanyBudgetsDetailPage } from "./pages/company/company-budgets-detail";
 import { UserVerifyPage } from "./pages/auth/user-verify-page";
 import { EmailNotVerified } from "./pages/email-not-verified";
+import { CompanyChatsPage } from "./pages/company/company-chats";
 
 function App() {
   const { checkAuth } = useAuthStore();
@@ -85,6 +86,7 @@ function App() {
           path="budgets/:estimate_id"
           element={<CompanyBudgetsDetailPage />}
         />
+        <Route path="chats" element={<CompanyChatsPage />} />
         <Route path="proposals" element={<CompanyProposalsPage />} />
         <Route path="jobs" element={<CompanyJobsPage />} />
       </Route>

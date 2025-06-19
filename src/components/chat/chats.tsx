@@ -1,13 +1,17 @@
-import { Avatar, Chip, Listbox, ListboxItem, } from "@heroui/react";
+import { Avatar, Chip, Listbox, ListboxItem } from "@heroui/react";
+
+import {
+  EstimateRequestMessageGrouped,
+  getEstimateRequestMessagesFromCompany,
+  getEstimateRequestMessagesFromCustomer,
+} from "../../api/estimate-requests-messages";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Chat } from "./chat";
-
-
-import { getEstimateRequestMessagesByCompany } from "../../api/estimate-requests-messages";
-import { useQuery } from "@tanstack/react-query";
+import { FiMessageSquare } from "react-icons/fi";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const ChevronRightIcon = (props:any) => {
+const ChevronRightIcon = (props: any) => {
   return (
     <svg
       aria-hidden="true"
@@ -28,9 +32,11 @@ const ChevronRightIcon = (props:any) => {
   );
 };
 
-const ItemCounter = ({ number }:{number:number}) => (
+const ItemCounter = ({ number }: { number: number }) => (
   <div className="flex items-center gap-1 text-default-400">
-    <Chip color="primary" className="text-small">{number}</Chip>
+    <Chip color="primary" className="text-small">
+      {number}
+    </Chip>
     <ChevronRightIcon className="text-xl" />
   </div>
 );
@@ -39,66 +45,77 @@ export type ChatContacts = {
   id: string;
   avatar?: string;
   name: string;
-  unread_amount:number
+  unread_amount: number;
 };
 
 type ChatsProps = {
-  estimate_request_id: string;
-  sender:"COMPANY" |"CLIENT"
-
-  contacts: ChatContacts[];
+  id: string;
+  sender: "COMPANY" | "CLIENT";
 };
-export function Chats({ contacts, estimate_request_id ,sender}: ChatsProps) {
-  
-  const [companyId, setCompanyId] = useState<string | null>(null);
-  const [contact, setContact] = useState<ChatContacts | null>(null);
-  const {
-    data: estimate_request_messages,
-    
-  } = useQuery({
-    queryKey: ["estimateRequestMessages", companyId, estimate_request_id],
-    queryFn: () =>
-      getEstimateRequestMessagesByCompany(estimate_request_id, companyId!),
-    enabled: !!companyId,
-  });
 
+export function EmptyChatState() {
+  const message = "Você ainda não recebeu nenhuma mensagem.";
 
   return (
-    <div>
-      
-      {!companyId ? (
-        <Listbox
-          aria-label="User Menu"
-          className="p-0 gap-0 divide-y divide-default-300/50 dark:divide-default-100/80 bg-content1 overflow-visible shadow-small "
-          itemClasses={{
-            base: "px-3 gap-3 h-12 data-[hover=true]:bg-default-100/80",
-          }}
-          
-        >
-          {contacts.map((contact) => (
-            <ListboxItem
-              key={contact.id}
-              endContent={<ItemCounter number={contact.unread_amount} />}
-              startContent={<Avatar src={contact.avatar} size="sm" />}
-              onPress={() => {
-                setCompanyId(contact.id.toString())
-                setContact(contact)
-              }}
-            >
-              {contact.name}
-            </ListboxItem>
-          ))}
+    <div className="flex flex-col items-center justify-center text-center text-gray-500 p-6">
+      <FiMessageSquare size={48} className="mb-3 text-gray-400" />
+      <h2 className="text-lg font-semibold mb-1">
+        Nenhuma conversa encontrada
+      </h2>
+      <p className="text-sm">{message}</p>
+    </div>
+  );
+}
+export function Chats({ sender, id }: ChatsProps) {
+  const [convesation, setConvesation] =
+    useState<EstimateRequestMessageGrouped | null>(null);
+
+  const { data: estimate_request_messages } = useQuery({
+    queryKey: ["estimateRequestMessages", id],
+    queryFn: () =>
+      sender === "COMPANY"
+        ? getEstimateRequestMessagesFromCompany(id)
+        : getEstimateRequestMessagesFromCustomer(id),
+    enabled: true,
+  });
+  console.log("convesation", convesation, !convesation);
+
+  return (
+    <div className="h-full">
+      {!convesation ? (
+        <Listbox aria-label="User Chats" emptyContent={<EmptyChatState/>}>
+          {estimate_request_messages ? (
+            estimate_request_messages.map((contact) => (
+              <ListboxItem
+                key={
+                  sender === "COMPANY" ? contact.company.id : contact.user.id
+                }
+                endContent={<ItemCounter number={contact.unread_amount} />}
+                startContent={<Avatar src={""} size="md" />}
+                onPress={() => {
+                  setConvesation(contact);
+                }}
+              >
+                {sender === "CLIENT" ? contact.company.name : contact.user.name}
+              </ListboxItem>
+            ))
+          ) : (
+            <></>
+          )}
         </Listbox>
       ) : (
         <Chat
-          companyId={companyId}
-          estimate_request_id={estimate_request_id}
-          contact={contact!}
-          messages={!estimate_request_messages? []:estimate_request_messages}
-          onSend={() => console.log("")}
-          onUpload={() => console.log("")}
-          onBack={() => setCompanyId(null)}
+          contact={convesation}
+          onSend={() => {
+            console.log("send");
+          }}
+          onUpload={() => {
+            console.log("upload");
+          }}
           sender={sender}
+          onBack={() => {
+            setConvesation(null);
+          }}
         />
       )}
     </div>

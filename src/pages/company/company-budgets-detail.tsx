@@ -23,13 +23,15 @@ import ProposalForm from "../../components/proposals/ProposalForm";
 import { FiLoader } from "react-icons/fi";
 import { CiCalendar, CiMail, CiMapPin, CiPhone } from "react-icons/ci";
 import { Chat } from "../../components/chat/chat";
-import { getEstimateRequestMessagesByCompany } from "../../api/estimate-requests-messages";
+import {
+  getEstimateRequestMessagesGroupedByCompany,
+} from "../../api/estimate-requests-messages";
 import { useCompanyStore } from "../../stores/companyStore";
 
 export function CompanyBudgetsDetailPage() {
   const { estimate_id } = useParams<{ estimate_id: string }>();
-  const {current_company} = useCompanyStore()
-  const id = current_company.id
+  const { current_company } = useCompanyStore();
+  const id = current_company.id;
 
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [statusProposals, setStatusProposals] = useState({
@@ -38,18 +40,12 @@ export function CompanyBudgetsDetailPage() {
     isSameCompany: false,
   });
 
-    const {
-      data: estimate_request_messages,
-      
-    } = useQuery({
-      queryKey: ["estimateRequestMessages", id, estimate_id],
-      queryFn: () =>
-        getEstimateRequestMessagesByCompany(estimate_id!, id!),
-      enabled: !!id,
-    });
-  
-  
-  
+  const { data: messages } = useQuery({
+    queryKey: ["estimateRequestMessages", id, estimate_id],
+    queryFn: () => getEstimateRequestMessagesGroupedByCompany(estimate_id!),
+    enabled: !!id,
+  });
+
   const {
     data: proposals,
     isLoading: isLoadingProposals,
@@ -59,6 +55,7 @@ export function CompanyBudgetsDetailPage() {
     queryFn: () => getProposalsByEstimateId(estimate_id!),
     enabled: !!estimate_id,
   });
+
 
   useEffect(() => {
     const proposal = proposals?.find(
@@ -244,16 +241,16 @@ export function CompanyBudgetsDetailPage() {
               </div>
             </CardBody>
           </Card>
-          <Chat
-            companyId={id!}
-            contact={{ id: request.user.id, name: request.user.name, avatar: request.user.avatar,unread_amount:0}}
-            messages={estimate_request_messages?estimate_request_messages:[]}
-            estimate_request_id={estimate_id!}
-            onSend={() => console.log("")}
-            onUpload={() => console.log("")}
-            onBack={() => null}
-            sender="COMPANY"
-          />
+          {messages && (
+            <Chat
+              
+              contact={messages[0]}
+              onSend={() => console.log("")}
+              onUpload={() => console.log("")}
+              onBack={() => null}
+              sender="COMPANY"
+            />
+          )}
         </div>
       </div>
 
@@ -269,6 +266,4 @@ export function CompanyBudgetsDetailPage() {
       />
     </div>
   );
-};
-
-
+}

@@ -336,7 +336,7 @@ export function MyBudgetsDetailPage() {
             </CardHeader>
             <CardBody className="p-0 rounded-none">
               
-              <Chats
+              {/* <Chats
                 sender="CLIENT"
                 estimate_request_id={id!}
                 contacts={
@@ -349,7 +349,7 @@ export function MyBudgetsDetailPage() {
                         unread_amount:item.unread_amount
                       }))
                 }
-              />
+              /> */}
             </CardBody>
           </Card>
         </div>
