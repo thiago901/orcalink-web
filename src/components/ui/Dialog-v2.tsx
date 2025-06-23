@@ -6,11 +6,14 @@ import { ReactNode } from 'react';
 type ProposalActionDialogProps= {
   isOpen: boolean;
   onClose: () => void;
-  
-  title: string;
+  size?:"xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "full" 
+  title: string | ReactNode;
   isLoading?: boolean;
+  isKeyboardDismissDisabled?:boolean
+  isDismissable?:boolean
   
   children:ReactNode
+  
 }
 type ProposalFooterProps = {
   footer: ReactNode;
@@ -27,7 +30,11 @@ const DialogV2 = ({
   title,
   isLoading,
   footer,
-  children
+  children,
+  size,
+  isKeyboardDismissDisabled,
+  isDismissable
+  
 }: ProposalActionDialogProps &ProposalFooterProps) => {
   const { onOpenChange} = useDisclosure();
   return (
@@ -35,7 +42,10 @@ const DialogV2 = ({
       onOpenChange={onOpenChange}
       isOpen={isOpen}
       onClose={onClose}
-      title={title}
+      // title={title}
+      size={size}
+      isDismissable={isDismissable}
+      isKeyboardDismissDisabled={isKeyboardDismissDisabled}
      
     >
       <ModalContent>

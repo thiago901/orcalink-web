@@ -1,48 +1,62 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
 import { getEstimateRequestById } from "../../api/estimateRequests";
-import { getProposalsByEstimateId } from "../../api/proposals";
+import { getProposalsByEstimateId, Proposal } from "../../api/proposals";
 
 import { Title } from "../../components/ui/Title";
 
 import { Text } from "../../components/ui/Text";
 import {
+  Avatar,
   BreadcrumbItem,
   Breadcrumbs,
   Button,
   Card,
   CardBody,
   CardHeader,
+  Chip,
+  Divider,
 } from "@heroui/react";
 import { Subtitle } from "../../components/ui/Subtitle";
 import ImageGallery from "../../components/image-gallery";
-import ProposalForm from "../../components/proposals/ProposalForm";
-import { FiLoader } from "react-icons/fi";
+
+import { FiFileText, FiLoader } from "react-icons/fi";
 import { CiCalendar, CiMail, CiMapPin, CiPhone } from "react-icons/ci";
 import { Chat } from "../../components/chat/chat";
-import {
-  getEstimateRequestMessagesGroupedByCompany,
-} from "../../api/estimate-requests-messages";
+import { getEstimateRequestMessagesGroupedByCompany } from "../../api/estimate-requests-messages";
 import { useCompanyStore } from "../../stores/companyStore";
 
+import { getUserById } from "../../api/users";
+
+import { CreateProposalModal } from "../../components/modals/create-proposal-modal";
+import { MdOutlineOpenInNew } from "react-icons/md";
+import { format } from "date-fns";
+import { AiFillStar } from "react-icons/ai";
+import { ProposalDetailModal } from "../../components/proposals/proposal-detail-modal";
+
 export function CompanyBudgetsDetailPage() {
-  const { estimate_id } = useParams<{ estimate_id: string }>();
+  const { estimate_request_id } = useParams<{ estimate_request_id: string }>();
   const { current_company } = useCompanyStore();
   const id = current_company.id;
 
-  const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(
+    null
+  );
+
   const [statusProposals, setStatusProposals] = useState({
     hasProposal: false,
     wasApproved: false,
-    isSameCompany: false,
+    hasApprovedSameCompany: false,
+    shoudlBlockUntilClientActSameCompany: false,
   });
 
   const { data: messages } = useQuery({
-    queryKey: ["estimateRequestMessages", id, estimate_id],
-    queryFn: () => getEstimateRequestMessagesGroupedByCompany(estimate_id!),
+    queryKey: ["estimateRequestMessages", id, estimate_request_id],
+    queryFn: () =>
+      getEstimateRequestMessagesGroupedByCompany(estimate_request_id!),
     enabled: !!id,
   });
 
@@ -51,28 +65,42 @@ export function CompanyBudgetsDetailPage() {
     isLoading: isLoadingProposals,
     refetch: refetchProposals,
   } = useQuery({
-    queryKey: ["proposals", estimate_id],
-    queryFn: () => getProposalsByEstimateId(estimate_id!),
-    enabled: !!estimate_id,
+    queryKey: ["proposals", estimate_request_id],
+    queryFn: () => getProposalsByEstimateId(estimate_request_id!),
+    enabled: !!estimate_request_id,
   });
 
-
   useEffect(() => {
-    const proposal = proposals?.find(
-      (proposal: any) => proposal.estimate_request_id === estimate_id
+    const someProposalApproved = proposals?.find(
+      (proposal) => !!proposal.approved_at
+    );
+    const someProposalApprovedSameCompany = proposals?.find(
+      (proposal) => !!proposal.approved_at && proposal.company_id === id
+    );
+    const shoudlBlockUntilClientActSameCompany = proposals?.some(
+      (proposal) =>
+        (proposal.approved_at || !proposal.reject_at) &&
+        proposal.company_id === id
     );
 
     setStatusProposals({
-      hasProposal: !!proposal,
-      wasApproved: !!proposal?.approved_at,
-      isSameCompany: proposal?.company_id === id,
+      hasProposal: !!proposals?.length,
+      wasApproved: !!someProposalApproved,
+      hasApprovedSameCompany: !!someProposalApprovedSameCompany,
+      shoudlBlockUntilClientActSameCompany:
+        !!shoudlBlockUntilClientActSameCompany,
     });
-  }, [estimate_id, id, proposals]);
+  }, [estimate_request_id, id, proposals]);
   const [isProposalFormOpen, setIsProposalFormOpen] = useState(false);
   const { data: request, isLoading: isLoadingRequest } = useQuery({
-    queryKey: ["estimateRequest", estimate_id],
-    queryFn: () => getEstimateRequestById(estimate_id!),
-    enabled: !!estimate_id,
+    queryKey: ["estimateRequest", estimate_request_id],
+    queryFn: () => getEstimateRequestById(estimate_request_id!),
+    enabled: !!estimate_request_id,
+  });
+  const { data: customer } = useQuery({
+    queryKey: ["customer", estimate_request_id],
+    queryFn: () => (request ? getUserById(request.user_id) : null),
+    enabled: !!request && !isLoadingRequest,
   });
 
   if (isLoadingRequest || isLoadingProposals) {
@@ -93,7 +121,26 @@ export function CompanyBudgetsDetailPage() {
       </div>
     );
   }
-
+  function renderStatus(proposal: Proposal, size?: "sm" | "md" | "lg") {
+    return (
+      <Chip
+        color={
+          proposal.approved_at
+            ? "success"
+            : proposal.reject_at
+            ? "danger"
+            : "warning"
+        }
+        size={size || "sm"}
+      >
+        {proposal.approved_at
+          ? "Aprovado"
+          : proposal.reject_at
+          ? "Rejeitado"
+          : "Pendente"}
+      </Chip>
+    );
+  }
   return (
     <div className="space-y-6 fade-in">
       <Breadcrumbs>
@@ -182,17 +229,16 @@ export function CompanyBudgetsDetailPage() {
 
           <div className="flex flex-col gap-2">
             {/* STATUS PRINCIPAL */}
-            {statusProposals.wasApproved &&
-            statusProposals.hasProposal &&
-            statusProposals.isSameCompany ? (
+            {statusProposals.hasApprovedSameCompany ? (
               <Button variant="ghost" disabled color="success">
                 Proposta aprovada pelo cliente
               </Button>
-            ) : statusProposals.wasApproved ? (
+            ) : statusProposals.wasApproved &&
+              !statusProposals.hasApprovedSameCompany ? (
               <Button variant="ghost" disabled color="warning">
                 Proposta já foi fechada
               </Button>
-            ) : statusProposals.hasProposal && statusProposals.isSameCompany ? (
+            ) : statusProposals.shoudlBlockUntilClientActSameCompany ? (
               <Button variant="ghost" disabled color="success">
                 Proposta enviada
               </Button>
@@ -200,7 +246,6 @@ export function CompanyBudgetsDetailPage() {
               <Button
                 color="primary"
                 onPress={() => {
-                  setSelectedRequest(request);
                   setIsProposalFormOpen(true);
                 }}
               >
@@ -212,38 +257,91 @@ export function CompanyBudgetsDetailPage() {
         <div className="space-y-2">
           <Card>
             <CardHeader>
-              <Subtitle>Status</Subtitle>
+              <Subtitle>Última atualização</Subtitle>
             </CardHeader>
             <CardBody>
-              <div className="space-y-4">
-                <div>
-                  <div className="text-2xl font-semibold text-neutral-800">
-                    {proposals?.length || 0}
+              {!proposals?.length ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FiFileText className="w-8 h-8 text-primary-600" />
                   </div>
-                  <div className="text-sm text-neutral-500">
-                    Propostas recebidas
-                  </div>
+                  <h3 className="text-lg font-medium mb-2">
+                    Nenhuma proposta Enviada
+                  </h3>
+                  <p className="text-neutral-600">
+                    Aguarde enquanto as empresas analisam sua solicitação.
+                  </p>
                 </div>
+              ) : (
+                <div className="space-y-4">
+                  {proposals.map((proposal) => (
+                    <div key={proposal.id} className="p-4">
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-3">
+                          <Avatar
+                            name={proposal.company.name.charAt(0).toUpperCase()}
+                            src={proposal.company.avatar}
+                          />
 
-                <div className="h-px bg-neutral-200" />
+                          <div className="flex-1">
+                            <h4 className="font-medium">
+                              {proposal.company.name}
+                            </h4>
+                            <div className="flex items-center gap-1">
+                              <AiFillStar color="#f1c40f" />
+                              <Text type="small">
+                                {proposal.company.ratting}
+                              </Text>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 flex-col items-end">
+                            {renderStatus(proposal)}
+                            <Text type="subtitle" weight="semibold">
+                              {new Intl.NumberFormat("pt-BR", {
+                                style: "currency",
+                                currency: "BRL",
+                              }).format(proposal.amount)}
+                            </Text>
+                          </div>
+                        </div>
+                        <div className="my-4">
+                          <Text type="normal" weight="semibold">
+                            Descrição da Proposta
+                          </Text>
+                          <Text className="mt-2">
+                            {proposal.description.length > 200
+                              ? `${proposal.description.slice(0, 200)}...`
+                              : proposal.description}
+                          </Text>
+                        </div>
+                      </div>
+                      <div className="flex justify-end">
+                        <Button
+                          startContent={<MdOutlineOpenInNew size={16} />}
+                          color="primary"
+                          onPress={() => {
+                            setSelectedProposal(proposal);
+                            // setEstimateDetail(true);
+                          }}
+                        >
+                          Ver detalhes
+                        </Button>
+                      </div>
 
-                <div>
-                  <h4 className="font-medium mb-2">Última atualização</h4>
-                  <div className="flex items-center gap-2 text-neutral-600">
-                    <CiCalendar size={18} />
-                    <span>
-                      {new Date(
-                        request.updated_at ?? request.created_at
-                      ).toLocaleDateString("pt-BR")}
-                    </span>
-                  </div>
+                      <Divider className="my-4" />
+                      <Text type="caption">
+                        Enviada em:{" "}
+                        {format(proposal.created_at, "dd/MM/yyyy, HH:mm:ss")}
+                      </Text>
+                    </div>
+                  ))}
                 </div>
-              </div>
+              )}
             </CardBody>
           </Card>
           {messages && (
+          
             <Chat
-              
               contact={messages[0]}
               onSend={() => console.log("")}
               onUpload={() => console.log("")}
@@ -254,16 +352,35 @@ export function CompanyBudgetsDetailPage() {
         </div>
       </div>
 
-      <ProposalForm
+      <CreateProposalModal
+        estimate_request_id={request.id}
         isOpen={isProposalFormOpen}
         onClose={() => setIsProposalFormOpen(false)}
-        companyId={id!}
-        estimateRequestId={selectedRequest?.id}
+        customer={
+          customer
+            ? {
+                document: "fake-document",
+                email: customer.email,
+                id: customer.id,
+                name: customer.name,
+                phone: customer.phone,
+                avatar: customer.avatar,
+              }
+            : null
+        }
         onSuccess={() => {
           refetchProposals();
-          setSelectedRequest(null);
         }}
       />
+
+      {selectedProposal && (
+        <ProposalDetailModal
+          isOpen={!!selectedProposal}
+          onClose={() => setSelectedProposal(null)}
+          estimate_id={selectedProposal.estimate_id}
+          status={renderStatus(selectedProposal)}
+        />
+      )}
     </div>
   );
 }

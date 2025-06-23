@@ -32,6 +32,8 @@ import { CompanyBudgetsDetailPage } from "./pages/company/company-budgets-detail
 import { UserVerifyPage } from "./pages/auth/user-verify-page";
 import { EmailNotVerified } from "./pages/email-not-verified";
 import { CompanyChatsPage } from "./pages/company/company-chats";
+import { CompanyEstimatePage } from "./pages/company/company-estimate";
+import { EstimateDetailPage } from "./pages/user/estimate-detail";
 
 function App() {
   const { checkAuth } = useAuthStore();
@@ -60,6 +62,7 @@ function App() {
         <Route element={<MyBudgetsPage />} path="my-budgets" />
         <Route element={<MyBudgetsCreatePage />} path="my-budgets/new" />
         <Route element={<MyBudgetsDetailPage />} path="my-budgets/:id" />
+        <Route element={<EstimateDetailPage />} path="estimate-detail" />
         <Route element={<Partners />} path="partners" />
         <Route element={<PartnersDetail />} path="partners/:id" />
         <Route element={<CompanyCreatePage />} path="company/new" />
@@ -83,8 +86,12 @@ function App() {
         <Route path="profile/edit" element={<CompanyInformationsEditPage />} />
         <Route path="budgets" element={<CompanyBudgetPage />} />
         <Route
-          path="budgets/:estimate_id"
+          path="budgets/:estimate_request_id"
           element={<CompanyBudgetsDetailPage />}
+        />
+        <Route
+          path="estimate/new"
+          element={<CompanyEstimatePage />}
         />
         <Route path="chats" element={<CompanyChatsPage />} />
         <Route path="proposals" element={<CompanyProposalsPage />} />

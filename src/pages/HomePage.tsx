@@ -3,7 +3,7 @@ import { useAuthStore } from "../stores/authStore";
 import { Button, Link } from "@heroui/react";
 import { FaBuilding, FaClipboardList, FaShield } from "react-icons/fa6";
 import { FiBarChart } from "react-icons/fi";
-import { FloatingChat } from "../components/chat/floating-chat";
+
 
 const HomePage = () => {
   const { isAuthenticated, user } = useAuthStore();
@@ -153,7 +153,7 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-      {isAuthenticated && <FloatingChat />}
+      
     </div>
   );
 };

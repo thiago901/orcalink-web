@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 
 import { getEstimateRequestById } from "../../api/estimateRequests";
@@ -8,6 +8,7 @@ import {
   getProposalsByEstimateId,
   approveProposal,
   rejectProposal,
+  Proposal,
 } from "../../api/proposals";
 
 import ProposalActionDialog from "../../components/proposals/ProposalActionDialog";
@@ -26,20 +27,24 @@ import {
 } from "@heroui/react";
 import { Subtitle } from "../../components/ui/Subtitle";
 import ImageGallery from "../../components/image-gallery";
-import { FiCheck, FiFileText, FiLoader } from "react-icons/fi";
+import { FiFileText, FiLoader } from "react-icons/fi";
 import { CiCalendar, CiMail, CiMapPin, CiPhone } from "react-icons/ci";
-import { FaX } from "react-icons/fa6";
 
-import { Chats } from "../../components/chat/chats";
 import { AiFillStar } from "react-icons/ai";
 import { getEstimateRequestMessagesGroupedByCompany } from "../../api/estimate-requests-messages";
+import { ProposalDetailModal } from "../../components/proposals/proposal-detail-modal";
+import { MdOutlineOpenInNew } from "react-icons/md";
+import { Chats } from "../../components/chat/chats";
 
 export function MyBudgetsDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const queryClient = useQueryClient();
-  const [selectedProposal, setSelectedProposal] = useState<any>(null);
+
+  const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(
+    null
+  );
   const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+  const [estimateDetail, setEstimateDetail] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
 
   const { data: request, isLoading: isLoadingRequest } = useQuery({
@@ -47,28 +52,34 @@ export function MyBudgetsDetailPage() {
     queryFn: () => getEstimateRequestById(id!),
     enabled: !!id,
   });
-  const { data: estimate_request_message} = useQuery({
+  const { data: estimate_request_message } = useQuery({
     queryKey: ["estimateRequestMessage", id],
     queryFn: () => getEstimateRequestMessagesGroupedByCompany(id!),
     enabled: !!id,
   });
-  
-  
-  const { data: proposals, isLoading: isLoadingProposals } = useQuery({
+
+  const {
+    data: proposals,
+    isLoading: isLoadingProposals,
+    refetch: refetchProposals,
+  } = useQuery({
     queryKey: ["proposals", id],
     queryFn: () => getProposalsByEstimateId(id!),
     enabled: !!id,
   });
-  
 
   const handleApprove = async () => {
     if (!selectedProposal) return;
-    
+
     setIsActionLoading(true);
     try {
       await approveProposal(selectedProposal.id);
-      queryClient.invalidateQueries(["proposals", id]);
+
       setIsApproveDialogOpen(false);
+      setSelectedProposal((old) =>
+        old ? { ...old, approved_at: new Date() } : null
+      );
+      await refetchProposals();
     } catch (error) {
       console.error("Error approving proposal:", error);
       console.log("error", error);
@@ -83,8 +94,12 @@ export function MyBudgetsDetailPage() {
     setIsActionLoading(true);
     try {
       await rejectProposal(selectedProposal.id);
-      queryClient.invalidateQueries(["proposals", id]);
+
+      setSelectedProposal((old) =>
+        old ? { ...old, reject_at: new Date() } : null
+      );
       setIsRejectDialogOpen(false);
+      await refetchProposals();
     } catch (error) {
       console.error("Error rejecting proposal:", error);
     } finally {
@@ -111,6 +126,26 @@ export function MyBudgetsDetailPage() {
     );
   }
 
+  function renderStatus(proposal: Proposal, size?: "sm" | "md" | "lg") {
+    return (
+      <Chip
+        color={
+          proposal.approved_at
+            ? "success"
+            : proposal.reject_at
+            ? "danger"
+            : "warning"
+        }
+        size={size || "sm"}
+      >
+        {proposal.approved_at
+          ? "Aprovado"
+          : proposal.reject_at
+          ? "Rejeitado"
+          : "Pendente"}
+      </Chip>
+    );
+  }
   return (
     <div className="space-y-6 fade-in max-w-6xl mx-auto px-4 py-6">
       <Breadcrumbs>
@@ -229,22 +264,7 @@ export function MyBudgetsDetailPage() {
                             </div>
                           </div>
                           <div className="flex gap-2 flex-col items-end">
-                            <Chip
-                              color={
-                                proposal.approved_at
-                                  ? "success"
-                                  : proposal.reject_at
-                                  ? "danger"
-                                  : "warning"
-                              }
-                              size="sm"
-                            >
-                              {proposal.approved_at
-                                ? "Aprovado"
-                                : proposal.reject_at
-                                ? "Rejeitado"
-                                : "Pendente"}
-                            </Chip>
+                            {renderStatus(proposal)}
                             <Text type="subtitle" weight="semibold">
                               {new Intl.NumberFormat("pt-BR", {
                                 style: "currency",
@@ -254,41 +274,30 @@ export function MyBudgetsDetailPage() {
                           </div>
                         </div>
                         <div className="my-4">
-                          <Text type="normal" weight="semibold">Descrição da Proposta</Text>
+                          <Text type="normal" weight="semibold">
+                            Descrição da Proposta
+                          </Text>
                           <Text className="mt-2">{proposal.description}</Text>
                         </div>
                       </div>
                       <div className="flex justify-end">
-                        {!proposal.approved_at && !proposal.reject_at && (
-                          <div className="mt-4 flex gap-2">
-                            <Button
-                              variant="ghost"
-                              startContent={<FaX size={16} />}
-                              color="danger"
-                              onPress={() => {
-                                setSelectedProposal(proposal);
-                                setIsRejectDialogOpen(true);
-                              }}
-                            >
-                              Recusar
-                            </Button>
-                            <Button
-                              color="success"
-                              startContent={<FiCheck size={16} />}
-                              onPress={() => {
-                                setSelectedProposal(proposal);
-                                setIsApproveDialogOpen(true);
-                              }}
-                            >
-                              Aceitar
-                            </Button>
-                          </div>
-                        )}
+                        <Button
+                          startContent={<MdOutlineOpenInNew size={16} />}
+                          color="primary"
+                          onPress={() => {
+                            setSelectedProposal(proposal);
+                            setEstimateDetail(true);
+                          }}
+                        >
+                          Ver detalhes
+                        </Button>
                       </div>
-                
-                        <Divider className="my-4"/>
-                        <Text type="caption">Enviada em: {format(proposal.created_at,"dd/MM/yyyy, HH:mm:ss")}</Text>
-                      
+
+                      <Divider className="my-4" />
+                      <Text type="caption">
+                        Enviada em:{" "}
+                        {format(proposal.created_at, "dd/MM/yyyy, HH:mm:ss")}
+                      </Text>
                     </div>
                   ))}
                 </div>
@@ -330,31 +339,9 @@ export function MyBudgetsDetailPage() {
             </CardBody>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <Subtitle>Chats</Subtitle>
-            </CardHeader>
-            <CardBody className="p-0 rounded-none">
-              
-              {/* <Chats
-                sender="CLIENT"
-                estimate_request_id={id!}
-                contacts={
-                  !estimate_request_message
-                    ? []
-                    : estimate_request_message.map((item) => ({
-                        id: item.company.id,
-                        name: item.company.name,
-                        avatar: '',
-                        unread_amount:item.unread_amount
-                      }))
-                }
-              /> */}
-            </CardBody>
-          </Card>
+          
         </div>
       </div>
-
 
       {/* Action Dialogs */}
       <ProposalActionDialog
@@ -374,6 +361,24 @@ export function MyBudgetsDetailPage() {
         description="Tem certeza que deseja recusar esta proposta? Esta ação não pode ser desfeita."
         isLoading={isActionLoading}
       />
+      {selectedProposal && (
+        <ProposalDetailModal
+          isOpen={estimateDetail}
+          onClose={() => setEstimateDetail(false)}
+          estimate_id={selectedProposal.estimate_id}
+          status={renderStatus(selectedProposal)}
+          onAccept={
+            !!selectedProposal.approved_at || !!selectedProposal.reject_at
+              ? null
+              : () => setIsApproveDialogOpen(true)
+          }
+          onReject={
+            !!selectedProposal.approved_at || !!selectedProposal.reject_at
+              ? null
+              : () => setIsRejectDialogOpen(true)
+          }
+        />
+      )}
     </div>
   );
 }

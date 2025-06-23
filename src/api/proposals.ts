@@ -1,10 +1,28 @@
 import api, { ResponseAPI } from "./axios";
 
 export interface CreateProposalProps {
-  amount: number;
-  company_id: string;
+
+  name: string;
   description: string;
+  company_id: string;
+  customer: {
+    name: string;
+    phone: string;
+    email: string;
+    document: string;
+  };
+
+  items: {
+    type: string;
+    description: string;
+    unit: string;
+    price: number;
+    quantity: number;
+    
+  }[];
+
   estimate_request_id: string;
+  expire_at: Date;
 }
 
 export type Proposal = {
@@ -13,6 +31,7 @@ export type Proposal = {
   company_id: string;
   description: string;
   estimate_request_id: string;
+  estimate_id: string;
   created_at: Date;
   updated_at: Date;
   reject_at: Date;
@@ -73,11 +92,7 @@ export const getProposalsByEstimateId = async (estimateId: string) => {
 };
 
 export const createProposal = async (data: CreateProposalProps) => {
-  const response = await api.post("/proposals", {
-    ...data,
-    amount: Number(data.amount),
-    name: "OLaskjdklashdjkashkjdhaskjhdk",
-  });
+  const response = await api.post("/proposals", data);
   return response.data.result;
 };
 

@@ -4,10 +4,11 @@ import { Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 
 import { forgotPassword, RecoverPasswordProps } from '../../api/auth';
-import Input from '../../components/ui/Input';
+
 import Button from '../../components/ui/Button';
 import { CiMail } from "react-icons/ci";
 import { FaArrowLeft } from "react-icons/fa6";
+import { CustomInput } from '../../components/ui/Input';
 
 const ForgotPasswordPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -70,19 +71,15 @@ const ForgotPasswordPage = () => {
               </p>
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <Input
+                <CustomInput
                   label="Email"
                   type="email"
                   icon={<CiMail size={18} />}
+                  name='email'
                   placeholder="seu@email.com"
-                  error={errors.email?.message}
-                  {...register('email', {
-                    required: 'Email é obrigatório',
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: 'Email inválido',
-                    },
-                  })}
+                  error_message={errors.email?.message}
+                  register={register}
+             
                 />
 
                 <Button

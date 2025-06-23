@@ -24,6 +24,7 @@ import { CiSun } from "react-icons/ci";
 import { FiMoon } from "react-icons/fi";
 
 import { Notification } from "../notification";
+import { FloatingChat } from "../chat/floating-chat";
 
 const navbarItems = [
   { label: "Inicial", href: "/" },
@@ -189,6 +190,7 @@ export const UserLayout = () => {
       </header>
       <main className="">
         <Outlet />
+        {isAuthenticated && <FloatingChat />}
       </main>
     </div>
   );

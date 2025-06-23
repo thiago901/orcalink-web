@@ -62,9 +62,9 @@ export function CompanyJobsPage() {
                 <Listbox>
                   {jobs.map((request) => (
                     <ListboxItem
-                      key={request.id}
+                      key={request.i}
                       as={Link}
-                      href={`/company/budgets/${request.id}`}
+                      href={`/company/budgets/${request.estimate_request.id}`}
                     >
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                         <div>

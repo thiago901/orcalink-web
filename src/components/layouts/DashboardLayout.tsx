@@ -82,7 +82,7 @@ const DashboardLayout = () => {
     {
       to: "/company/budgets",
       icon: <PiFileTextThin size={20} />,
-      label: "Orçamentos",
+      label: "Orçamentos solicitados",
     },
     {
       to: "/company/proposals",
@@ -98,6 +98,11 @@ const DashboardLayout = () => {
       to: "/company/chats",
       icon: <PiMessengerLogoThin size={20} />,
       label: "Conversas",
+    },
+    {
+      to: "/company/estimate/new",
+      icon: <PiFileTextThin size={20} />,
+      label: "Orçamentos avulsos",
     },
   ];
 

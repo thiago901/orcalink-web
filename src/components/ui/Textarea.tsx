@@ -1,38 +1,28 @@
-import React, { TextareaHTMLAttributes } from 'react';
+import { Textarea } from "@heroui/react";
+import { FieldValues, Path, UseFormRegister } from "react-hook-form";
 
-interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
-  label?: string;
-  error?: string;
+export interface CustomInputProps<T extends FieldValues = never> {
+  name: Path<T>;                    
+  label: string;
+  placeholder?: string;
+  error_message?: string;
+  register: UseFormRegister<T>;
 }
 
-const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ label, error, className = '', ...props }, ref) => {
-    const id = props.id || Math.random().toString(36).substring(2, 9);
-
-    return (
-      <div className="space-y-1">
-        {label && (
-          <label
-            htmlFor={id}
-            className="block text-sm font-medium text-neutral-700"
-          >
-            {label}
-          </label>
-        )}
-        <textarea
-          ref={ref}
-          id={id}
-          className={`input min-h-[100px] ${
-            error ? 'border-error-500 focus:ring-error-500' : ''
-          } ${className}`}
-          {...props}
-        />
-        {error && <p className="text-sm text-error-500">{error}</p>}
-      </div>
-    );
-  }
-);
-
-Textarea.displayName = 'Textarea';
-
-export default Textarea;
+export function CustomTextArea<T extends FieldValues>({
+  label,
+  placeholder,
+  register,
+  name,
+  error_message,
+}: CustomInputProps<T>) {
+  return (
+    <Textarea
+      label={label}
+      placeholder={placeholder}
+      errorMessage={error_message}
+      isInvalid={!!error_message}
+      {...register(name)}
+    />
+  );
+}
