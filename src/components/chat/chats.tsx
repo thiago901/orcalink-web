@@ -78,7 +78,7 @@ export function Chats({ sender, id }: ChatsProps) {
         : getEstimateRequestMessagesFromCustomer(id),
     enabled: true,
   });
-  console.log("convesation", convesation, !convesation);
+  
 
   return (
     <div className="h-full">

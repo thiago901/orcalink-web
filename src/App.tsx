@@ -35,6 +35,7 @@ import { CompanyChatsPage } from "./pages/company/company-chats";
 import { CompanyEstimatePage } from "./pages/company/company-estimate";
 import { EstimateDetailPage } from "./pages/user/estimate-detail";
 
+
 function App() {
   const { checkAuth } = useAuthStore();
 
@@ -47,6 +48,7 @@ function App() {
     <Routes>
       {/* Public routes */}
 
+      {/* <Route path="/teste" element={<CHAREVELACAO />} /> */}
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/user/activation/:id" element={<UserVerifyPage />} />
 

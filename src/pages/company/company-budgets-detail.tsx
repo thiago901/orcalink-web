@@ -1,4 +1,3 @@
- 
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -19,14 +18,19 @@ import {
   CardHeader,
   Chip,
   Divider,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerHeader,
+  useDisclosure,
 } from "@heroui/react";
 import { Subtitle } from "../../components/ui/Subtitle";
 import ImageGallery from "../../components/image-gallery";
 
-import { FiFileText, FiLoader } from "react-icons/fi";
+import { FiFileText, FiLoader, FiMessageCircle } from "react-icons/fi";
 import { CiCalendar, CiMail, CiMapPin, CiPhone } from "react-icons/ci";
 import { Chat } from "../../components/chat/chat";
-import { getEstimateRequestMessagesGroupedByCompany } from "../../api/estimate-requests-messages";
+import { getEstimateRequestMessagesAndCompany } from "../../api/estimate-requests-messages";
 import { useCompanyStore } from "../../stores/companyStore";
 
 import { getUserById } from "../../api/users";
@@ -56,7 +60,7 @@ export function CompanyBudgetsDetailPage() {
   const { data: messages } = useQuery({
     queryKey: ["estimateRequestMessages", id, estimate_request_id],
     queryFn: () =>
-      getEstimateRequestMessagesGroupedByCompany(estimate_request_id!),
+      getEstimateRequestMessagesAndCompany(estimate_request_id!,id),
     enabled: !!id,
   });
 
@@ -92,6 +96,7 @@ export function CompanyBudgetsDetailPage() {
     });
   }, [estimate_request_id, id, proposals]);
   const [isProposalFormOpen, setIsProposalFormOpen] = useState(false);
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { data: request, isLoading: isLoadingRequest } = useQuery({
     queryKey: ["estimateRequest", estimate_request_id],
     queryFn: () => getEstimateRequestById(estimate_request_id!),
@@ -254,7 +259,66 @@ export function CompanyBudgetsDetailPage() {
             )}
           </div>
         </div>
+
         <div className="space-y-2">
+          <div className="">
+            <Button
+              onPress={onOpen}
+              fullWidth
+              radius="full"
+              size="lg"
+              color="primary"
+            >
+              <FiMessageCircle size={24} /> 
+              <Text>Falar com o cliente</Text>
+            </Button>
+            <Drawer isOpen={isOpen} onOpenChange={onOpenChange}>
+            
+              <DrawerContent>
+                {() => (
+                  <>
+                    <DrawerHeader className="flex flex-col gap-1">
+                      Chats
+                    </DrawerHeader>
+                    <DrawerBody className="p-0">
+                      {messages && (
+                        <Chat
+                          contact={messages}
+                          onSend={() => console.log("")}
+                          onUpload={() => console.log("")}
+                          onBack={() => null}
+                          sender="COMPANY"
+                        />
+                      )}
+                      {!messages && (
+                        <Chat
+                          contact={{
+                            company:{
+                              id:current_company.id,
+                              name:current_company.name,
+                            },
+                            estimate_request:{
+                              id:request.id,
+                            },
+                            messages:[],
+                            unread_amount:0,
+                            user:{
+                              id:request.user.id,
+                              name:request.user.name,
+                            }
+                          }}
+                          onSend={() => console.log("")}
+                          onUpload={() => console.log("")}
+                          onBack={() => null}
+                          sender="COMPANY"
+                        />
+                      )}
+                    </DrawerBody>
+                  </>
+                )}
+              </DrawerContent>
+            </Drawer>
+          </div>
           <Card>
             <CardHeader>
               <Subtitle>Última atualização</Subtitle>
@@ -339,16 +403,6 @@ export function CompanyBudgetsDetailPage() {
               )}
             </CardBody>
           </Card>
-          {messages && (
-          
-            <Chat
-              contact={messages[0]}
-              onSend={() => console.log("")}
-              onUpload={() => console.log("")}
-              onBack={() => null}
-              sender="COMPANY"
-            />
-          )}
         </div>
       </div>
 

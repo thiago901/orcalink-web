@@ -17,7 +17,7 @@ const pinkTeam = [
   { name: 'Zara', image: '/pink3.png' }
 ]
 
-export default function App() {
+export function CHAREVELACAO() {
   const [blueRatio, setBlueRatio] = useState(0.5)
   const [highlighted, setHighlighted] = useState<{ side: 'blue' | 'pink'; index: number } | null>(null)
   const [isOver, setIsOver] = useState(false)

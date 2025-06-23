@@ -74,6 +74,17 @@ export const getEstimateRequestMessagesGroupedByCompany = async (
   );
   return response.data.result;
 };
+export const getEstimateRequestMessagesAndCompany = async (
+  estimate_request_id: string,
+  company_id: string,
+) => {
+  
+  
+  const response = await api.get<ResponseAPI<EstimateRequestMessageGrouped>>(
+    `/estimate-requests-message/${estimate_request_id}/company/${company_id}`
+  );
+  return response.data.result;
+};
 
 export const createEstimateRequestMessage = async (
   data: CreateEstimateRequestMessageProps

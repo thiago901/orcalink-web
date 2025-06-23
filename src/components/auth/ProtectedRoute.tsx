@@ -11,12 +11,13 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const location = useLocation();
   
   
-  if (!isAuthenticated) {
-    // Redirect to login page with the return url
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }else if (!user?.active){
-    return <Navigate to="/email-not-verified" replace />;
-  }
+  // if (!user) {
+  //   // Redirect to login page with the return url
+  //   return <Navigate to="/login" state={{ from: location }} replace />;
+  // }
+  // else if (!!user && !user.active){
+  //   return <Navigate to="/email-not-verified" replace />;
+  // }
 
   return <>{children}</>;
 };
