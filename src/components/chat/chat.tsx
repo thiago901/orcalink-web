@@ -174,7 +174,7 @@ export function Chat({
           </Button>
         )}
 
-        <Avatar src={""} />
+        <Avatar src={sender==='COMPANY'?contact.user.avatar:contact.company.avatar} />
         <h4 className="font-semibold text-lg">{sender==='COMPANY'?contact.user.name:contact.company.name}</h4>
       </CardHeader>
 

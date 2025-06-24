@@ -16,6 +16,7 @@ import { useAuthStore } from "../stores/authStore";
 
 import * as notificationAPI from "../api/notification";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 type NotificationMessageProps = {
   id: string;
@@ -50,6 +51,7 @@ type NotificationByType<T extends NotificationType> = NotificationMap[T];
 export function Notification() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
+  const navigate = useNavigate()
 
   const { connect, on, off, emit } = useSocketStore();
 
@@ -79,14 +81,23 @@ export function Notification() {
     },
     [queryClient, user?.id]
   );
-  const handleReadNotification = useCallback(async (id: string) => {
-    await notificationAPI.readNotification(id);
-    queryClient.setQueryData<NotificationMessageProps[]>(
-      ["notifications", user?.id],
-      (old = []) =>
-        old.map((item) => (item.id === id ? { ...item, read: true } : item))
-    );
-  }, [queryClient, user?.id]);
+  const handleReadNotification = useCallback(
+    async (id: string,estimate_request_id:string) => {
+  
+
+      navigate(user?.role === "company"
+                ? `company/budgets/${estimate_request_id}`
+                : `my-budgets/${estimate_request_id}`)
+      
+      await notificationAPI.readNotification(id);
+      queryClient.setQueryData<NotificationMessageProps[]>(
+        ["notifications", user?.id],
+        (old = []) =>
+          old.map((item) => (item.id === id ? { ...item, read: true } : item))
+      );
+    },
+    [navigate, user, queryClient]
+  );
   useEffect(() => {
     if (!user) return;
 
@@ -98,11 +109,14 @@ export function Notification() {
       console.log("Entrou na sala do usuario");
     });
     on("proposal:sent", handleNewNotifications);
+    on("estimate_request:created", handleNewNotifications);
 
     return () => {
       off("proposal:sent", handleNewNotifications);
+      off("estimate_request:created", handleNewNotifications);
     };
   }, [user, connect, emit, on, off, handleNewNotifications]);
+  
 
   const notificationUnread = useMemo(() => {
     return notifications?.reduce((acc, cur) => acc + (!cur.read ? 1 : 0), 0);
@@ -132,8 +146,7 @@ export function Notification() {
         {(item) => (
           <DropdownItem
             key={item.id}
-            href={`my-budgets/${item.message.estimate_request_id}`}
-            onPress={() => handleReadNotification(item.id)}
+            onPress={() => handleReadNotification(item.id,item.message.estimate_request_id)}
             textValue="Notificattion"
           >
             <div className="flex gap-2 items-start">

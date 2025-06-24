@@ -21,7 +21,7 @@ export function ProposalCreateForm({
 }: EstimateCreateFormProps) {
   const { current_company } = useCompanyStore();
   const createEstimate = async (data: CreateProposalProps) => {
-    console.log("Payload enviado:", data);
+    
     await createProposal({
       ...data,
       estimate_request_id,

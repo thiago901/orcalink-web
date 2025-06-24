@@ -150,7 +150,7 @@ export function CompanyBudgetsDetailPage() {
     <div className="space-y-6 fade-in">
       <Breadcrumbs>
         <BreadcrumbItem href="/company">Dashboard</BreadcrumbItem>
-        <BreadcrumbItem href={`/company/budgets/${id}`}>
+        <BreadcrumbItem href={`/company/budgets`}>
           Orçamentos
         </BreadcrumbItem>
         <BreadcrumbItem>{request.name}</BreadcrumbItem>

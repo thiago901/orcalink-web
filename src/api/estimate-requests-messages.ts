@@ -34,10 +34,12 @@ export type EstimateRequestMessageGrouped = {
   company: {
     id: string;
     name: string;
+    avatar?:string
   };
   user: {
     name: string;
     id: string;
+    avatar?:string
   };
   estimate_request: {
     id: string;
@@ -57,8 +59,7 @@ export const getEstimateRequestMessagesByCompany = async (
   estimate_request_id: string,
   company_id: string
 ) => {
-  console.log('estimate_request_id',estimate_request_id,company_id);
-  
+ 
   const response = await api.get<ResponseAPI<EstimateRequestMessage[]>>(
     `/estimate-requests-message/${estimate_request_id}/company/${company_id}`
   );
