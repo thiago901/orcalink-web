@@ -40,6 +40,7 @@ import { MdOutlineOpenInNew } from "react-icons/md";
 import { format } from "date-fns";
 import { AiFillStar } from "react-icons/ai";
 import { ProposalDetailModal } from "../../components/proposals/proposal-detail-modal";
+import { HiddenText } from "../../components/hidden-text";
 
 export function CompanyBudgetsDetailPage() {
   const { estimate_request_id } = useParams<{ estimate_request_id: string }>();
@@ -60,7 +61,7 @@ export function CompanyBudgetsDetailPage() {
   const { data: messages } = useQuery({
     queryKey: ["estimateRequestMessages", id, estimate_request_id],
     queryFn: () =>
-      getEstimateRequestMessagesAndCompany(estimate_request_id!,id),
+      getEstimateRequestMessagesAndCompany(estimate_request_id!, id),
     enabled: !!id,
   });
 
@@ -150,9 +151,7 @@ export function CompanyBudgetsDetailPage() {
     <div className="space-y-6 fade-in">
       <Breadcrumbs>
         <BreadcrumbItem href="/company">Dashboard</BreadcrumbItem>
-        <BreadcrumbItem href={`/company/budgets`}>
-          Orçamentos
-        </BreadcrumbItem>
+        <BreadcrumbItem href={`/company/budgets`}>Orçamentos</BreadcrumbItem>
         <BreadcrumbItem>{request.name}</BreadcrumbItem>
       </Breadcrumbs>
       <div>
@@ -183,8 +182,11 @@ export function CompanyBudgetsDetailPage() {
                   <div className="flex items-center gap-2 text-neutral-600">
                     <CiMapPin size={18} />
                     <span>
-                      {request.address.street}, {request.address.number} -{" "}
-                      {request.address.neighborhood}
+                      {request.address.street},{" "}
+                      <HiddenText block={!request.address.number}>
+                        {request.address.number}
+                      </HiddenText>{" "}
+                      - {request.address.neighborhood}
                       <br />
                       {request.address.city}, {request.address.state} -{" "}
                       {request.address.postal_code}
@@ -198,11 +200,15 @@ export function CompanyBudgetsDetailPage() {
                     <div className="space-y-2 text-neutral-600">
                       <div className="flex items-center gap-2">
                         <CiPhone size={18} />
-                        <span>{request.phone}</span>
+                        <HiddenText block={!request.phone}>
+                          <span>{request.phone}</span>
+                        </HiddenText>
                       </div>
                       <div className="flex items-center gap-2">
                         <CiMail size={18} />
-                        <span>{request.email}</span>
+                        <HiddenText block={!request.email}>
+                          <span>{request.email}</span>
+                        </HiddenText>
                       </div>
                     </div>
                   </div>
@@ -269,11 +275,10 @@ export function CompanyBudgetsDetailPage() {
               size="lg"
               color="primary"
             >
-              <FiMessageCircle size={24} /> 
+              <FiMessageCircle size={24} />
               <Text>Falar com o cliente</Text>
             </Button>
             <Drawer isOpen={isOpen} onOpenChange={onOpenChange}>
-            
               <DrawerContent>
                 {() => (
                   <>
@@ -293,19 +298,19 @@ export function CompanyBudgetsDetailPage() {
                       {!messages && (
                         <Chat
                           contact={{
-                            company:{
-                              id:current_company.id,
-                              name:current_company.name,
+                            company: {
+                              id: current_company.id,
+                              name: current_company.name,
                             },
-                            estimate_request:{
-                              id:request.id,
+                            estimate_request: {
+                              id: request.id,
                             },
-                            messages:[],
-                            unread_amount:0,
-                            user:{
-                              id:request.user.id,
-                              name:request.user.name,
-                            }
+                            messages: [],
+                            unread_amount: 0,
+                            user: {
+                              id: request.user.id,
+                              name: request.user.name,
+                            },
                           }}
                           onSend={() => console.log("")}
                           onUpload={() => console.log("")}

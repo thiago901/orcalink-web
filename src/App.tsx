@@ -34,6 +34,7 @@ import { EmailNotVerified } from "./pages/email-not-verified";
 import { CompanyChatsPage } from "./pages/company/company-chats";
 import { CompanyEstimatePage } from "./pages/company/company-estimate";
 import { EstimateDetailPage } from "./pages/user/estimate-detail";
+import { CompanyJobDetailPage } from "./pages/company/company-jobs-detail";
 
 
 function App() {
@@ -98,6 +99,7 @@ function App() {
         <Route path="chats" element={<CompanyChatsPage />} />
         <Route path="proposals" element={<CompanyProposalsPage />} />
         <Route path="jobs" element={<CompanyJobsPage />} />
+        <Route path="jobs/:id" element={<CompanyJobDetailPage />} />
       </Route>
 
       {/* 404 and redirects */}
