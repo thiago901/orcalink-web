@@ -1,9 +1,13 @@
 import { useAuthStore } from "../stores/authStore";
+import {
+  ReactCompareSlider,
+  ReactCompareSliderImage,
+} from "react-compare-slider";
 
 import { Button, Link } from "@heroui/react";
 import { FaBuilding, FaClipboardList, FaShield } from "react-icons/fa6";
 import { FiBarChart } from "react-icons/fi";
-
+import { BeforeAfterViewer } from "../components/after-before-viewer";
 
 const HomePage = () => {
   const { isAuthenticated, user } = useAuthStore();
@@ -25,6 +29,22 @@ const HomePage = () => {
         </div>
       </section>
 
+      <ReactCompareSlider
+        itemOne={
+          <ReactCompareSliderImage
+            src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg"
+            srcSet="https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg"
+            alt="Image one"
+          />
+        }
+        itemTwo={
+          <ReactCompareSliderImage
+            src="https://onlinejpgtools.com/images/examples-onlinejpgtools/baby-duck-lossy.jpeg"
+            srcSet="https://onlinejpgtools.com/images/examples-onlinejpgtools/baby-duck-lossy.jpeg"
+            alt="Image two"
+          />
+        }
+      />
       {/* Como Funciona */}
       <section className="py-20">
         <div className="container mx-auto px-4">
@@ -153,7 +173,6 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-      
     </div>
   );
 };

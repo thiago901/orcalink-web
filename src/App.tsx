@@ -35,6 +35,7 @@ import { CompanyChatsPage } from "./pages/company/company-chats";
 import { CompanyEstimatePage } from "./pages/company/company-estimate";
 import { EstimateDetailPage } from "./pages/user/estimate-detail";
 import { CompanyJobDetailPage } from "./pages/company/company-jobs-detail";
+import { ReviewPage } from "./pages/user/review-page";
 
 
 function App() {
@@ -69,6 +70,7 @@ function App() {
         <Route element={<Partners />} path="partners" />
         <Route element={<PartnersDetail />} path="partners/:id" />
         <Route element={<CompanyCreatePage />} path="company/new" />
+        <Route element={<ReviewPage />} path="review/:job_id" />
         <Route path="/payments">
           <Route path="success" element={<Success />} />
           <Route path="canceled" element={<Canceled />} />

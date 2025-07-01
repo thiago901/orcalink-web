@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getCompanyById } from "../../api/companies";
 import { useParams } from "react-router-dom";
 import { CiGlobe, CiMail, CiPhone } from "react-icons/ci";
+import { ReviewList } from "../../components/review-list";
+import { listAllReviewByCompany } from "../../api/review";
 
 // const posts = [
 //   {
@@ -148,8 +150,12 @@ import { CiGlobe, CiMail, CiPhone } from "react-icons/ci";
 export function PartnersDetail() {
   const { id } = useParams<{ id: string }>();
   const { data: company } = useQuery({
-    queryKey: ["company"],
+    queryKey: ["company",id],
     queryFn: () => getCompanyById(id!),
+  });
+  const { data: reviews } = useQuery({
+    queryKey: ["company", "reviews", id],
+    queryFn: () => listAllReviewByCompany(id!),
   });
 
   return (
@@ -209,6 +215,65 @@ export function PartnersDetail() {
                     <Chip key={service.id}>{service.category_name}</Chip>
                   ))}
               </div>
+            </Tab>
+            <Tab title="Avaliações">
+              {!!reviews && (
+                <ReviewList
+                  reviews={reviews}
+                  // reviews={[
+                  //   {
+                  //     id: "1",
+                  //     title: "Trabalho impecável!",
+                  //     comment:
+                  //       "O pintor foi super cuidadoso, entregou tudo antes do prazo. Recomendo demais!",
+                  //     rating: 5,
+                  //     user_id: "u123",
+                  //     company_id: "c001",
+                  //     created_at: "2025-06-28T15:32:00Z",
+                  //     files: [
+                  //       {
+                  //         id: "f1",
+                  //         company_review_id: "1",
+                  //         url: "https://via.placeholder.com/150?text=Antes",
+                  //       },
+                  //       {
+                  //         id: "f2",
+                  //         company_review_id: "1",
+                  //         url: "https://via.placeholder.com/150?text=Depois",
+                  //       },
+                  //     ],
+                  //   },
+                  //   {
+                  //     id: "2",
+                  //     title: "Bom serviço",
+                  //     comment:
+                  //       "Foi tudo certo, mas demorou um pouco mais que o combinado.",
+                  //     rating: 4,
+                  //     user_id: "u456",
+                  //     company_id: "c001",
+                  //     created_at: "2025-06-25T10:20:00Z",
+                  //     files: [],
+                  //   },
+                  //   {
+                  //     id: "3",
+                  //     title: "Experiência ruim",
+                  //     comment:
+                  //       "Tive alguns problemas com atrasos e sujeira após a pintura. Esperava mais.",
+                  //     rating: 2,
+                  //     user_id: "u789",
+                  //     company_id: "c001",
+                  //     created_at: "2025-06-20T18:00:00Z",
+                  //     files: [
+                  //       {
+                  //         id: "f3",
+                  //         company_review_id: "3",
+                  //         url: "https://via.placeholder.com/150?text=Problema",
+                  //       },
+                  //     ],
+                  //   },
+                  // ]}
+                />
+              )}
             </Tab>
             {/* <Tab title="Trabalhos">
               {posts.map((post) => (
