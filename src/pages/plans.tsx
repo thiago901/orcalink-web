@@ -1,32 +1,29 @@
-import { useCallback, useState } from "react";
+import {  useState } from "react";
 
 import {
-  FiCheck,
+  
   FiUsers,
   FiBarChart,
-  FiX,
   FiStar,
   FiZap,
 } from "react-icons/fi";
 
 import {
-  Badge,
   Button,
   Card,
   CardBody,
   CardHeader,
-  Chip,
-  Link,
-  Switch,
+
   Tab,
   Tabs,
 } from "@heroui/react";
 import { Text } from "../components/ui/Text";
-import { CheckoutButton } from "../components/payment/checkout-button";
+
 import { useAuthStore } from "../stores/authStore";
 import { useQuery } from "@tanstack/react-query";
 import { listAllPlans, Plan } from "../api/plan";
-import { cancelSubscription } from "../api/payments";
+
+import { PlansCardComponent } from "../components/plans-card";
 
 const icons = {
   free: FiUsers,
@@ -34,9 +31,8 @@ const icons = {
   profissional: FiZap,
 };
 
-
 export function ProviderPlans() {
-  const { user, refetchProfile } = useAuthStore();
+  const { user } = useAuthStore();
 
   const { data: plans, isLoading: isLoadingPlans } = useQuery({
     queryKey: ["plans"],
@@ -53,28 +49,13 @@ export function ProviderPlans() {
     const price = isAnnual ? plan.price_year / 12 : plan.price_month;
     return `R$ ${price.toFixed(2)}`;
   };
-  const handleCancelSubscription = useCallback(async () => {
-    if (user) {
-      await cancelSubscription(user.email);
-      refetchProfile();
-    }
-  }, [user, refetchProfile]);
-  const getSavings = (plan: Plan) => {
-    if (plan.price_month === 0) return null;
-    const monthlyCost = plan.price_month * 12;
-    const savings = monthlyCost - plan.price_year;
-    const percentage = (savings / monthlyCost) * 100;
-    return percentage.toFixed(0);
-  };
 
   const allResourceKeys = Array.from(
     new Set(plans?.flatMap((plan) => plan.resources.map((r) => r.key)))
   );
 
-
   const table = allResourceKeys.map((resourceKey) => {
     const row: Record<string, string> = { resource: resourceKey };
-
 
     plans?.forEach((plan) => {
       const resource = plan.resources.find((r) => r.key === resourceKey);
@@ -88,13 +69,11 @@ export function ProviderPlans() {
       } else {
         row[plan.id] = `❌ ${resource.label}`;
       }
-      row['resource'] = resource?.label ||''
-      
+      row["resource"] = resource?.label || "";
     });
 
     return row;
   });
-  
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -133,104 +112,7 @@ export function ProviderPlans() {
         </Card>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-12">
-        {plans?.map((plan) => {
-          const PlanIcon = icons[plan.id as keyof typeof icons];
-          const isCurrentPlan = plan.id === user?.plan_id;
-
-          return (
-            <Card
-              key={plan.id}
-              className={`transition-all hover:shadow-lg border-gray-200
-              } ${isCurrentPlan ? "ring-2 ring-brand-500" : ""}`}
-            >
-              <CardHeader className={`text-center  pt-6}`}>
-                <div className="flex flex-col w-full justify-center justify-items-center">
-                  <div className="flex justify-end">
-                    {isCurrentPlan ? <Chip color="primary">Atual</Chip> : <></>}
-                  </div>
-                  <div className="w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <PlanIcon className="h-8 w-8 text-brand-600" />
-                  </div>
-                  <Text type="subtitle" align="center">
-                    {plan.name}
-                  </Text>
-                  <Text type="small" align="center" color="muted">
-                    {plan.description}
-                  </Text>
-
-                  <div className="py-4">
-                    <div className="text-3xl font-bold text-gray-900">
-                      {getPrice(plan)}
-                      {plan.price_month > 0 && (
-                        <span className="text-lg font-normal text-gray-600">
-                          /mês
-                        </span>
-                      )}
-                    </div>
-                    {isAnnual && plan.price_year > 0 && (
-                      <div className="text-sm text-green-600">
-                        Economize {getSavings(plan)}% no plano anual
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardHeader>
-
-              <CardBody className="px-6 pb-6 flex-1">
-                <div className="space-y-3 mb-6 h-full">
-                  {plan.resources.map((feature, index) =>
-                    feature.active ? (
-                      <div key={index} className="flex items-start">
-                        <FiCheck className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm text-gray-700">
-                          {feature.label}{" "}
-                        </span>
-                      </div>
-                    ) : (
-                      <div key={index} className="flex items-start opacity-60">
-                        <FiX className="h-5 w-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm text-gray-500">
-                          {feature.label}
-                        </span>
-                      </div>
-                    )
-                  )}
-                </div>
-
-                {!user ? (
-                  <Button
-                    as={Link}
-                    href="/login"
-                    color="primary"
-                    className="h-16"
-                  >
-                    Assinar plano
-                  </Button>
-                ) : !isCurrentPlan && user.plan_id !== "free" ? (
-                  <Button
-                    fullWidth
-                    className="h-16"
-                    color="primary"
-                    onPress={handleCancelSubscription}
-                  >
-                    Voltar para versao gratis
-                  </Button>
-                ) : (
-                  <CheckoutButton
-                    isDisabled={isCurrentPlan}
-                    fullWidth
-                    className="h-16"
-                    color={isCurrentPlan ? "default" : "primary"}
-                    email={user.email}
-                    priceId={plan.price_id_month}
-                  />
-                )}
-              </CardBody>
-            </Card>
-          );
-        })}
-      </div>
+      <PlansCardComponent plans={plans}/>
 
       {/* Additional Information */}
       <Tabs defaultSelectedKey="features" fullWidth>
@@ -284,8 +166,6 @@ export function ProviderPlans() {
                 </p>
               </div>
 
-            
-
               <div>
                 <h4 className="font-medium mb-2">Posso mudar de plano?</h4>
                 <p className="text-gray-600 text-sm">
@@ -300,9 +180,8 @@ export function ProviderPlans() {
                 <h4 className="font-medium mb-2">Como funciona a cobrança?</h4>
                 <p className="text-gray-600 text-sm">
                   Trabalhamos apenas com planos mensais. A cobrança é feita
-                  automaticamente no cartão de crédito e é renovado a assinatura após o término do período
-                  , até que você
-                  cancele.
+                  automaticamente no cartão de crédito e é renovado a assinatura
+                  após o término do período , até que você cancele.
                 </p>
               </div>
             </CardBody>

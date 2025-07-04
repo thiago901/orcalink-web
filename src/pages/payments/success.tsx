@@ -10,7 +10,7 @@ export function Success() {
   },[refetchProfile])
   return (
     <div className="flex flex-col items-center p-6 text-center">
-      <Image src="/public/ilustrations/payment.png" />
+      <Image src="/ilustrations/payment.png" />
       <h1 className="text-2xl font-bold text-green-600">
         Pagamento confirmado!
       </h1>

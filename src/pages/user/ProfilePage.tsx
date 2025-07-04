@@ -27,8 +27,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import FileUpload from "../../components/ui/FileUpload";
 
+import { PlansCardComponent } from "../../components/plans-card";
+
 const ProfilePage = () => {
-  const { user, logout,refetchProfile } = useAuthStore();
+  const { user, logout, refetchProfile } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [changedFile, setChangedFile] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -52,11 +54,11 @@ const ProfilePage = () => {
         const formData = new FormData();
         formData.append("file", selectedFiles[0]);
         await uploadUserImage(user_id, formData);
-        refetchProfile()
+        refetchProfile();
         toast.success("Imagem enviada com sucesso!");
       }
     },
-    [selectedFiles,refetchProfile]
+    [selectedFiles, refetchProfile]
   );
   const onSubmit = useCallback(
     async (data: UpdateUserProps) => {
@@ -201,6 +203,8 @@ const ProfilePage = () => {
               </CardBody>
             </Card>
           </div>
+
+          <PlansCardComponent />
         </>
       )}
     </div>
