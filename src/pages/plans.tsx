@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import {
   FiCheck,
@@ -26,6 +26,7 @@ import { CheckoutButton } from "../components/payment/checkout-button";
 import { useAuthStore } from "../stores/authStore";
 import { useQuery } from "@tanstack/react-query";
 import { listAllPlans, Plan } from "../api/plan";
+import { cancelSubscription } from "../api/payments";
 
 const icons = {
   free: FiUsers,
@@ -33,8 +34,9 @@ const icons = {
   profissional: FiZap,
 };
 
+
 export function ProviderPlans() {
-  const { user } = useAuthStore();
+  const { user, refetchProfile } = useAuthStore();
 
   const { data: plans, isLoading: isLoadingPlans } = useQuery({
     queryKey: ["plans"],
@@ -51,7 +53,12 @@ export function ProviderPlans() {
     const price = isAnnual ? plan.price_year / 12 : plan.price_month;
     return `R$ ${price.toFixed(2)}`;
   };
-
+  const handleCancelSubscription = useCallback(async () => {
+    if (user) {
+      await cancelSubscription(user.email);
+      refetchProfile();
+    }
+  }, [user, refetchProfile]);
   const getSavings = (plan: Plan) => {
     if (plan.price_month === 0) return null;
     const monthlyCost = plan.price_month * 12;
@@ -64,8 +71,10 @@ export function ProviderPlans() {
     new Set(plans?.flatMap((plan) => plan.resources.map((r) => r.key)))
   );
 
+
   const table = allResourceKeys.map((resourceKey) => {
     const row: Record<string, string> = { resource: resourceKey };
+
 
     plans?.forEach((plan) => {
       const resource = plan.resources.find((r) => r.key === resourceKey);
@@ -79,12 +88,14 @@ export function ProviderPlans() {
       } else {
         row[plan.id] = `❌ ${resource.label}`;
       }
+      row['resource'] = resource?.label ||''
+      
     });
 
     return row;
-  })
-  console.log('table',table);
+  });
   
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Header */}
@@ -196,6 +207,15 @@ export function ProviderPlans() {
                   >
                     Assinar plano
                   </Button>
+                ) : !isCurrentPlan && user.plan_id !== "free" ? (
+                  <Button
+                    fullWidth
+                    className="h-16"
+                    color="primary"
+                    onPress={handleCancelSubscription}
+                  >
+                    Voltar para versao gratis
+                  </Button>
                 ) : (
                   <CheckoutButton
                     isDisabled={isCurrentPlan}
@@ -240,7 +260,6 @@ export function ProviderPlans() {
                         <td className="text-center">{item.essential}</td>
                       </tr>
                     ))}
-                   
                   </tbody>
                 </table>
               </div>
@@ -265,17 +284,7 @@ export function ProviderPlans() {
                 </p>
               </div>
 
-              <div>
-                <h4 className="font-medium mb-2">
-                  Como funciona o período de teste?
-                </h4>
-                <p className="text-gray-600 text-sm">
-                  Todos os novos assinantes ganham 14 dias gratuitos para testar
-                  os recursos pagos. Após esse período, a cobrança da
-                  mensalidade será iniciada automaticamente, sem compromisso
-                  durante o teste.
-                </p>
-              </div>
+            
 
               <div>
                 <h4 className="font-medium mb-2">Posso mudar de plano?</h4>
@@ -291,8 +300,8 @@ export function ProviderPlans() {
                 <h4 className="font-medium mb-2">Como funciona a cobrança?</h4>
                 <p className="text-gray-600 text-sm">
                   Trabalhamos apenas com planos mensais. A cobrança é feita
-                  automaticamente no cartão de crédito após o término do período
-                  de teste gratuito e se repete a cada 30 dias, até que você
+                  automaticamente no cartão de crédito e é renovado a assinatura após o término do período
+                  , até que você
                   cancele.
                 </p>
               </div>

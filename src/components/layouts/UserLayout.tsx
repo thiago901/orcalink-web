@@ -45,6 +45,7 @@ export const UserLayout = () => {
     enabled: !!user?.id,
   });
 
+
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
