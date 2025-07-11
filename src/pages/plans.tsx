@@ -14,6 +14,8 @@ import {
   CardBody,
   CardHeader,
 
+  Link,
+
   Tab,
   Tabs,
 } from "@heroui/react";
@@ -202,9 +204,9 @@ export function ProviderPlans() {
                     Nossa equipe está pronta para ajudar você a escolher o
                     melhor plano
                   </p>
-                  <Button variant="ghost">Entrar em Contato</Button>
+                  <Button as={Link} href="/contact" variant="ghost">Entrar em Contato</Button>
                 </div>
-
+{/* 
                 <div className="text-center p-6 border rounded-lg">
                   <FiBarChart className="h-12 w-12 text-brand-600 mx-auto mb-4" />
                   <h4 className="font-medium mb-2">Demonstração</h4>
@@ -212,7 +214,7 @@ export function ProviderPlans() {
                     Agende uma demonstração personalizada dos recursos premium
                   </p>
                   <Button variant="ghost">Agendar Demo</Button>
-                </div>
+                </div> */}
               </div>
             </CardBody>
           </Card>

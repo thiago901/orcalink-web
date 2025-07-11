@@ -1,5 +1,6 @@
 import api, { ResponseAPI } from "./axios";
 import { CreateUserProps } from "./auth";
+import { z } from "zod";
 
 export interface UpdateUserProps {
   name?: string;
@@ -19,6 +20,20 @@ export type User = {
   plan_id: string;
   role: 'company' | 'customer';
 };
+
+// export type ContactFormData = {
+//   title: string;
+//   label: string;
+//   content: string;
+// };
+
+export const ContactFormDataSchema = z.object({
+  title: z.string().min(3,"Obrigatorio com minimo de 3 caracteres"),
+  body: z.string().min(3,"Obrigatorio com minimo de 3 caracteres"),
+  label: z.string().min(1,'Obrigatorio'),
+});
+
+export type ContactFormData = z.infer<typeof ContactFormDataSchema>;
 
 // User API functions
 export const getUsers = async () => {
@@ -60,5 +75,9 @@ export const uploadUserImage = async (user_id: string, files: FormData) => {
       "Content-Type": "multipart/form-data",
     },
   });
+  return response.data.result;
+};
+export const sendSupportMessage = async (support:ContactFormData) => {
+  const response = await api.post(`/users/support`, support);
   return response.data.result;
 };

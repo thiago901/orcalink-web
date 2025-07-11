@@ -1,10 +1,8 @@
-// src/routes/ProtectedRoute.tsx
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuthStore } from "../../stores/authStore";
+import { useAuthStore } from "./stores/authStore";
 
 
-
-export function ProtectedRoute() {
+export function CustomRoute():React.ReactElement {
    const { isAuthenticated } = useAuthStore();
 
   if (!isAuthenticated) {
@@ -12,5 +10,4 @@ export function ProtectedRoute() {
   }
 
   return  <Outlet />;
-
 }

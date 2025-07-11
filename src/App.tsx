@@ -8,7 +8,7 @@ import DashboardLayout from "./components/layouts/DashboardLayout";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/user/ProfilePage";
 import PageNotFound from "./pages/PageNotFound";
-import ProtectedRoute from "./components/auth/ProtectedRoute";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { UserLayout } from "./components/layouts/UserLayout";
 import { Posts } from "./pages/user/posts";
 
@@ -36,6 +36,7 @@ import { CompanyEstimatePage } from "./pages/company/company-estimate";
 import { EstimateDetailPage } from "./pages/user/estimate-detail";
 import { CompanyJobDetailPage } from "./pages/company/company-jobs-detail";
 import { ReviewPage } from "./pages/user/review-page";
+import { Contact } from "./pages/contact";
 
 
 function App() {
@@ -58,50 +59,53 @@ function App() {
         <Route path="/email-not-verified" element={<EmailNotVerified />} />
         <Route index path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
-
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="profile" element={<ProfilePage />} />
-        <Route element={<Posts />} path="posts" />
-        <Route path="/plans" element={<ProviderPlans />} />
-        <Route element={<MyBudgetsPage />} path="my-budgets" />
-        <Route element={<MyBudgetsCreatePage />} path="my-budgets/new" />
-        <Route element={<MyBudgetsDetailPage />} path="my-budgets/:id" />
-        <Route element={<EstimateDetailPage />} path="estimate-detail" />
-        <Route element={<Partners />} path="partners" />
-        <Route element={<PartnersDetail />} path="partners/:id" />
-        <Route element={<CompanyCreatePage />} path="company/new" />
-        <Route element={<ReviewPage />} path="review/:job_id" />
+
+        <Route element={<ProtectedRoute />}>
+          <Route path="profile" element={<ProfilePage />} />
+          <Route element={<Posts />} path="posts" />
+          <Route path="/plans" element={<ProviderPlans />} />
+          <Route element={<MyBudgetsPage />} path="my-budgets" />
+
+          <Route element={<MyBudgetsCreatePage />} path="my-budgets/new" />
+          <Route element={<MyBudgetsDetailPage />} path="my-budgets/:id" />
+          <Route element={<EstimateDetailPage />} path="estimate-detail" />
+          <Route element={<Partners />} path="partners" />
+          <Route element={<PartnersDetail />} path="partners/:id" />
+          <Route element={<CompanyCreatePage />} path="company/new" />
+          <Route element={<ReviewPage />} path="review/:job_id" />
+          <Route path="contact" element={<Contact />} />
+        </Route>
+
         <Route path="/payments">
           <Route path="success" element={<Success />} />
           <Route path="canceled" element={<Canceled />} />
         </Route>
       </Route>
 
-      <Route
-        path="/company"
-        element={
-          <ProtectedRoute>
-            <DashboardLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<HomeCompany />} />
-        <Route path="profile" element={<CompanyInformationsPage />} />
-        <Route path="profile/new" element={<CompanyInformationsCreatePage />} />
-        <Route path="profile/edit" element={<CompanyInformationsEditPage />} />
-        <Route path="budgets" element={<CompanyBudgetPage />} />
-        <Route
-          path="budgets/:estimate_request_id"
-          element={<CompanyBudgetsDetailPage />}
-        />
-        <Route
-          path="estimate/new"
-          element={<CompanyEstimatePage />}
-        />
-        <Route path="chats" element={<CompanyChatsPage />} />
-        <Route path="proposals" element={<CompanyProposalsPage />} />
-        <Route path="jobs" element={<CompanyJobsPage />} />
-        <Route path="jobs/:id" element={<CompanyJobDetailPage />} />
+      <Route path="/company" element={<DashboardLayout />}>
+        <Route path="/company" element={<ProtectedRoute />}>
+          <Route index element={<HomeCompany />} />
+          <Route path="profile" element={<CompanyInformationsPage />} />
+          <Route
+            path="profile/new"
+            element={<CompanyInformationsCreatePage />}
+          />
+          <Route
+            path="profile/edit"
+            element={<CompanyInformationsEditPage />}
+          />
+          <Route path="budgets" element={<CompanyBudgetPage />} />
+          <Route
+            path="budgets/:estimate_request_id"
+            element={<CompanyBudgetsDetailPage />}
+          />
+          <Route path="estimate/new" element={<CompanyEstimatePage />} />
+          <Route path="chats" element={<CompanyChatsPage />} />
+          <Route path="proposals" element={<CompanyProposalsPage />} />
+          <Route path="jobs" element={<CompanyJobsPage />} />
+          <Route path="jobs/:id" element={<CompanyJobDetailPage />} />
+        </Route>
       </Route>
 
       {/* 404 and redirects */}

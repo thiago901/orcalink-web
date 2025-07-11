@@ -2,7 +2,7 @@ import { useAuthStore } from "../stores/authStore";
 
 import { Button, Link } from "@heroui/react";
 import { FaBuilding, FaClipboardList, FaShield } from "react-icons/fa6";
-import { FiBarChart } from "react-icons/fi";
+import { FiBarChart, FiUsers } from "react-icons/fi";
 
 
 const HomePage = () => {
@@ -25,7 +25,6 @@ const HomePage = () => {
         </div>
       </section>
 
- 
       {/* Como Funciona */}
       <section className="py-20">
         <div className="container mx-auto px-4">
@@ -151,6 +150,14 @@ const HomePage = () => {
                 Solicitar Orçamento
               </Button>
             )}
+          </div>
+          <div className="mt-5">
+            <div className="text-center p-6 ">
+              <FiUsers className="h-12 w-12 text-brand-600 mx-auto mb-4" />
+              <h4 className="font-medium mb-2">Fale Conosco</h4>
+
+              <Button as={Link} href="/contact" variant="ghost">Entrar em Contato</Button>
+            </div>
           </div>
         </div>
       </section>
