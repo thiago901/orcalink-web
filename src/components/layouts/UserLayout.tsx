@@ -28,9 +28,12 @@ import { FloatingChat } from "../chat/floating-chat";
 
 const navbarItems = [
   { label: "Inicial", href: "/" },
+  { label: "Quem somos", href: "/about" },
   { label: "Meus orçamentos", href: "/my-budgets" },
-  { label: "Parceiros", href: "/partners" },
-  { label: "Para Empresas", href: "/plans" },
+  { label: "Encontrar um profissional", href: "/find-partners" },
+  { label: "Ser prestador", href: "/become-provider" },
+  // { label: "Parceiros", href: "/partners" },
+  // { label: "Para Empresas", href: "/plans" },
 ];
 export const UserLayout = () => {
   const { isAuthenticated, user, logout } = useAuthStore();
@@ -44,7 +47,6 @@ export const UserLayout = () => {
     queryFn: () => getCompaniesByOwnerId(user?.id || ""),
     enabled: !!user?.id,
   });
-
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -63,28 +65,31 @@ export const UserLayout = () => {
     },
     [pathname]
   );
-  function shouldHide(url:string){
-    const rules ={
+  function shouldHide(url: string) {
+    const rules = {
       "/my-budgets": url === "/my-budgets" && !isAuthenticated,
-      "/plans": url === "/plans" &&isAuthenticated&& user?.role==='customer'
-    }
+      "/plans":
+        url === "/plans" && isAuthenticated && user?.role === "customer",
+    };
 
-    return rules[url as keyof typeof rules] || false
+    return rules[url as keyof typeof rules] || false;
   }
 
   return (
     <div>
-      <header>
-        <Navbar>
-          <NavbarBrand>
-            <div className="flex items-center justify-between h-16  flex-shrink-0 min-w-0 ">
-              <Link href="/" className="flex items-center">
+      
+        <Navbar className="max-w-none" classNames={{
+          wrapper: 'max-w-none',
+        }}>
+          <NavbarBrand className="" >
+            <Link href="/" className="flex items-center">
+              <div className="flex items-center h-16  flex-shrink-0 min-w-0">
                 <Image src="./favicon.png" className="w-10 h-10" />
                 <h1 className="text-xl font-bold">OrçaLink</h1>
-              </Link>
-            </div>
+              </div>
+            </Link>
           </NavbarBrand>
-          <NavbarContent className="hidden sm:flex gap-4" justify="center">
+          <NavbarContent className="hidden sm:flex gap-4 flex-1" justify="center">
             {navbarItems.map((item, index) => (
               <NavbarItem
                 key={index}
@@ -103,10 +108,9 @@ export const UserLayout = () => {
           </NavbarContent>
           {isAuthenticated ? (
             <>
+         
               <NavbarContent as="div" justify="end">
                 <Notification />
-              </NavbarContent>
-              <NavbarContent as="div" justify="end">
                 <Button onPress={toggleTheme} isIconOnly={true} variant="light">
                   {theme === "dark" ? (
                     <CiSun size={20} />
@@ -132,7 +136,9 @@ export const UserLayout = () => {
                       <p className="font-semibold">Logado como:</p>
                       <p className="font-semibold">{user?.email}</p>
                     </DropdownItem>
-                    <DropdownItem key="settings" href="/profile">Perfil</DropdownItem>
+                    <DropdownItem key="settings" href="/profile">
+                      Perfil
+                    </DropdownItem>
                     <DropdownItem key="bugets" href="my-budgets">
                       Meus orçamentos
                     </DropdownItem>
@@ -188,7 +194,7 @@ export const UserLayout = () => {
             </NavbarContent>
           )}
         </Navbar>
-      </header>
+      
       <main className="">
         <Outlet />
         {isAuthenticated && <FloatingChat />}
