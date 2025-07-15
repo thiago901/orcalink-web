@@ -32,8 +32,19 @@ const navbarItems = [
   { label: "Meus orçamentos", href: "/my-budgets" },
   { label: "Encontrar um profissional", href: "/find-partners" },
   { label: "Ser prestador", href: "/become-provider" },
-  // { label: "Parceiros", href: "/partners" },
+  // { label: "Parceiros", href: "/partners",key: "partners" },
   // { label: "Para Empresas", href: "/plans" },
+];
+const mobileNavbarItems = [
+  { label: "Quem somos", href: "/about", key: "about" },
+  { label: "Meus orçamentos", href: "/my-budgets", key: "budgets" },
+  {
+    label: "Encontrar um profissional",
+    href: "/find-partners",
+    key: "find-partner",
+  },
+  { label: "Ser prestador", href: "/become-provider", key: "ecome-provider" },
+  // { label: "Parceiros", href: "/partners",key: "partners" },
 ];
 export const UserLayout = () => {
   const { isAuthenticated, user, logout } = useAuthStore();
@@ -77,124 +88,115 @@ export const UserLayout = () => {
 
   return (
     <div>
-      
-        <Navbar className="max-w-none" classNames={{
-          wrapper: 'max-w-none',
-        }}>
-          <NavbarBrand className="" >
-            <Link href="/" className="flex items-center">
-              <div className="flex items-center h-16  flex-shrink-0 min-w-0">
-                <Image src="./favicon.png" className="w-10 h-10" />
-                <h1 className="text-xl font-bold">OrçaLink</h1>
-              </div>
-            </Link>
-          </NavbarBrand>
-          <NavbarContent className="hidden sm:flex gap-4 flex-1" justify="center">
-            {navbarItems.map((item, index) => (
-              <NavbarItem
-                key={index}
-                isActive={isActive(item.href)}
-                hidden={shouldHide(item.href)}
+      <Navbar
+        className="max-w-none"
+        classNames={{
+          wrapper: "max-w-none",
+        }}
+      >
+        <NavbarBrand className="">
+          <Link href="/" className="flex items-center">
+            <div className="flex items-center h-16  flex-shrink-0 min-w-0">
+              <Image src="./favicon.png" className="w-10 h-10" />
+              <h1 className="text-xl font-bold">OrçaLink</h1>
+            </div>
+          </Link>
+        </NavbarBrand>
+        <NavbarContent className="hidden sm:flex gap-4 flex-1" justify="center">
+          {navbarItems.map((item, index) => (
+            <NavbarItem
+              key={index}
+              isActive={isActive(item.href)}
+              hidden={shouldHide(item.href)}
+            >
+              <Link
+                color={isActive(item.href) ? "primary" : "foreground"}
+                href={item.href}
+                aria-current={isActive(item.href) ? "page" : undefined}
               >
-                <Link
-                  color={isActive(item.href) ? "primary" : "foreground"}
-                  href={item.href}
-                  aria-current={isActive(item.href) ? "page" : undefined}
-                >
-                  {item.label}
-                </Link>
-              </NavbarItem>
-            ))}
-          </NavbarContent>
-          {isAuthenticated ? (
-            <>
-         
-              <NavbarContent as="div" justify="end">
-                <Notification />
-                <Button onPress={toggleTheme} isIconOnly={true} variant="light">
-                  {theme === "dark" ? (
-                    <CiSun size={20} />
-                  ) : (
-                    <FiMoon size={20} />
-                  )}
-                </Button>
-                <Dropdown placement="bottom-end">
-                  <DropdownTrigger>
-                    <Avatar
-                      isBordered
-                      as="button"
-                      className="transition-transform"
-                      color="secondary"
-                      name={user?.name.toLocaleUpperCase()}
-                      size="sm"
-                      src={user?.avatar}
-                      showFallback
-                    />
-                  </DropdownTrigger>
-                  <DropdownMenu aria-label="Profile Actions" variant="flat">
-                    <DropdownItem key="profile" className="h-14 gap-2">
-                      <p className="font-semibold">Logado como:</p>
-                      <p className="font-semibold">{user?.email}</p>
-                    </DropdownItem>
-                    <DropdownItem key="settings" href="/profile">
-                      Perfil
-                    </DropdownItem>
-                    <DropdownItem key="bugets" href="my-budgets">
-                      Meus orçamentos
-                    </DropdownItem>
-                    <DropdownItem key="partners" href="/partners">
-                      Parceiros
-                    </DropdownItem>
-                    {!!companies &&
-                    user?.role === "company" &&
-                    companies?.length > 0 ? (
-                      <DropdownItem key="my-companies" href="/company">
-                        Acessar dashboard
-                      </DropdownItem>
-                    ) : user?.role === "company" ? (
-                      <DropdownItem
-                        key="my-companies"
-                        href="/company/profile/new"
-                      >
-                        Criar empresa
-                      </DropdownItem>
-                    ) : (
-                      <></>
-                    )}
-
-                    <DropdownItem
-                      key="logout"
-                      color="danger"
-                      onPress={handleLogout}
-                    >
-                      Sair
-                    </DropdownItem>
-                  </DropdownMenu>
-                </Dropdown>
-              </NavbarContent>
-            </>
-          ) : (
-            <NavbarContent justify="end">
+                {item.label}
+              </Link>
+            </NavbarItem>
+          ))}
+        </NavbarContent>
+        {isAuthenticated ? (
+          <>
+            <NavbarContent as="div" justify="end">
+              <Notification />
               <Button onPress={toggleTheme} isIconOnly={true} variant="light">
                 {theme === "dark" ? <CiSun size={20} /> : <FiMoon size={20} />}
               </Button>
-              <NavbarItem className="lg:flex">
-                <Link href="/login">Login</Link>
-              </NavbarItem>
-              <NavbarItem>
-                <Button
-                  as={Link}
-                  color="primary"
-                  href="/register"
-                  variant="flat"
-                >
-                  Sign Up
-                </Button>
-              </NavbarItem>
+              <Dropdown placement="bottom-end">
+                <DropdownTrigger>
+                  <Avatar
+                    isBordered
+                    as="button"
+                    className="transition-transform"
+                    color="secondary"
+                    name={user?.name.toLocaleUpperCase()}
+                    size="sm"
+                    src={user?.avatar}
+                    showFallback
+                  />
+                </DropdownTrigger>
+                <DropdownMenu aria-label="Profile Actions" variant="flat">
+                  <DropdownItem key="profile" className="h-14 gap-2">
+                    <p className="font-semibold">Logado como:</p>
+                    <p className="font-semibold">{user?.email}</p>
+                  </DropdownItem>
+                  <DropdownItem key="settings" href="/profile">
+                    Perfil
+                  </DropdownItem>
+                  {!!companies &&
+                  user?.role === "company" &&
+                  companies?.length > 0 ? (
+                    <DropdownItem key="my-companies" href="/company">
+                      Acessar dashboard
+                    </DropdownItem>
+                  ) : user?.role === "company" ? (
+                    <DropdownItem
+                      key="my-companies"
+                      href="/company/profile/new"
+                    >
+                      Criar empresa
+                    </DropdownItem>
+                  ) : (
+                    <></>
+                  )}
+                  {mobileNavbarItems.map((item) => (
+                    <DropdownItem key={item.key} href={item.href}>
+                      {item.label}
+                    </DropdownItem>
+                  ))}
+
+                  <DropdownItem
+                    key="logout"
+                    color="danger"
+                    onPress={handleLogout}
+                  >
+                    Sair
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
             </NavbarContent>
-          )}
-        </Navbar>
-      
+          </>
+        ) : (
+          <NavbarContent justify="end">
+            <Button onPress={toggleTheme} isIconOnly={true} variant="light">
+              {theme === "dark" ? <CiSun size={20} /> : <FiMoon size={20} />}
+            </Button>
+            <NavbarItem className="lg:flex">
+              <Link href="/login">Login</Link>
+            </NavbarItem>
+            <NavbarItem>
+              <Button as={Link} color="primary" href="/register" variant="flat">
+                Sign Up
+              </Button>
+            </NavbarItem>
+          </NavbarContent>
+        )}
+      </Navbar>
+
       <main className="">
         <Outlet />
         {isAuthenticated && <FloatingChat />}
