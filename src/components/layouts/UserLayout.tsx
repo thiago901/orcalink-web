@@ -1,6 +1,10 @@
 import {
   Avatar,
   Button,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerHeader,
   Dropdown,
   DropdownItem,
   DropdownMenu,
@@ -11,6 +15,7 @@ import {
   NavbarBrand,
   NavbarContent,
   NavbarItem,
+  useDisclosure,
 } from "@heroui/react";
 
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -20,11 +25,13 @@ import { useThemeStore } from "../../stores/themeStore";
 
 import { getCompaniesByOwnerId } from "../../api/companies";
 import { useQuery } from "@tanstack/react-query";
-import { CiSun } from "react-icons/ci";
+import { CiMenuBurger, CiSun } from "react-icons/ci";
 import { FiMoon } from "react-icons/fi";
 
 import { Notification } from "../notification";
 import { FloatingChat } from "../chat/floating-chat";
+
+import { MdChevronLeft } from "react-icons/md";
 
 const navbarItems = [
   { label: "Inicial", href: "/" },
@@ -85,7 +92,7 @@ export const UserLayout = () => {
 
     return rules[url as keyof typeof rules] || false;
   }
-
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   return (
     <div>
       <Navbar
@@ -94,13 +101,51 @@ export const UserLayout = () => {
           wrapper: "max-w-none",
         }}
       >
-        <NavbarBrand className="">
-          <Link href="/" className="flex items-center">
-            <div className="flex items-center h-16  flex-shrink-0 min-w-0">
-              <Image src="./favicon.png" className="w-10 h-10" />
-              <h1 className="text-xl font-bold">OrçaLink</h1>
-            </div>
+        <NavbarBrand>
+          <Link href="/" className=" hidden md:flex items-center">
+            <Image
+              src="./favicon.png"
+              alt="OrçaLink Logo"
+              className="w-10 h-10"
+            />
+            <h1 className="text-xl font-bold ml-2">OrçaLink</h1>
           </Link>
+          <Button
+            onPress={onOpen}
+            className="md:hidden"
+            variant="light"
+            isIconOnly
+          >
+            <CiMenuBurger size={24} />
+          </Button>
+          <div>
+            <Drawer
+              isOpen={isOpen}
+              onOpenChange={onOpenChange}
+              placement="left"
+              hideCloseButton
+            >
+              <DrawerContent>
+                <DrawerHeader>
+                  <Button onPress={onClose} variant="light" className="p-0">
+                    <MdChevronLeft size={24} />
+                    <Image
+                      src="./favicon.png"
+                      alt="OrçaLink Logo"
+                      className="w-10 h-10"
+                    />
+                  </Button>
+                </DrawerHeader>
+                <DrawerBody>
+                  {mobileNavbarItems.map((item) => (
+                    <Link key={item.key} href={item.href} onClick={onClose}>
+                      {item.label}
+                    </Link>
+                  ))}
+                </DrawerBody>
+              </DrawerContent>
+            </Drawer>
+          </div>
         </NavbarBrand>
         <NavbarContent className="hidden sm:flex gap-4 flex-1" justify="center">
           {navbarItems.map((item, index) => (
@@ -163,11 +208,6 @@ export const UserLayout = () => {
                   ) : (
                     <></>
                   )}
-                  {mobileNavbarItems.map((item) => (
-                    <DropdownItem key={item.key} href={item.href}>
-                      {item.label}
-                    </DropdownItem>
-                  ))}
 
                   <DropdownItem
                     key="logout"
