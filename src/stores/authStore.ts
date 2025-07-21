@@ -4,7 +4,6 @@ import { jwtDecode } from "jwt-decode";
 import { loginUser, refreshToken } from "../api/auth";
 import { CredentialsInvalidError } from "../errors/credentials-invalid";
 
-
 interface User {
   id: string;
   name: string;
@@ -13,7 +12,7 @@ interface User {
   role: "company" | "customer";
   avatar?: string;
   plan_id: string;
-  active:boolean
+  active: boolean;
 }
 
 interface JwtPayload {
@@ -102,13 +101,11 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
           });
         } catch (error) {
-          
-
           set({
             isLoading: false,
             error: error instanceof Error ? error.message : "Failed to login",
           });
-          throw new CredentialsInvalidError()
+          throw new CredentialsInvalidError();
         }
       },
 
@@ -122,9 +119,11 @@ export const useAuthStore = create<AuthState>()(
       },
 
       checkAuth: () => {
-        const { token } = get();
+        const { token, isAuthenticated } = get();
         if (!token) {
-          set({ isAuthenticated: false });
+          if (isAuthenticated) {
+            set({ isAuthenticated: false });
+          }
           return;
         }
 
@@ -146,6 +145,7 @@ export const useAuthStore = create<AuthState>()(
                 role: decoded.role,
                 phone: decoded.phone,
                 plan_id: decoded.plan_id,
+                active: decoded.active,
               },
               isAuthenticated: true,
             });

@@ -1,4 +1,5 @@
-import api from './axios';
+import {  z } from "zod";
+import api from "./axios";
 
 export interface Address {
   name: string;
@@ -30,62 +31,91 @@ export interface Company {
   about: string | null;
   address: Address;
   ratting: number;
-  created_at:Date;
+  created_at: Date;
   phone: string | null;
   email: string | null;
   website: string | null;
   services: {
-    id: string,
-    name: string,
-    category_id: string
-    category_name: string
-  }[]
+    id: string;
+    name: string;
+    category_id: string;
+    category_name: string;
+  }[];
 }
-export interface Response<T=unknown> {
-  result:T
+export interface Response<T = unknown> {
+  result: T;
 }
 
 // Company API functions
-export type GetCompaniesFilters={
+export type GetCompaniesFilters = {
   categories?: string[];
-}
-export const getCompanies = async ({categories}:GetCompaniesFilters) => {
-  
-  
-  const query = 'categories=' + categories?.join('&categories=')
-  
-  const response = await api.get<Response<Company[]>>(`/companies?${query}`,{
-  
-  });
-  return response.data.result;
+};
+export type getCompaniesByLocation = {
+  categories: string[];
+  postal_code: string[];
 };
 
+export const FindCompanyLocationSchema = z.object({
+  category: z.string(),
+  postal_code: z.string().min(2),
+
+});
+export type FindCompanyLocationForm = z.infer<typeof FindCompanyLocationSchema>;
+
+export type FindCompanyLocationParams = {
+  categories:string[],
+  
+  address: {
+    street: string,
+    city: string,
+    country: string,
+    state: string,
+    postal_code: string,
+  }
+};
+
+export const getCompanies = async ({ categories }: GetCompaniesFilters) => {
+  const query = "categories=" + categories?.join("&categories=");
+
+  const response = await api.get<Response<Company[]>>(
+    `/companies?${query}`,
+    {}
+  );
+  return response.data.result;
+};
+export const getCompaniesByLocation = async (data: FindCompanyLocationParams) => {
+  const response = await api.post<Response<Company[]>>(`/companies/location`,data);
+  return response.data.result;
+};
 export const getCompanyById = async (id: string) => {
   const response = await api.get<Response<Company>>(`/companies/${id}`);
   return response.data.result;
 };
 
 export const getCompaniesByOwnerId = async (ownerId: string) => {
-  
-  const response = await api.get<Response<Company[]>>(`/companies/owner/${ownerId}`);
-  
+  const response = await api.get<Response<Company[]>>(
+    `/companies/owner/${ownerId}`
+  );
+
   return response.data.result;
 };
 
 export const createCompany = async (data: CreateCompanyProps) => {
-  const response = await api.post('/companies', data);
+  const response = await api.post("/companies", data);
   return response.data.result;
 };
-export const updateCompany = async (id:string,data: CreateCompanyProps) => {
+export const updateCompany = async (id: string, data: CreateCompanyProps) => {
   const response = await api.put(`/companies/${id}`, data);
   return response.data.result;
 };
-export const uploadCompanyImage = async (company_id: string, files: FormData) => {
-  const response = await api.patch(`/companies/${company_id}/file`, files,{
+export const uploadCompanyImage = async (
+  company_id: string,
+  files: FormData
+) => {
+  const response = await api.patch(`/companies/${company_id}/file`, files, {
     headers: {
-      'Content-Type': 'multipart/form-data',
+      "Content-Type": "multipart/form-data",
     },
   });
   return response.data.result;
 };
-

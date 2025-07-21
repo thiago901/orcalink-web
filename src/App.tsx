@@ -39,7 +39,8 @@ import { ReviewPage } from "./pages/user/review-page";
 import { Contact } from "./pages/contact";
 import { AboutPage } from "./pages/about-page";
 import BecomeProviderPage from "./pages/become-provider-page";
-import { PageUnderConstruction } from "./pages/page-under-construction-page";
+
+import { FindCompanies } from "./pages/user/find-companies-page";
 
 
 function App() {
@@ -65,7 +66,8 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/become-provider" element={<BecomeProviderPage />} />
-        <Route path="/find-partners" element={<PageUnderConstruction />} />
+        <Route path="/find-partners" element={<FindCompanies />} />
+        
 
         <Route element={<ProtectedRoute />}>
           <Route path="profile" element={<ProfilePage />} />

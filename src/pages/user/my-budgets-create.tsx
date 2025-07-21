@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../stores/authStore";
@@ -24,16 +24,18 @@ import {
   SelectItem,
   Textarea,
 } from "@heroui/react";
-import { FiFileText } from "react-icons/fi";
+import { FiAlertTriangle, FiFileText } from "react-icons/fi";
 import { CiMail, CiMapPin, CiPhone, CiRuler } from "react-icons/ci";
 import { searchByZipCode } from "../../utils/search-zip-address";
 import { getCategories } from "../../api/category";
 import { useQuery } from "@tanstack/react-query";
+import { getCompaniesByLocation } from "../../api/companies";
 
 export function MyBudgetsCreatePage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [isCompaniesError, setIsCompaniesError] = useState(false);
   const [isLoadingPostalCode, setIsLoadingPostalCode] = useState(false);
   const [address, setAddress] = useState(
     {} as {
@@ -46,6 +48,10 @@ export function MyBudgetsCreatePage() {
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const defaultCategory = searchParams.get("category");
+  const defaultPostalCode = searchParams.get("postal_code");
 
   const {
     register,
@@ -57,7 +63,7 @@ export function MyBudgetsCreatePage() {
   } = useForm<CreateEstimateRequestProps>({
     defaultValues: {
       email: user?.email,
-      phone:user?.phone
+      phone: user?.phone,
     },
   });
   const { data: categories } = useQuery({
@@ -65,13 +71,89 @@ export function MyBudgetsCreatePage() {
     queryFn: () => getCategories(),
   });
 
+  const handleSearchZip = useCallback(async (): Promise<{
+    city: string;
+    postal_code: string;
+    state: string;
+    street: string;
+  }> => {
+    try {
+      const postal_code = getValues("address_postal_code");
+      setIsLoadingPostalCode(true);
+
+      if (!postal_code.trim()) {
+        toast.error("Preencha o campo de CEP");
+        throw new Error("CEP não pode ser vazio");
+      }
+      const { logradouro, estado, uf, bairro, cep } = await searchByZipCode(
+        postal_code.trim()
+      );
+      setValue("address_state", uf, { shouldDirty: true, shouldTouch: true });
+      setValue("address_city", estado, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+      setValue("address_neighborhood", bairro, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+      setValue("address_street", logradouro, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+      setAddress({
+        address_state: uf,
+        address_city: estado,
+        address_neighborhood: bairro,
+        address_street: logradouro,
+      });
+
+      return {
+        city: estado,
+        postal_code: cep,
+        state: uf,
+        street: logradouro,
+      };
+    } catch (error) {
+      console.log("erros", error);
+      toast.error(
+        "Erro ao buscar CEP, verifique se o CEP está correto e tente novamente"
+      );
+      throw error;
+    } finally {
+      setIsLoadingPostalCode(false);
+    }
+  }, [getValues, setValue]);
+
+  const verifyHasCompanies = async () => {
+    const { city, postal_code, state, street } = await handleSearchZip();
+    if (defaultCategory && defaultPostalCode) {
+      return;
+    }
+    const category = getValues("category");
+    const existePrestador = await getCompaniesByLocation({
+      address: {
+        city,
+        country: "Brasil",
+        postal_code,
+        state,
+        street,
+      },
+      categories: [category],
+    });
+    const hasCompanies = existePrestador.length > 0;
+    if (!hasCompanies) {
+      setIsCompaniesError(true);
+      toast.error("Não há prestadores disponíveis na sua região");
+      return;
+    }
+    setIsCompaniesError(false);
+  };
   const onSubmit = async (data: CreateEstimateRequestProps) => {
     // if (!position) {
     //   toast.error('É necessário permitir o acesso à sua localização');
     //   return;
     // }
-
-    setIsLoading(true);
     try {
       const requestData = {
         ...data,
@@ -102,52 +184,7 @@ export function MyBudgetsCreatePage() {
       setIsLoading(false);
     }
   };
-  const handleSearchZip = useCallback(
-    async () => {
-      try {
-        const postal_code = getValues('address_postal_code')
-      setIsLoadingPostalCode(true)
 
-      if(!postal_code.trim()){
-        toast.error(
-          "Preencha o campo de CEP"
-        );
-        return
-      }
-      const { logradouro, estado, uf, bairro } = await searchByZipCode(
-        postal_code.trim()
-      );
-      setValue("address_state", uf, { shouldDirty: true, shouldTouch: true });
-      setValue("address_city", estado, {
-        shouldDirty: true,
-        shouldTouch: true,
-      });
-      setValue("address_neighborhood", bairro, {
-        shouldDirty: true,
-        shouldTouch: true,
-      });
-      setValue("address_street", logradouro, {
-        shouldDirty: true,
-        shouldTouch: true,
-      });
-      setAddress({
-        address_state: uf,
-        address_city: estado,
-        address_neighborhood: bairro,
-        address_street: logradouro,
-      });
-      } catch (error) {
-        console.log('erros',error);
-        toast.error(
-          "Erro ao buscar CEP, verifique se o CEP está correto e tente novamente"
-        );
-        
-      }finally{
-        setIsLoadingPostalCode(false)
-      }
-    },
-    [getValues, setValue]
-  );
   const postalCode = watch("address_postal_code");
 
   return (
@@ -180,11 +217,13 @@ export function MyBudgetsCreatePage() {
                   },
                 })}
               />
+
               {categories && categories.length && (
                 <Select
                   {...register("category")}
                   label="Categoria"
                   placeholder="Selecione uma categoria"
+                  defaultSelectedKeys={defaultCategory ? [defaultCategory] : []}
                 >
                   {categories.map((cat) => (
                     <SelectItem key={cat.name}>{cat.name}</SelectItem>
@@ -241,26 +280,42 @@ export function MyBudgetsCreatePage() {
                 label="CEP"
                 startContent={<CiMapPin size={18} />}
                 placeholder="00000-000"
+                defaultValue={defaultPostalCode ? defaultPostalCode : ""}
                 errorMessage={errors.address_postal_code?.message}
                 isInvalid={!!errors.address_postal_code?.message}
                 {...register("address_postal_code", {
                   required: "CEP é obrigatório",
                 })}
-                
               />
-              <Button onPress={handleSearchZip} isDisabled={!postalCode} color="primary" isLoading={isLoadingPostalCode}>Pesquisar</Button>
-              
+              {isCompaniesError && (
+                <div className="flex items-center gap-2">
+                  <FiAlertTriangle size={24} className="text-red-500" />
+                  <Text className="text-red-500">
+                    No momento não temos prestadores na sua região, mas não se
+                    preocupe, em breve teremos novos parceiros disponíveis.
+                  </Text>
+                </div>
+              )}
+              <Button
+                onPress={verifyHasCompanies}
+                isDisabled={!postalCode}
+                color="primary"
+                isLoading={isLoadingPostalCode}
+              >
+                Pesquisar
+              </Button>
+
               <Input
-                  label="Rua"
-                  isDisabled
-                  placeholder="Ex: Rua Principal"
-                  value={address.address_street}
-                  errorMessage={errors.address_street?.message}
-                  isInvalid={!!errors.address_street?.message}
-                  {...register("address_street", {
-                    required: "Rua é obrigatória",
-                  })}
-                />
+                label="Rua"
+                isDisabled
+                placeholder="Ex: Rua Principal"
+                value={address.address_street}
+                errorMessage={errors.address_street?.message}
+                isInvalid={!!errors.address_street?.message}
+                {...register("address_street", {
+                  required: "Rua é obrigatória",
+                })}
+              />
               <div className="grid sm:grid-cols-2 gap-4">
                 <Input
                   label="Estado"
@@ -309,10 +364,6 @@ export function MyBudgetsCreatePage() {
                   })}
                 />
               </div>
-              
-              
-
-    
             </CardBody>
           </Card>
 
@@ -361,7 +412,12 @@ export function MyBudgetsCreatePage() {
           </Card>
 
           <div className="flex justify-end">
-            <Button type="submit" isLoading={isLoading} color="primary">
+            <Button
+              type="submit"
+              isLoading={isLoading}
+              color="primary"
+              isDisabled={isCompaniesError}
+            >
               Solicitar orçamentos
             </Button>
           </div>

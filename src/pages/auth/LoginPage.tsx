@@ -1,24 +1,22 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
-import { toast } from 'react-hot-toast';
+import { toast } from "react-hot-toast";
 
-import { useAuthStore } from '../../stores/authStore';
-import { AuthenticateUserProps } from '../../api/auth';
-import { Button, Card, CardBody, CardHeader, Input, Link } from '@heroui/react';
-import { FiLock, FiMail } from 'react-icons/fi';
-import { CiLogin } from 'react-icons/ci';
-import { useNavigate } from 'react-router-dom';
-
+import { useAuthStore } from "../../stores/authStore";
+import { AuthenticateUserProps } from "../../api/auth";
+import { Button, Card, CardBody, CardHeader, Input, Link } from "@heroui/react";
+import { FiLock, FiMail } from "react-icons/fi";
+import { CiLogin } from "react-icons/ci";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
-  const { login} = useAuthStore();
+  const { login } = useAuthStore();
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const from = location.state?.from;
   const [isLoading, setIsLoading] = useState(false);
 
-
-  
   const {
     register,
     handleSubmit,
@@ -28,13 +26,21 @@ const LoginPage = () => {
   const onSubmit = async (data: AuthenticateUserProps) => {
     setIsLoading(true);
     try {
-      
       await login(data.email, data.password);
-      toast.success('Login realizado com sucesso!');
-      navigate('/');
+      toast.success("Login realizado com sucesso!");
+      if (from?.pathname) {
+        
+        navigate(`my-budgets/new`,{
+          state:{
+            from
+          }
+        });
+      } else {
+        navigate("/");
+      }
     } catch (error) {
-      console.error('LoginPage:onSubmit',error);
-      toast.error('Falha ao realizar login. Verifique suas credenciais.');
+      console.error("LoginPage:onSubmit", error);
+      toast.error("Falha ao realizar login. Verifique suas credenciais.");
     } finally {
       setIsLoading(false);
     }
@@ -43,11 +49,12 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <Card className="w-full max-w-md shadow-lg">
-        
         <CardHeader>
           <div className="my-0 mx-auto text-center">
             <h1 className="text-3xl font-bold text-primary-700">OrçaLink</h1>
-            <p className="text-neutral-600 mt-1">Faça login para acessar sua conta</p>
+            <p className="text-neutral-600 mt-1">
+              Faça login para acessar sua conta
+            </p>
           </div>
         </CardHeader>
         <CardBody className="px-6 pb-6 pt-2">
@@ -59,11 +66,11 @@ const LoginPage = () => {
               placeholder="seu@email.com"
               errorMessage={errors.email?.message}
               isInvalid={!!errors.email?.message}
-              {...register('email', {
-                required: 'Email é obrigatório',
+              {...register("email", {
+                required: "Email é obrigatório",
                 pattern: {
                   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: 'Email inválido',
+                  message: "Email inválido",
                 },
               })}
             />
@@ -75,12 +82,11 @@ const LoginPage = () => {
               errorMessage={errors.password?.message}
               isInvalid={!!errors.password?.message}
               placeholder="••••••••"
-              
-              {...register('password', {
-                required: 'Senha é obrigatória',
+              {...register("password", {
+                required: "Senha é obrigatória",
                 minLength: {
                   value: 6,
-                  message: 'A senha deve ter pelo menos 6 caracteres',
+                  message: "A senha deve ter pelo menos 6 caracteres",
                 },
               })}
             />
@@ -99,7 +105,7 @@ const LoginPage = () => {
               isLoading={isLoading}
               startContent={<CiLogin size={18} />}
               className="w-full"
-              color='primary'
+              color="primary"
             >
               Entrar
             </Button>
@@ -107,7 +113,7 @@ const LoginPage = () => {
 
           <div className="mt-6 text-center">
             <p className="text-neutral-600">
-              Não tem uma conta?{' '}
+              Não tem uma conta?{" "}
               <Link
                 href="/register"
                 className="text-primary-600 hover:text-primary-700 font-medium"
