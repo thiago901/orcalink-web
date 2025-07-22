@@ -1,34 +1,29 @@
 import { loadStripe } from "@stripe/stripe-js";
-import api from "../../api/axios";
+
 import { Button, ButtonProps } from "@heroui/react";
-import { createCustomer } from "../../api/payments";
+import { createCustomerSession } from "../../api/payments";
 
 interface CheckoutButtonProps extends ButtonProps {
-  email: string;
-  priceId: string;
+  proposal_id: string;
 }
 
 export function CheckoutButton({
-  email,
-  priceId,
+  proposal_id,
+
   ...rest
 }: CheckoutButtonProps) {
   const handleClick = async () => {
-    const customer = await createCustomer({ email });
-
-    const checkoutRes = await api.post("/payments/session", {
-      customer_id: customer.id,
-      price_id: priceId,
-    });
+    const checkoutRes = await createCustomerSession({ proposal_id });
 
     await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
-    window.location.href = checkoutRes.data.result; // redireciona para o checkout
+    window.location.href = checkoutRes.session_url; // redireciona para o checkout
   };
 
   return (
     <Button {...rest} onPress={handleClick}>
-      Assinar plano
+      Pagar agora 💳
+      
     </Button>
   );
 }

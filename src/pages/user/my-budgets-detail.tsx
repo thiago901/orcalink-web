@@ -35,6 +35,7 @@ import { getEstimateRequestMessagesGroupedByCompany } from "../../api/estimate-r
 import { ProposalDetailModal } from "../../components/proposals/proposal-detail-modal";
 import { MdOutlineOpenInNew } from "react-icons/md";
 import { Chats } from "../../components/chat/chats";
+import { CheckoutButton } from "../../components/payment/checkout-button";
 
 export function MyBudgetsDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -291,6 +292,7 @@ export function MyBudgetsDetailPage() {
                         >
                           Ver detalhes
                         </Button>
+                        <CheckoutButton proposal_id={proposal.id} />
                       </div>
 
                       <Divider className="my-4" />
@@ -338,8 +340,6 @@ export function MyBudgetsDetailPage() {
               </div>
             </CardBody>
           </Card>
-
-          
         </div>
       </div>
 
