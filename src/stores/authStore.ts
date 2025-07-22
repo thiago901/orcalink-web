@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import { jwtDecode } from "jwt-decode";
 import { loginUser, refreshToken } from "../api/auth";
 import { CredentialsInvalidError } from "../errors/credentials-invalid";
+import { useCompanyStore } from "./companyStore";
 
 interface User {
   id: string;
@@ -116,6 +117,8 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: false,
           error: null,
         });
+        useCompanyStore.getState().resetCompany()
+        
       },
 
       checkAuth: () => {
