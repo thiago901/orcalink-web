@@ -158,8 +158,8 @@ export function MyBudgetsDetailPage() {
       </Breadcrumbs>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
+        <div className="lg:col-span-2 space-y-6 flex flex-col">
+          <Card className="flex-1">
             <CardHeader>
               <Subtitle>{request.name}</Subtitle>
             </CardHeader>
