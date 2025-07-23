@@ -15,6 +15,7 @@ export interface CreateUserProps {
   email: string;
   password: string;
   phone: string;
+  document: string;
   avatar?: string;
   role:'customer' |'company'
 }

@@ -24,6 +24,7 @@ import {
   CardHeader,
   Chip,
   Divider,
+  ScrollShadow,
 } from "@heroui/react";
 import { Subtitle } from "../../components/ui/Subtitle";
 import ImageGallery from "../../components/image-gallery";
@@ -36,6 +37,8 @@ import { ProposalDetailModal } from "../../components/proposals/proposal-detail-
 import { MdOutlineOpenInNew } from "react-icons/md";
 import { Chats } from "../../components/chat/chats";
 import { CheckoutButton } from "../../components/payment/checkout-button";
+import { Timeline } from "../../components/timeline/timeline";
+import { mockTimelineSteps } from "../../components/timeline/mocks";
 
 export function MyBudgetsDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -308,37 +311,17 @@ export function MyBudgetsDetailPage() {
           </Card>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 h-full">
+       
           <Card>
             <CardHeader>
-              <Subtitle>Status</Subtitle>
+              <Subtitle>Progresso do Serviço</Subtitle>
             </CardHeader>
-            <CardBody>
-              <div className="space-y-4">
-                <div>
-                  <div className="text-2xl font-semibold text-neutral-800">
-                    {proposals?.length || 0}
-                  </div>
-                  <div className="text-sm text-neutral-500">
-                    Propostas recebidas
-                  </div>
-                </div>
-
-                <div className="h-px bg-neutral-200" />
-
-                <div>
-                  <h4 className="font-medium mb-2">Última atualização</h4>
-                  <div className="flex items-center gap-2 text-neutral-600">
-                    <CiCalendar size={18} />
-                    <span>
-                      {new Date(
-                        request.updated_at ?? request.created_at
-                      ).toLocaleDateString("pt-BR")}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </CardBody>
+            <ScrollShadow className="max-h-screen" hideScrollBar>
+              <CardBody>
+                <Timeline steps={mockTimelineSteps} />
+              </CardBody>
+            </ScrollShadow>
           </Card>
         </div>
       </div>
