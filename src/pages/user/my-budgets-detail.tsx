@@ -35,10 +35,33 @@ import { AiFillStar } from "react-icons/ai";
 import { getEstimateRequestMessagesGroupedByCompany } from "../../api/estimate-requests-messages";
 import { ProposalDetailModal } from "../../components/proposals/proposal-detail-modal";
 import { MdOutlineOpenInNew } from "react-icons/md";
-import { Chats } from "../../components/chat/chats";
+
 import { CheckoutButton } from "../../components/payment/checkout-button";
 import { Timeline } from "../../components/timeline/timeline";
 import { mockTimelineSteps } from "../../components/timeline/mocks";
+import { getAllProgressEstimateRequestsByEstimateRequest, ProgressEstimateRequest } from "../../api/progress-estimate-requests";
+import { TimelineStep } from "../../components/timeline/time-types";
+
+
+export const useTimelineSteps = (items: ProgressEstimateRequest[]): TimelineStep[] => {
+  return items
+    .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+    .map((item, index, arr) => {
+      const status: TimelineStep['status'] =
+        index < arr.length - 1 ? 'completed' : 'current';
+
+      return {
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        icon: '🛠️', // Você pode trocar dependendo do `item.type`
+        status,
+        type: item.type,
+        date: new Date(item.created_at),
+        actions: [], // Adicione lógica se necessário
+      };
+    });
+};
 
 export function MyBudgetsDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -61,7 +84,12 @@ export function MyBudgetsDetailPage() {
     queryFn: () => getEstimateRequestMessagesGroupedByCompany(id!),
     enabled: !!id,
   });
-
+  const { data: progress_estimate_requests } = useQuery({
+    queryKey: ["progress_estimate_requests", id],
+    queryFn: () => getAllProgressEstimateRequestsByEstimateRequest(id!),
+    enabled: !!id,
+  });
+const steps = useTimelineSteps(progress_estimate_requests?progress_estimate_requests:[]);
   const {
     data: proposals,
     isLoading: isLoadingProposals,
@@ -150,6 +178,8 @@ export function MyBudgetsDetailPage() {
       </Chip>
     );
   }
+
+   
   return (
     <div className="space-y-6 fade-in max-w-6xl mx-auto px-4 py-6">
       <Breadcrumbs>
@@ -319,7 +349,10 @@ export function MyBudgetsDetailPage() {
             </CardHeader>
             <ScrollShadow className="max-h-screen" hideScrollBar>
               <CardBody>
-                <Timeline steps={mockTimelineSteps} />
+                <Timeline 
+                  // steps={mockTimelineSteps} 
+                  steps={steps} 
+                />
               </CardBody>
             </ScrollShadow>
           </Card>

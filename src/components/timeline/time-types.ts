@@ -1,9 +1,12 @@
+import {  ProgressEstimateRequestType } from "../../api/progress-estimate-requests";
+
 export interface TimelineStep {
   id: string;
   title: string;
   description?: string;
   icon: string;
   status: 'completed' | 'current' | 'pending';
+  type: ProgressEstimateRequestType
   date?: Date;
   actions?: TimelineAction[];
 }
