@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 
-import { getEstimateRequestById } from "../../api/estimateRequests";
+import {
+  EstimateRequest,
+  getEstimateRequestById,
+} from "../../api/estimateRequests";
 import {
   getProposalsByEstimateId,
   approveProposal,
@@ -24,6 +27,7 @@ import {
   CardHeader,
   Chip,
   Divider,
+  Progress,
   ScrollShadow,
 } from "@heroui/react";
 import { Subtitle } from "../../components/ui/Subtitle";
@@ -39,32 +43,117 @@ import { MdOutlineOpenInNew } from "react-icons/md";
 import { CheckoutButton } from "../../components/payment/checkout-button";
 import { Timeline } from "../../components/timeline/timeline";
 import { mockTimelineSteps } from "../../components/timeline/mocks";
-import { getAllProgressEstimateRequestsByEstimateRequest, ProgressEstimateRequest } from "../../api/progress-estimate-requests";
+import {
+  getAllProgressEstimateRequestsByEstimateRequest,
+  ProgressEstimateRequest,
+} from "../../api/progress-estimate-requests";
 import { TimelineStep } from "../../components/timeline/time-types";
+import { ScheduleCustomerCreateModal } from "../../components/modals/schedule-customer-create-modal";
+import { ScheduleRequested } from "../../components/timeline/components/schedule-requested";
+import { useAuthStore } from "../../stores/authStore";
 
+const my_types = {
+  PROPOSALS_WAITING: (data: unknown) => (
+    <Progress
+      isIndeterminate
+      aria-label="Loading..."
+      className="max-w-md"
+      size="sm"
+      isStriped
+    />
+  ),
+  PROPOSALS_ACCEPTED: (data: unknown) => (
+    <Button
+      startContent={<MdOutlineOpenInNew size={16} />}
+      color="primary"
+      onPress={(data as any).handleOpenProposalDetail}
+    >
+      Ver Proposta
+    </Button>
+  ),
+  VISIT_REQUESTED: (data: UseTimelineStepsDataProps) => (
+    <ScheduleRequested
+      company_id={data.proposals?.find((item) => !!item.approved_at)?.company_id}
+      customer_id={data.customer_id}
+      
+    />
+  ),
+  VISIT_SUGGESTED: (data: unknown) => (
+    <div className="flex flex-col gap-2">
+      <Button
+        variant="solid"
+        color="success"
+        size="sm"
+        // onPress={action.onClick}
+        className="transition-transform hover:scale-105"
+      >
+        Aceitar
+      </Button>
+      <Button
+        variant="bordered"
+        color="danger"
+        size="sm"
+        // onPress={action.onClick}
+        className="transition-transform hover:scale-105"
+      >
+        Recusar/Reagendar
+      </Button>
+    </div>
+  ),
+  PAYMENT_REQUESTED: () => (
+    <CheckoutButton proposal_id="464a3c68-8e2d-4e9a-a30f-70eb07fda4d8" />
+  ),
+  WAITING: () => (
+    <div className="flex flex-col gap-2">
+      <Button
+        variant="solid"
+        color="success"
+        size="sm"
+        // onPress={action.onClick}
+        className="transition-transform hover:scale-105"
+      >
+        Confirmar finalização
+      </Button>
+    </div>
+  ),
+};
 
-export const useTimelineSteps = (items: ProgressEstimateRequest[]): TimelineStep[] => {
+type UseTimelineStepsDataProps = {
+  proposals: Proposal[];
+  estimate_request: EstimateRequest;
+  customer_id: string;
+  handleOpenProposalDetail: () => void;
+};
+export const useTimelineSteps = (
+  items: ProgressEstimateRequest[],
+  data: UseTimelineStepsDataProps
+): TimelineStep[] => {
   return items
-    .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+    .sort(
+      (a, b) =>
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    )
     .map((item, index, arr) => {
-      const status: TimelineStep['status'] =
-        index < arr.length - 1 ? 'completed' : 'current';
+      const status: TimelineStep["status"] =
+        index < arr.length - 1 ? "completed" : "current";
 
       return {
         id: item.id,
         title: item.title,
         description: item.description,
-        icon: '🛠️', // Você pode trocar dependendo do `item.type`
+        icon: "🛠️", // Você pode trocar dependendo do `item.type`
         status,
         type: item.type,
         date: new Date(item.created_at),
-        actions: [], // Adicione lógica se necessário
+        data,
+        actions: my_types[item.type] ? my_types[item.type](data) : null, // Adicione lógica se necessário
       };
     });
 };
 
 export function MyBudgetsDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const {user} = useAuthStore()
 
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(
     null
@@ -89,7 +178,7 @@ export function MyBudgetsDetailPage() {
     queryFn: () => getAllProgressEstimateRequestsByEstimateRequest(id!),
     enabled: !!id,
   });
-const steps = useTimelineSteps(progress_estimate_requests?progress_estimate_requests:[]);
+
   const {
     data: proposals,
     isLoading: isLoadingProposals,
@@ -138,25 +227,24 @@ const steps = useTimelineSteps(progress_estimate_requests?progress_estimate_requ
       setIsActionLoading(false);
     }
   };
-
-  if (isLoadingRequest || isLoadingProposals) {
-    return (
-      <div className="flex justify-center py-8">
-        <FiLoader className="w-8 h-8 animate-spin text-primary-500" />
-      </div>
-    );
-  }
-
-  if (!request) {
-    return (
-      <div className="text-center py-8">
-        <h3 className="text-lg font-medium mb-2">Orçamento não encontrado</h3>
-        <p className="text-neutral-600">
-          O orçamento que você está procurando não existe ou foi removido.
-        </p>
-      </div>
-    );
-  }
+  const handleOpenProposalDetail = useCallback(() => {
+    const proposal = proposals?.find((item) => !!item.approved_at);
+    if (proposal) {
+      setSelectedProposal(proposal);
+      setEstimateDetail(true);
+    }
+  }, [proposals]);
+  const steps = useTimelineSteps(
+    progress_estimate_requests
+      ? progress_estimate_requests
+      : [],
+    {
+      proposals,
+      estimate_request: request,
+      handleOpenProposalDetail,
+      customer_id: user?.customer_id ||''
+    }
+  );
 
   function renderStatus(proposal: Proposal, size?: "sm" | "md" | "lg") {
     return (
@@ -179,7 +267,24 @@ const steps = useTimelineSteps(progress_estimate_requests?progress_estimate_requ
     );
   }
 
-   
+  if (isLoadingRequest || isLoadingProposals) {
+    return (
+      <div className="flex justify-center py-8">
+        <FiLoader className="w-8 h-8 animate-spin text-primary-500" />
+      </div>
+    );
+  }
+  if (!request) {
+    return (
+      <div className="text-center py-8">
+        <h3 className="text-lg font-medium mb-2">Orçamento não encontrado</h3>
+        <p className="text-neutral-600">
+          O orçamento que você está procurando não existe ou foi removido.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 fade-in max-w-6xl mx-auto px-4 py-6">
       <Breadcrumbs>
@@ -342,17 +447,18 @@ const steps = useTimelineSteps(progress_estimate_requests?progress_estimate_requ
         </div>
 
         <div className="space-y-2 h-full">
-       
           <Card>
             <CardHeader>
               <Subtitle>Progresso do Serviço</Subtitle>
             </CardHeader>
             <ScrollShadow className="max-h-screen" hideScrollBar>
               <CardBody>
-                <Timeline 
-                  // steps={mockTimelineSteps} 
-                  steps={steps} 
-                />
+                {steps && (
+                  <Timeline
+                    // steps={mockTimelineSteps}
+                    steps={steps}
+                  />
+                )}
               </CardBody>
             </ScrollShadow>
           </Card>
@@ -377,6 +483,25 @@ const steps = useTimelineSteps(progress_estimate_requests?progress_estimate_requ
         description="Tem certeza que deseja recusar esta proposta? Esta ação não pode ser desfeita."
         isLoading={isActionLoading}
       />
+      {selectedProposal && (
+        <ProposalDetailModal
+          isOpen={estimateDetail}
+          onClose={() => setEstimateDetail(false)}
+          estimate_id={selectedProposal.estimate_id}
+          status={renderStatus(selectedProposal)}
+          onAccept={
+            !!selectedProposal.approved_at || !!selectedProposal.reject_at
+              ? null
+              : () => setIsApproveDialogOpen(true)
+          }
+          onReject={
+            !!selectedProposal.approved_at || !!selectedProposal.reject_at
+              ? null
+              : () => setIsRejectDialogOpen(true)
+          }
+        />
+      )}
+
       {selectedProposal && (
         <ProposalDetailModal
           isOpen={estimateDetail}

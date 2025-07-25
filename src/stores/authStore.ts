@@ -10,6 +10,7 @@ interface User {
   name: string;
   phone: string;
   email: string;
+  customer_id: string;
   role: "company" | "customer";
   avatar?: string;
   plan_id: string;
@@ -25,6 +26,7 @@ interface JwtPayload {
   role: "company" | "customer";
   avatar?: string;
   plan_id: string;
+  customer_id: string;
   iat: number;
   exp: number;
 }
@@ -149,6 +151,7 @@ export const useAuthStore = create<AuthState>()(
                 phone: decoded.phone,
                 plan_id: decoded.plan_id,
                 active: decoded.active,
+                customer_id: decoded.customer_id,
               },
               isAuthenticated: true,
             });

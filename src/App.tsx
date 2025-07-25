@@ -78,7 +78,7 @@ function App() {
         <Route path="/visits" element={<ProviderPendingRequests />} />
         <Route path="/visits/:id" element={<ClientSuggestions />} />
         <Route path="/visits/suggestion" element={<SuggestionsPage />} />
-        <Route path="/visits/create" element={<TimelineDemo />} />
+        <Route path="/visits/create" element={<ClientScheduling />} />
         
 
         <Route element={<ProtectedRoute />}>

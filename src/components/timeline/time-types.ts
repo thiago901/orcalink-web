@@ -1,3 +1,5 @@
+
+import { ReactNode } from "react";
 import {  ProgressEstimateRequestType } from "../../api/progress-estimate-requests";
 
 export interface TimelineStep {
@@ -8,7 +10,9 @@ export interface TimelineStep {
   status: 'completed' | 'current' | 'pending';
   type: ProgressEstimateRequestType
   date?: Date;
-  actions?: TimelineAction[];
+  data?: unknown;
+  // actions?: TimelineAction[];
+  actions?: ReactNode;
 }
 
 export interface TimelineAction {

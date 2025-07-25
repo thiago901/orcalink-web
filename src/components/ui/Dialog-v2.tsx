@@ -46,17 +46,18 @@ const DialogV2 = ({
       size={size}
       isDismissable={isDismissable}
       isKeyboardDismissDisabled={isKeyboardDismissDisabled}
+      aria-label='model-container'
      
     >
-      <ModalContent>
+      <ModalContent aria-label='model-content'>
         {(onClose) => (
          <>
-          <ModalHeader className="flex flex-col gap-1">{title}</ModalHeader>
-          <ModalBody className="flex flex-col gap-1">
+          <ModalHeader aria-label='model-header' className="flex flex-col gap-1">{title}</ModalHeader>
+          <ModalBody aria-label='model-body' className="flex flex-col gap-1">
             {children}
             </ModalBody>
           
-           <ModalFooter>
+           <ModalFooter aria-label='model-footer' >
             {footer?footer :
             <>
               <Button variant="ghost" onPress={onClose} color='danger'>

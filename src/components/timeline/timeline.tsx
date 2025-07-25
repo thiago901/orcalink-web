@@ -8,7 +8,7 @@ import { Button, Card, CardBody, Chip, Progress } from "@heroui/react";
 import { CheckoutButton } from "../payment/checkout-button";
 
 const my_types = {
-  PROPOSALS_WAITING: (
+  PROPOSALS_WAITING:()=> (
     <Progress
       isIndeterminate
       aria-label="Loading..."
@@ -16,7 +16,7 @@ const my_types = {
       size="sm"
     />
   ),
-  PROPOSALS_ACCEPTED: (
+  PROPOSALS_ACCEPTED: ()=>(
     <Button
       variant="solid"
       color="primary"
@@ -27,7 +27,7 @@ const my_types = {
       Ver proposta
     </Button>
   ),
-  VISIT_REQUESTED: (
+  VISIT_REQUESTED:()=> (
     <Button
       variant="solid"
       color="primary"
@@ -38,7 +38,7 @@ const my_types = {
       Agendar uma visita
     </Button>
   ),
-  VISIT_SUGGESTED: (
+  VISIT_SUGGESTED:()=> (
     <div className="flex flex-col gap-2">
   
       <Button
@@ -61,8 +61,8 @@ const my_types = {
       </Button>
     </div>
   ),
-  PAYMENT_REQUESTED:<CheckoutButton proposal_id='464a3c68-8e2d-4e9a-a30f-70eb07fda4d8' />,
-  WAITING:<div className="flex flex-col gap-2">
+  PAYMENT_REQUESTED:()=><CheckoutButton proposal_id='464a3c68-8e2d-4e9a-a30f-70eb07fda4d8' />,
+  WAITING:()=><div className="flex flex-col gap-2">
   
       <Button
         variant="solid"
@@ -184,9 +184,14 @@ export const Timeline: React.FC<TimelineProps> = ({
                   </div>
 
                   {/* Actions */}
-                  {!!my_types[step.type] && (
+                  {/* {!!my_types[step.type] && (
                     <div className="flex flex-col gap-2">
-                      {my_types[step.type]}
+                      {my_types[step.type]()}
+                    </div>
+                  )} */}
+                  {!!step.actions  && (
+                    <div className="flex flex-col gap-2">
+                      {step.actions}
                     </div>
                   )}
                   {/* {step.actions && step.actions.length > 0 && (
