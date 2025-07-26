@@ -4,32 +4,37 @@ import { ScheduleCustomerCreateModal } from "../../modals/schedule-customer-crea
 import { useMutation } from "@tanstack/react-query";
 import { createVisit } from "../../../api/visits";
 import { useState } from "react";
-type ScheduleRequestedProps={
-  company_id?:string
-   customer_id:string
-   
-   notes?:string
-}
-export function ScheduleRequested({company_id,customer_id,notes,}:ScheduleRequestedProps) {
+type ScheduleRequestedProps = {
+  company_id?: string;
+  customer_id: string;
+  estimate_request_id: string;
+  notes?: string;
+};
+export function ScheduleRequested({
+  company_id,
+  customer_id,
+  notes,
+  estimate_request_id,
+}: ScheduleRequestedProps) {
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const [scheduledAt,setScheduledAt] = useState<Date|null>()
+  const [scheduledAt, setScheduledAt] = useState<Date | null>();
 
-  const { isPending ,mutate} = useMutation({
-    mutationFn: () =>{
-      
-        return createVisit({ company_id:company_id!, customer_id, scheduled_at:scheduledAt|| new Date(), notes })
-
-      
+  const { isPending, mutate } = useMutation({
+    mutationFn: () => {
+      return createVisit({
+        company_id: company_id!,
+        customer_id,
+        scheduled_at: scheduledAt || new Date(),
+        notes,
+        estimate_request_id,
+      });
     },
-
 
     onError: (error) => {
       console.error("Erro ao criar usuário:", error);
     },
   });
-  console.log('scheduledAt',scheduledAt);
-  
-  
+
   return (
     <>
       <Button
@@ -38,12 +43,16 @@ export function ScheduleRequested({company_id,customer_id,notes,}:ScheduleReques
         size="sm"
         onPress={onOpen}
         isLoading={isPending}
-        
         className="transition-transform hover:scale-105"
       >
         Agendar uma visita
       </Button>
-      <ScheduleCustomerCreateModal isOpen={isOpen} onClose={onClose} onChange={setScheduledAt} onSuccess={mutate}/>
+      <ScheduleCustomerCreateModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onChange={setScheduledAt}
+        onSuccess={mutate}
+      />
     </>
   );
 }

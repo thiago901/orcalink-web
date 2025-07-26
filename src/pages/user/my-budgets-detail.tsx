@@ -42,13 +42,13 @@ import { MdOutlineOpenInNew } from "react-icons/md";
 
 import { CheckoutButton } from "../../components/payment/checkout-button";
 import { Timeline } from "../../components/timeline/timeline";
-import { mockTimelineSteps } from "../../components/timeline/mocks";
+
 import {
   getAllProgressEstimateRequestsByEstimateRequest,
   ProgressEstimateRequest,
 } from "../../api/progress-estimate-requests";
 import { TimelineStep } from "../../components/timeline/time-types";
-import { ScheduleCustomerCreateModal } from "../../components/modals/schedule-customer-create-modal";
+
 import { ScheduleRequested } from "../../components/timeline/components/schedule-requested";
 import { useAuthStore } from "../../stores/authStore";
 
@@ -75,6 +75,7 @@ const my_types = {
     <ScheduleRequested
       company_id={data.proposals?.find((item) => !!item.approved_at)?.company_id}
       customer_id={data.customer_id}
+      estimate_request_id={data.estimate_request.id}
       
     />
   ),

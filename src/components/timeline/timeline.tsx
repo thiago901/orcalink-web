@@ -166,9 +166,8 @@ export const Timeline: React.FC<TimelineProps> = ({
                     </div>
 
                     {step.description && (
-                      <p className="text-gray-600 mb-3 text-sm leading-relaxed">
-                        {step.description}
-                      </p>
+                      <p className="text-gray-600 mb-3 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: step.description }} />
+                      
                     )}
 
                     {step.date && (

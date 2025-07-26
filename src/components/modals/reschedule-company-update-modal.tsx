@@ -4,19 +4,21 @@ import { useCallback, useState } from "react";
 
 import { DatePicker } from "../date-picker";
 
-interface ScheduleCustomerCreateProps {
+interface RescheduleCompanyUpdateProps {
   isOpen: boolean;
   onClose: () => void;
   onChange: (date: Date) => void;
   onSuccess: () => void;
 }
 
-export function ScheduleCustomerCreateModal({
+
+export function RescheduleCompanyUpdateModal({
   isOpen,
   onClose,
   onChange,
   onSuccess
-}: ScheduleCustomerCreateProps) {
+}: RescheduleCompanyUpdateProps) {
+
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const handleChangeDate = useCallback(
     (data: Date[]) => {
@@ -27,6 +29,8 @@ export function ScheduleCustomerCreateModal({
     },
     [onChange]
   );
+
+  
   return (
     <DialogV2
       isOpen={isOpen}
@@ -41,7 +45,7 @@ export function ScheduleCustomerCreateModal({
             Cancelar
           </Button>
           <Button  color="primary" onPress={onSuccess}>
-            Agendar
+            Reagendar
           </Button>
         </>
       }

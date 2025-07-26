@@ -10,7 +10,8 @@ import {
   PiHouseLineThin,
   PiListChecksThin,
   PiPlusCircle,
-  PiMessengerLogoThin
+  PiMessengerLogoThin,
+  PiCalendarBlankThin
 } from "react-icons/pi";
 
 import {
@@ -103,6 +104,11 @@ const DashboardLayout = () => {
       to: "/company/estimate/new",
       icon: <PiFileTextThin size={20} />,
       label: "Orçamentos avulsos",
+    },
+    {
+      to: "/company/schedule-visits",
+      icon: <PiCalendarBlankThin size={20} />,
+      label: "Agendamentos",
     },
   ];
 

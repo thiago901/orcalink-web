@@ -41,14 +41,10 @@ import { AboutPage } from "./pages/about-page";
 import BecomeProviderPage from "./pages/become-provider-page";
 
 import { FindCompanies } from "./pages/user/find-companies-page";
-import { VisitsListPage } from "./pages/visits/visits-list-page";
-import { VisitDetailPage } from "./pages/visits/visit-detail-page";
 import { SuggestionsPage } from "./pages/visits/suggestions-page";
-import { CreateScheduleVisitPage } from "./pages/visits/create-scheduled-visit";
 import { ProviderPendingRequests } from "./pages/visits/company/provider-pending-requests";
 import { ClientScheduling } from "./pages/visits/customer/schedule-customer";
 import { ClientSuggestions } from "./pages/visits/customer/customer-suggestion";
-import { TimelineDemo } from "./components/timeline/timeline-demo";
 
 
 function App() {
@@ -125,6 +121,8 @@ function App() {
           <Route path="proposals" element={<CompanyProposalsPage />} />
           <Route path="jobs" element={<CompanyJobsPage />} />
           <Route path="jobs/:id" element={<CompanyJobDetailPage />} />
+
+          <Route path="schedule-visits" element={<ProviderPendingRequests />} />
         </Route>
       </Route>
 

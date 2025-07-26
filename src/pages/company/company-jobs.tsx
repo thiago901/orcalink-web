@@ -62,7 +62,7 @@ export function CompanyJobsPage() {
                 <Listbox>
                   {jobs.map((request) => (
                     <ListboxItem
-                      key={request.i}
+                      key={request.id}
                       as={Link}
                       href={`/company/jobs/${request.id}`}
                     >
