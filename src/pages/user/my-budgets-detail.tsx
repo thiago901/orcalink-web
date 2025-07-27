@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { ReactNode, useCallback, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -18,6 +18,8 @@ import ProposalActionDialog from "../../components/proposals/ProposalActionDialo
 
 import { Text } from "../../components/ui/Text";
 import {
+  Accordion,
+  AccordionItem,
   Avatar,
   BreadcrumbItem,
   Breadcrumbs,
@@ -36,7 +38,7 @@ import { FiFileText, FiLoader } from "react-icons/fi";
 import { CiCalendar, CiMail, CiMapPin, CiPhone } from "react-icons/ci";
 
 import { AiFillStar } from "react-icons/ai";
-import { getEstimateRequestMessagesGroupedByCompany } from "../../api/estimate-requests-messages";
+
 import { ProposalDetailModal } from "../../components/proposals/proposal-detail-modal";
 import { MdOutlineOpenInNew } from "react-icons/md";
 
@@ -51,110 +53,20 @@ import { TimelineStep } from "../../components/timeline/time-types";
 
 import { ScheduleRequested } from "../../components/timeline/components/schedule-requested";
 import { useAuthStore } from "../../stores/authStore";
-
-const my_types = {
-  PROPOSALS_WAITING: (data: unknown) => (
-    <Progress
-      isIndeterminate
-      aria-label="Loading..."
-      className="max-w-md"
-      size="sm"
-      isStriped
-    />
-  ),
-  PROPOSALS_ACCEPTED: (data: unknown) => (
-    <Button
-      startContent={<MdOutlineOpenInNew size={16} />}
-      color="primary"
-      onPress={(data as any).handleOpenProposalDetail}
-    >
-      Ver Proposta
-    </Button>
-  ),
-  VISIT_REQUESTED: (data: UseTimelineStepsDataProps) => (
-    <ScheduleRequested
-      company_id={data.proposals?.find((item) => !!item.approved_at)?.company_id}
-      customer_id={data.customer_id}
-      estimate_request_id={data.estimate_request.id}
-      
-    />
-  ),
-  VISIT_SUGGESTED: (data: unknown) => (
-    <div className="flex flex-col gap-2">
-      <Button
-        variant="solid"
-        color="success"
-        size="sm"
-        // onPress={action.onClick}
-        className="transition-transform hover:scale-105"
-      >
-        Aceitar
-      </Button>
-      <Button
-        variant="bordered"
-        color="danger"
-        size="sm"
-        // onPress={action.onClick}
-        className="transition-transform hover:scale-105"
-      >
-        Recusar/Reagendar
-      </Button>
-    </div>
-  ),
-  PAYMENT_REQUESTED: () => (
-    <CheckoutButton proposal_id="464a3c68-8e2d-4e9a-a30f-70eb07fda4d8" />
-  ),
-  WAITING: () => (
-    <div className="flex flex-col gap-2">
-      <Button
-        variant="solid"
-        color="success"
-        size="sm"
-        // onPress={action.onClick}
-        className="transition-transform hover:scale-105"
-      >
-        Confirmar finalização
-      </Button>
-    </div>
-  ),
-};
+import { AcceptSuggestedScheduled } from "../../components/timeline/components/accept-suggested-scheduled";
 
 type UseTimelineStepsDataProps = {
-  proposals: Proposal[];
-  estimate_request: EstimateRequest;
+  proposal_id: string;
+  estimate_request_id: string;
   customer_id: string;
-  handleOpenProposalDetail: () => void;
-};
-export const useTimelineSteps = (
-  items: ProgressEstimateRequest[],
-  data: UseTimelineStepsDataProps
-): TimelineStep[] => {
-  return items
-    .sort(
-      (a, b) =>
-        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-    )
-    .map((item, index, arr) => {
-      const status: TimelineStep["status"] =
-        index < arr.length - 1 ? "completed" : "current";
+  company_id: string;
 
-      return {
-        id: item.id,
-        title: item.title,
-        description: item.description,
-        icon: "🛠️", // Você pode trocar dependendo do `item.type`
-        status,
-        type: item.type,
-        date: new Date(item.created_at),
-        data,
-        actions: my_types[item.type] ? my_types[item.type](data) : null, // Adicione lógica se necessário
-      };
-    });
+  handleOpenProposalDetail: (proposal_id: string) => void;
 };
 
 export function MyBudgetsDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const {user} = useAuthStore()
+  const { user } = useAuthStore();
 
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(
     null
@@ -169,11 +81,11 @@ export function MyBudgetsDetailPage() {
     queryFn: () => getEstimateRequestById(id!),
     enabled: !!id,
   });
-  const { data: estimate_request_message } = useQuery({
-    queryKey: ["estimateRequestMessage", id],
-    queryFn: () => getEstimateRequestMessagesGroupedByCompany(id!),
-    enabled: !!id,
-  });
+  // const { data: estimate_request_message } = useQuery({
+  //   queryKey: ["estimateRequestMessage", id],
+  //   queryFn: () => getEstimateRequestMessagesGroupedByCompany(id!),
+  //   enabled: !!id,
+  // });
   const { data: progress_estimate_requests } = useQuery({
     queryKey: ["progress_estimate_requests", id],
     queryFn: () => getAllProgressEstimateRequestsByEstimateRequest(id!),
@@ -189,6 +101,8 @@ export function MyBudgetsDetailPage() {
     queryFn: () => getProposalsByEstimateId(id!),
     enabled: !!id,
   });
+
+
 
   const handleApprove = async () => {
     if (!selectedProposal) return;
@@ -228,24 +142,135 @@ export function MyBudgetsDetailPage() {
       setIsActionLoading(false);
     }
   };
-  const handleOpenProposalDetail = useCallback(() => {
-    const proposal = proposals?.find((item) => !!item.approved_at);
-    if (proposal) {
-      setSelectedProposal(proposal);
-      setEstimateDetail(true);
-    }
-  }, [proposals]);
-  const steps = useTimelineSteps(
-    progress_estimate_requests
-      ? progress_estimate_requests
-      : [],
-    {
-      proposals,
-      estimate_request: request,
-      handleOpenProposalDetail,
-      customer_id: user?.customer_id ||''
-    }
+  const handleOpenProposalDetail = useCallback(
+    (proposal_id: string) => {
+      const proposal = proposals?.find((item) => item.id === proposal_id);
+      if (proposal) {
+        setSelectedProposal(proposal);
+        setEstimateDetail(true);
+      }
+    },
+    [proposals]
   );
+
+  const useTimelineSteps = (
+    items: ProgressEstimateRequest[],
+    data: UseTimelineStepsDataProps,
+  ): TimelineStep[] => {
+
+    console.log('data:useTimelineSteps',data);
+    
+    return items
+      .sort(
+        (a, b) =>
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      )
+      .map((item, index, arr) => {
+        const status: TimelineStep["status"] =
+          index < arr.length - 1 ? "completed" : "current";
+        let action = null;
+
+
+        switch (item.type) {
+          case "PROPOSALS_WAITING":
+            action = (
+              <Progress
+                isIndeterminate
+                aria-label="Loading..."
+                className="max-w-md"
+                size="sm"
+                isStriped
+              />
+            );
+
+            break;
+            case "PROPOSALS_RECEIVED":
+            action = (
+              <Button
+                startContent={<MdOutlineOpenInNew size={16} />}
+                color="primary"
+                onPress={() => data.handleOpenProposalDetail(data.proposal_id)}
+              >
+                Ver Proposta
+              </Button>
+            );
+            break;
+            case "VISIT_WAITING":
+            action = (
+              <Button
+                
+                color="primary"
+                // onPress={() => data.handleOpenProposalDetail(data.proposal_id)}
+              >
+                Confimar
+              </Button>
+            );
+            break;
+     
+          case "VISIT_REQUESTED":
+            action = (
+              <ScheduleRequested
+                company_id={data.company_id}
+                customer_id={data.customer_id}
+                estimate_request_id={data.estimate_request_id}
+                proposal_id={data.proposal_id}
+              />
+            );
+            break;
+          case "VISIT_SUGGESTED":
+            action = (
+              <AcceptSuggestedScheduled
+                visit_id={item?.proporties?.visit_id}
+              />
+            );
+            break;
+          case "PAYMENT_REQUESTED":
+            action = <CheckoutButton proposal_id={data.proposal_id} />;
+            break;
+          case "WAITING":
+            action = (
+              <div className="flex flex-col gap-2">
+                <Button
+                  variant="solid"
+                  color="success"
+                  size="sm"
+                  // onPress={action.onClick}
+                  className="transition-transform hover:scale-105"
+                >
+                  Confirmar finalização
+                </Button>
+              </div>
+            );
+            break;
+          default:
+            action = null;
+        }
+console.log('action',action);
+
+        return {
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          icon: "🛠️", // Você pode trocar dependendo do `item.type`
+          status,
+          type: item.type,
+          date: new Date(item.created_at),
+          data,
+          actions: action, 
+        };
+      });
+  };
+  // const steps = useTimelineSteps(
+  //   progress_estimate_requests ? progress_estimate_requests : [],
+  //   {
+  //     proposals,
+  //     estimate_request: request,
+  //     handleOpenProposalDetail,
+  //     customer_id: user?.customer_id || "",
+  //     progress_estimate_requests,
+  //   },
+  //   my_types
+  // );
 
   function renderStatus(proposal: Proposal, size?: "sm" | "md" | "lg") {
     return (
@@ -268,13 +293,13 @@ export function MyBudgetsDetailPage() {
     );
   }
 
-  if (isLoadingRequest || isLoadingProposals) {
-    return (
-      <div className="flex justify-center py-8">
-        <FiLoader className="w-8 h-8 animate-spin text-primary-500" />
-      </div>
-    );
-  }
+  // if (isLoadingRequest || isLoadingProposals) {
+  //   return (
+  //     <div className="flex justify-center py-8">
+  //       <FiLoader className="w-8 h-8 animate-spin text-primary-500" />
+  //     </div>
+  //   );
+  // }
   if (!request) {
     return (
       <div className="text-center py-8">
@@ -420,7 +445,7 @@ export function MyBudgetsDetailPage() {
                           <Text className="mt-2">{proposal.description}</Text>
                         </div>
                       </div>
-                      <div className="flex justify-end">
+                      {/* <div className="flex justify-end">
                         <Button
                           startContent={<MdOutlineOpenInNew size={16} />}
                           color="primary"
@@ -432,13 +457,55 @@ export function MyBudgetsDetailPage() {
                           Ver detalhes
                         </Button>
                         <CheckoutButton proposal_id={proposal.id} />
+                      </div> */}
+                      <div className="space-y-2 h-full">
+                        <Accordion>
+                          <AccordionItem
+                            title={<Subtitle>Progresso da Proposta</Subtitle>}
+                          >
+                            <ScrollShadow
+                              className="max-h-screen"
+                              hideScrollBar
+                            >
+                              {!!proposal?.progress_estimate_requests && 
+                                <Timeline
+                                  steps={useTimelineSteps(
+                                    proposal.progress_estimate_requests,
+                                    {
+                                      proposal_id: proposal.id,
+                                      estimate_request_id: request.id,
+                                      customer_id: user?.customer_id || "",
+                                      company_id:proposal.company_id,
+                                      handleOpenProposalDetail
+                                    }
+                                    
+                                  )}
+                                  showSteps={[
+                                    "PROPOSALS_RECEIVED",
+                                    "PROPOSALS_ACCEPTED",
+                                    "VISIT_CREATED",
+                                    "VISIT_REQUESTED",
+                                    "VISIT_SUGGESTED",
+                                    "VISIT_CONFIRMED",
+                                    "VISIT_WAITING",
+                                    "VISIT_COMPLETED",
+                                    "PAYMENT_REQUESTED",
+                                    "PAYMENT_COMPLETED",
+                                    "WAITING",
+                                    "FINISHED",
+                                  ]}
+                                />
+                              }
+                              {/* {steps && <CompactTimeline steps={steps}  compact={true}/>} */}
+                            </ScrollShadow>
+                          </AccordionItem>
+                        </Accordion>
                       </div>
-
-                      <Divider className="my-4" />
+                      {/* <Divider className="my-4" />
                       <Text type="caption">
                         Enviada em:{" "}
                         {format(proposal.created_at, "dd/MM/yyyy, HH:mm:ss")}
-                      </Text>
+                      </Text> */}
                     </div>
                   ))}
                 </div>
@@ -454,12 +521,12 @@ export function MyBudgetsDetailPage() {
             </CardHeader>
             <ScrollShadow className="max-h-screen" hideScrollBar>
               <CardBody>
-                {steps && (
+                {/* {steps && (
                   <Timeline
                     // steps={mockTimelineSteps}
                     steps={steps}
                   />
-                )}
+                )} */}
               </CardBody>
             </ScrollShadow>
           </Card>

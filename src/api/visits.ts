@@ -6,6 +6,7 @@ export interface CreateVisitProps {
   customer_id: string;
   company_id: string;
   estimate_request_id: string;
+  proposal_id: string;
   scheduled_at: Date;
   notes?: string;
 }
@@ -76,5 +77,10 @@ export const confirmVisitById = async (id: string) => {
 export const suggestVisitById = async (id: string,date:Date) => {
   const timestamp = date.toISOString();
   const response = await api.patch<ResponseAPI<Visit[]>>(`/scheduled-visits/${id}/suggest-new-date/${timestamp}`);
+  return response.data.result;
+};
+export const suggestVisitByIdCustomer = async (id: string,date:Date) => {
+  const timestamp = date.toISOString();
+  const response = await api.patch<ResponseAPI<Visit[]>>(`/scheduled-visits/${id}/suggest-new-date/${timestamp}/customer`);
   return response.data.result;
 };

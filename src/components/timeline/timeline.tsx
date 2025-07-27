@@ -4,82 +4,15 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { TimelineProps, TimelineStep } from "./time-types";
 import { FaCheck } from "react-icons/fa6";
-import { Button, Card, CardBody, Chip, Progress } from "@heroui/react";
-import { CheckoutButton } from "../payment/checkout-button";
+import { Card, CardBody, Chip } from "@heroui/react";
 
-const my_types = {
-  PROPOSALS_WAITING:()=> (
-    <Progress
-      isIndeterminate
-      aria-label="Loading..."
-      className="max-w-md"
-      size="sm"
-    />
-  ),
-  PROPOSALS_ACCEPTED: ()=>(
-    <Button
-      variant="solid"
-      color="primary"
-      size="sm"
-      // onPress={action.onClick}
-      className="transition-transform hover:scale-105"
-    >
-      Ver proposta
-    </Button>
-  ),
-  VISIT_REQUESTED:()=> (
-    <Button
-      variant="solid"
-      color="primary"
-      size="sm"
-      // onPress={action.onClick}
-      className="transition-transform hover:scale-105"
-    >
-      Agendar uma visita
-    </Button>
-  ),
-  VISIT_SUGGESTED:()=> (
-    <div className="flex flex-col gap-2">
-  
-      <Button
-        variant="solid"
-        color="success"
-        size="sm"
-        // onPress={action.onClick}
-        className="transition-transform hover:scale-105"
-      >
-        Aceitar
-      </Button>
-          <Button
-        variant="bordered"
-        color="danger"
-        size="sm"
-        // onPress={action.onClick}
-        className="transition-transform hover:scale-105"
-      >
-        Recusar/Reagendar
-      </Button>
-    </div>
-  ),
-  PAYMENT_REQUESTED:()=><CheckoutButton proposal_id='464a3c68-8e2d-4e9a-a30f-70eb07fda4d8' />,
-  WAITING:()=><div className="flex flex-col gap-2">
-  
-      <Button
-        variant="solid"
-        color="success"
-        size="sm"
-        // onPress={action.onClick}
-        className="transition-transform hover:scale-105"
-      >
-        Confirmar finalização
-      </Button>
-          
-    </div>
-};
+
+
 
 export const Timeline: React.FC<TimelineProps> = ({
   steps,
   className = "",
+  showSteps
 }) => {
   const getStepStyles = (status: TimelineStep["status"]) => {
     switch (status) {
@@ -109,7 +42,7 @@ export const Timeline: React.FC<TimelineProps> = ({
 
   return (
     <div className={`relative ${className}`}>
-      {steps.map((step, index) => {
+      {steps.filter(item=>!showSteps? true: showSteps.find(s=>s===item.type)).map((step, index) => {
         const styles = getStepStyles(step.status);
         const isLast = index === steps.length - 1;
 

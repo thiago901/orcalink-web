@@ -26,4 +26,5 @@ export interface TimelineAction {
 export interface TimelineProps {
   steps: TimelineStep[];
   className?: string;
+  showSteps?:string[]
 }

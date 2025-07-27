@@ -8,6 +8,7 @@ type ScheduleRequestedProps = {
   company_id?: string;
   customer_id: string;
   estimate_request_id: string;
+  proposal_id: string;
   notes?: string;
 };
 export function ScheduleRequested({
@@ -15,6 +16,7 @@ export function ScheduleRequested({
   customer_id,
   notes,
   estimate_request_id,
+  proposal_id
 }: ScheduleRequestedProps) {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [scheduledAt, setScheduledAt] = useState<Date | null>();
@@ -27,6 +29,7 @@ export function ScheduleRequested({
         scheduled_at: scheduledAt || new Date(),
         notes,
         estimate_request_id,
+        proposal_id
       });
     },
 

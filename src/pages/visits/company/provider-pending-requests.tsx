@@ -49,8 +49,8 @@ export function ProviderPendingRequests() {
       color: "secondary",
       variant: "dot",
       label: "Reagendado",
-      isSuggested: true,
-      isConfirmed: true,
+      isSuggested: false,
+      isConfirmed: false,
     },
     SUGGESTED: {
       color: "primary",
