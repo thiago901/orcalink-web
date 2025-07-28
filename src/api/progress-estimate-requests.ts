@@ -9,6 +9,7 @@ export type ProgressEstimateRequestType =
   | 'VISIT_REQUESTED'
   | 'VISIT_CONFIRMED'
   | 'VISIT_SUGGESTED'
+  | 'VISIT_WAITING'
   | 'VISIT_COMPLETED'
   | 'PAYMENT_REQUESTED'
   | 'PAYMENT_COMPLETED'

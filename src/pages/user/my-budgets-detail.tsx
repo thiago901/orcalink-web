@@ -40,7 +40,10 @@ import { CiCalendar, CiMail, CiMapPin, CiPhone } from "react-icons/ci";
 import { AiFillStar } from "react-icons/ai";
 
 import { ProposalDetailModal } from "../../components/proposals/proposal-detail-modal";
-import { MdOutlineOpenInNew } from "react-icons/md";
+import {
+  MdOutlineKeyboardDoubleArrowRight,
+  MdOutlineOpenInNew,
+} from "react-icons/md";
 
 import { CheckoutButton } from "../../components/payment/checkout-button";
 import { Timeline } from "../../components/timeline/timeline";
@@ -54,6 +57,8 @@ import { TimelineStep } from "../../components/timeline/time-types";
 import { ScheduleRequested } from "../../components/timeline/components/schedule-requested";
 import { useAuthStore } from "../../stores/authStore";
 import { AcceptSuggestedScheduled } from "../../components/timeline/components/accept-suggested-scheduled";
+import { visitFinished } from "../../api/visits";
+
 
 type UseTimelineStepsDataProps = {
   proposal_id: string;
@@ -62,6 +67,7 @@ type UseTimelineStepsDataProps = {
   company_id: string;
 
   handleOpenProposalDetail: (proposal_id: string) => void;
+  handleVisitFinished: (visit_id: string) => void;
 };
 
 export function MyBudgetsDetailPage() {
@@ -101,8 +107,6 @@ export function MyBudgetsDetailPage() {
     queryFn: () => getProposalsByEstimateId(id!),
     enabled: !!id,
   });
-
-
 
   const handleApprove = async () => {
     if (!selectedProposal) return;
@@ -152,14 +156,14 @@ export function MyBudgetsDetailPage() {
     },
     [proposals]
   );
+  const handleVisitFinished = useCallback(async (visit_id: string) => {
+    await visitFinished(visit_id);
+  }, []);
 
   const useTimelineSteps = (
     items: ProgressEstimateRequest[],
-    data: UseTimelineStepsDataProps,
+    data: UseTimelineStepsDataProps
   ): TimelineStep[] => {
-
-    console.log('data:useTimelineSteps',data);
-    
     return items
       .sort(
         (a, b) =>
@@ -169,7 +173,6 @@ export function MyBudgetsDetailPage() {
         const status: TimelineStep["status"] =
           index < arr.length - 1 ? "completed" : "current";
         let action = null;
-
 
         switch (item.type) {
           case "PROPOSALS_WAITING":
@@ -184,7 +187,7 @@ export function MyBudgetsDetailPage() {
             );
 
             break;
-            case "PROPOSALS_RECEIVED":
+          case "PROPOSALS_RECEIVED":
             action = (
               <Button
                 startContent={<MdOutlineOpenInNew size={16} />}
@@ -195,18 +198,19 @@ export function MyBudgetsDetailPage() {
               </Button>
             );
             break;
-            case "VISIT_WAITING":
+          case "VISIT_WAITING":
             action = (
               <Button
-                
                 color="primary"
-                // onPress={() => data.handleOpenProposalDetail(data.proposal_id)}
+                onPress={() =>
+                  data.handleVisitFinished(item?.proporties?.visit_id)
+                }
               >
-                Confimar
+                Confimar Visita
               </Button>
             );
             break;
-     
+
           case "VISIT_REQUESTED":
             action = (
               <ScheduleRequested
@@ -219,9 +223,7 @@ export function MyBudgetsDetailPage() {
             break;
           case "VISIT_SUGGESTED":
             action = (
-              <AcceptSuggestedScheduled
-                visit_id={item?.proporties?.visit_id}
-              />
+              <AcceptSuggestedScheduled visit_id={item?.proporties?.visit_id} />
             );
             break;
           case "PAYMENT_REQUESTED":
@@ -245,8 +247,6 @@ export function MyBudgetsDetailPage() {
           default:
             action = null;
         }
-console.log('action',action);
-
         return {
           id: item.id,
           title: item.title,
@@ -256,7 +256,7 @@ console.log('action',action);
           type: item.type,
           date: new Date(item.created_at),
           data,
-          actions: action, 
+          actions: action,
         };
       });
   };
@@ -445,29 +445,20 @@ console.log('action',action);
                           <Text className="mt-2">{proposal.description}</Text>
                         </div>
                       </div>
-                      {/* <div className="flex justify-end">
-                        <Button
-                          startContent={<MdOutlineOpenInNew size={16} />}
-                          color="primary"
-                          onPress={() => {
-                            setSelectedProposal(proposal);
-                            setEstimateDetail(true);
-                          }}
-                        >
-                          Ver detalhes
-                        </Button>
-                        <CheckoutButton proposal_id={proposal.id} />
-                      </div> */}
+
                       <div className="space-y-2 h-full">
-                        <Accordion>
+                        <Accordion variant="bordered">
                           <AccordionItem
-                            title={<Subtitle>Progresso da Proposta</Subtitle>}
+                            title={<Text>Visualizar Andamento</Text>}
+                            indicator={
+                              <MdOutlineKeyboardDoubleArrowRight size={20} />
+                            }
                           >
                             <ScrollShadow
                               className="max-h-screen"
                               hideScrollBar
                             >
-                              {!!proposal?.progress_estimate_requests && 
+                              {!!proposal?.progress_estimate_requests && (
                                 <Timeline
                                   steps={useTimelineSteps(
                                     proposal.progress_estimate_requests,
@@ -475,10 +466,10 @@ console.log('action',action);
                                       proposal_id: proposal.id,
                                       estimate_request_id: request.id,
                                       customer_id: user?.customer_id || "",
-                                      company_id:proposal.company_id,
-                                      handleOpenProposalDetail
+                                      company_id: proposal.company_id,
+                                      handleOpenProposalDetail,
+                                      handleVisitFinished,
                                     }
-                                    
                                   )}
                                   showSteps={[
                                     "PROPOSALS_RECEIVED",
@@ -495,7 +486,7 @@ console.log('action',action);
                                     "FINISHED",
                                   ]}
                                 />
-                              }
+                              )}
                               {/* {steps && <CompactTimeline steps={steps}  compact={true}/>} */}
                             </ScrollShadow>
                           </AccordionItem>
@@ -517,10 +508,31 @@ console.log('action',action);
         <div className="space-y-2 h-full">
           <Card>
             <CardHeader>
-              <Subtitle>Progresso do Serviço</Subtitle>
+              <Subtitle>Ultimas atualizações</Subtitle>
             </CardHeader>
             <ScrollShadow className="max-h-screen" hideScrollBar>
               <CardBody>
+                {proposals?.map((proposal) => (
+                  <>
+                   <Text className="mb-2">Proposta: {proposal.company.name}</Text>
+                    {!!proposal?.progress_estimate_requests && (
+                      <Timeline
+                        steps={useTimelineSteps(
+                          [proposal.progress_estimate_requests[proposal.progress_estimate_requests.length-1]],
+                          {
+                            proposal_id: proposal.id,
+                            estimate_request_id: request.id,
+                            customer_id: user?.customer_id || "",
+                            company_id: proposal.company_id,
+                            handleOpenProposalDetail,
+                            handleVisitFinished,
+                          }
+                        )}
+                      />
+                    )}
+                  </>
+                ))}
+
                 {/* {steps && (
                   <Timeline
                     // steps={mockTimelineSteps}

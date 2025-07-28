@@ -84,3 +84,8 @@ export const suggestVisitByIdCustomer = async (id: string,date:Date) => {
   const response = await api.patch<ResponseAPI<Visit[]>>(`/scheduled-visits/${id}/suggest-new-date/${timestamp}/customer`);
   return response.data.result;
 };
+export const visitFinished= async (id: string) => {
+  
+  const response = await api.post<ResponseAPI<Visit[]>>(`/scheduled-visits/${id}/complete`);
+  return response.data.result;
+};

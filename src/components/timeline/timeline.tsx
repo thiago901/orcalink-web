@@ -5,6 +5,7 @@ import { ptBR } from "date-fns/locale";
 import { TimelineProps, TimelineStep } from "./time-types";
 import { FaCheck } from "react-icons/fa6";
 import { Card, CardBody, Chip } from "@heroui/react";
+import { Text } from "../ui/Text";
 
 
 
@@ -51,7 +52,7 @@ export const Timeline: React.FC<TimelineProps> = ({
             {/* Timeline Line */}
             {!isLast && (
               <div
-                className={`absolute left-6 top-12 w-0.5 h-full ${styles.line} transition-colors duration-300`}
+                className={`absolute left-3 top-6 w-0.5 h-full ${styles.line} transition-colors duration-300`}
                 style={{ transform: "translateX(-50%)" }}
               />
             )}
@@ -60,12 +61,12 @@ export const Timeline: React.FC<TimelineProps> = ({
             <div className="relative z-10 flex-shrink-0">
               <div
                 className={`
-                  w-12 h-12 rounded-full border-2 flex items-center justify-center
+                  w-6 h-6 rounded-full border-2 flex items-center justify-center
                   transition-all duration-300 ${styles.circle} ${styles.animation}
                 `}
               >
                 {step.status === "completed" ? (
-                  <FaCheck className="w-5 h-5" />
+                  <FaCheck />
                 ) : (
                   <span className="text-lg">{step.icon}</span>
                 )}
@@ -80,12 +81,12 @@ export const Timeline: React.FC<TimelineProps> = ({
               `}
             >
               <CardBody className="p-4">
-                <div className="flex flex-col gap-3">
+                <div className="flex gap-3 flex-col md:items-center md:flex-row">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-800">
+                    <div className="flex items-center gap-2 ">
+                      <Text weight="semibold">
                         {step.title}
-                      </h3>
+                      </Text>
                       {step.status === "current" && (
                         <Chip
                           color="primary"
@@ -98,12 +99,14 @@ export const Timeline: React.FC<TimelineProps> = ({
                       )}
                     </div>
 
-                    {step.description && (
-                      <p className="text-gray-600 mb-3 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: step.description }} />
+                    <div className="mb-2 mt-1">
+                      {step.description && (
+                      <Text type="caption" weight="light" dangerouslySetInnerHTML={{ __html: step.description }} />
                       
                     )}
+                    </div>
 
-                    {step.date && (
+                    {/* {step.date && (
                       <div className="flex items-center gap-2 text-xs text-gray-500">
                         <span>📅</span>
                         <span>
@@ -112,7 +115,7 @@ export const Timeline: React.FC<TimelineProps> = ({
                           })}
                         </span>
                       </div>
-                    )}
+                    )} */}
                   </div>
 
                   {/* Actions */}

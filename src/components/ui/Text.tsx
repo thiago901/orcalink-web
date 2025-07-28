@@ -1,12 +1,13 @@
 import React from "react";
 
 type TextProps = {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   type?: "title" | "subtitle" | "normal" | "small" | "caption";
   color?: "default" | "primary" | "secondary" | "muted" | "light";
   weight?: "normal" | "medium" | "semibold" | "bold"|"light";
   align?: "left" | "center" | "right";
   className?: string;
+  dangerouslySetInnerHTML?:any
 };
 
 const typeStyles = {
@@ -46,6 +47,7 @@ export const Text: React.FC<TextProps> = ({
   weight = "normal",
   align = "left",
   className = "",
+  dangerouslySetInnerHTML
 }) => {
   const classes = [
     typeStyles[type],
@@ -55,5 +57,5 @@ export const Text: React.FC<TextProps> = ({
     className,
   ].join(" ");
 
-  return <p className={classes}>{children}</p>;
+  return <p className={classes} dangerouslySetInnerHTML={dangerouslySetInnerHTML}>{children}</p>;
 };

@@ -17,12 +17,13 @@ export function CheckoutButton({
 
     await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
-    window.location.href = checkoutRes.session_url; // redireciona para o checkout
+    
+    window.open(checkoutRes.session_url, '_blank');
   };
 
   return (
     <Button {...rest} onPress={handleClick}>
-      Pagar agora 💳
+      Pagar agora
       
     </Button>
   );
