@@ -10,13 +10,15 @@ type ScheduleRequestedProps = {
   estimate_request_id: string;
   proposal_id: string;
   notes?: string;
+  is_disabled?: boolean
 };
 export function ScheduleRequested({
   company_id,
   customer_id,
   notes,
   estimate_request_id,
-  proposal_id
+  proposal_id,
+  is_disabled
 }: ScheduleRequestedProps) {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [scheduledAt, setScheduledAt] = useState<Date | null>();
@@ -47,6 +49,7 @@ export function ScheduleRequested({
         onPress={onOpen}
         isLoading={isPending}
         className="transition-transform hover:scale-105"
+        isDisabled={is_disabled}
       >
         Agendar uma visita
       </Button>

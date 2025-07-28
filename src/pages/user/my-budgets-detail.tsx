@@ -41,8 +41,15 @@ import { AiFillStar } from "react-icons/ai";
 
 import { ProposalDetailModal } from "../../components/proposals/proposal-detail-modal";
 import {
+  MdFlag,
+  MdHourglassEmpty,
+  MdLightbulbOutline,
+  MdMarkEmailUnread,
   MdOutlineKeyboardDoubleArrowRight,
   MdOutlineOpenInNew,
+  MdPending,
+  MdRequestPage,
+  MdWatchLater,
 } from "react-icons/md";
 
 import { CheckoutButton } from "../../components/payment/checkout-button";
@@ -58,6 +65,8 @@ import { ScheduleRequested } from "../../components/timeline/components/schedule
 import { useAuthStore } from "../../stores/authStore";
 import { AcceptSuggestedScheduled } from "../../components/timeline/components/accept-suggested-scheduled";
 import { visitFinished } from "../../api/visits";
+import { updateJob } from "../../api/jobs-service";
+import { FaBuilding } from "react-icons/fa6";
 
 
 type UseTimelineStepsDataProps = {
@@ -159,11 +168,18 @@ export function MyBudgetsDetailPage() {
   const handleVisitFinished = useCallback(async (visit_id: string) => {
     await visitFinished(visit_id);
   }, []);
+  const handleConfirmService = useCallback(async (proposal_id: string) => {
+    await updateJob(proposal_id,{
+      finished_customer_at: new Date()
+    });
+  }, []);
 
   const useTimelineSteps = (
     items: ProgressEstimateRequest[],
     data: UseTimelineStepsDataProps
   ): TimelineStep[] => {
+    
+    
     return items
       .sort(
         (a, b) =>
@@ -173,9 +189,11 @@ export function MyBudgetsDetailPage() {
         const status: TimelineStep["status"] =
           index < arr.length - 1 ? "completed" : "current";
         let action = null;
-
+        const is_completed = status==='completed'
+        let icon =null
         switch (item.type) {
           case "PROPOSALS_WAITING":
+            icon=<MdPending/>
             action = (
               <Progress
                 isIndeterminate
@@ -183,15 +201,18 @@ export function MyBudgetsDetailPage() {
                 className="max-w-md"
                 size="sm"
                 isStriped
+                isDisabled
               />
             );
 
             break;
           case "PROPOSALS_RECEIVED":
+            icon=<MdMarkEmailUnread/>
             action = (
               <Button
                 startContent={<MdOutlineOpenInNew size={16} />}
                 color="primary"
+                size="sm"
                 onPress={() => data.handleOpenProposalDetail(data.proposal_id)}
               >
                 Ver Proposta
@@ -199,12 +220,15 @@ export function MyBudgetsDetailPage() {
             );
             break;
           case "VISIT_WAITING":
+            icon=<MdWatchLater/>
             action = (
               <Button
+              size="sm"
                 color="primary"
                 onPress={() =>
                   data.handleVisitFinished(item?.proporties?.visit_id)
                 }
+                isDisabled={is_completed}
               >
                 Confimar Visita
               </Button>
@@ -212,36 +236,48 @@ export function MyBudgetsDetailPage() {
             break;
 
           case "VISIT_REQUESTED":
+            icon=<MdRequestPage/>
             action = (
               <ScheduleRequested
                 company_id={data.company_id}
                 customer_id={data.customer_id}
                 estimate_request_id={data.estimate_request_id}
                 proposal_id={data.proposal_id}
+                is_disabled={is_completed}
               />
             );
             break;
           case "VISIT_SUGGESTED":
+            icon=<MdLightbulbOutline/>
             action = (
-              <AcceptSuggestedScheduled visit_id={item?.proporties?.visit_id} />
+              <AcceptSuggestedScheduled visit_id={item?.proporties?.visit_id} is_disabled={is_completed}/>
             );
             break;
           case "PAYMENT_REQUESTED":
-            action = <CheckoutButton proposal_id={data.proposal_id} />;
+            icon=<MdRequestPage/>
+            action = <CheckoutButton proposal_id={data.proposal_id} isDisabled={is_completed} size="sm"/>;
             break;
           case "WAITING":
+            icon=<MdHourglassEmpty/>
             action = (
               <div className="flex flex-col gap-2">
                 <Button
                   variant="solid"
                   color="success"
                   size="sm"
-                  // onPress={action.onClick}
-                  className="transition-transform hover:scale-105"
+                  onPress={()=>handleConfirmService(data.proposal_id)}
+                  
+                  isDisabled={is_completed}
                 >
                   Confirmar finalização
                 </Button>
               </div>
+            );
+            break;
+            case "FINISHED":
+              icon=<MdFlag/>
+            action = (
+             <Button size="sm">Avaliar prestador</Button>
             );
             break;
           default:
@@ -251,7 +287,7 @@ export function MyBudgetsDetailPage() {
           id: item.id,
           title: item.title,
           description: item.description,
-          icon: "🛠️", // Você pode trocar dependendo do `item.type`
+          icon: icon,
           status,
           type: item.type,
           date: new Date(item.created_at),
@@ -473,6 +509,7 @@ export function MyBudgetsDetailPage() {
                                   )}
                                   showSteps={[
                                     "PROPOSALS_RECEIVED",
+                                    "PROPOSALS_WAITING",
                                     "PROPOSALS_ACCEPTED",
                                     "VISIT_CREATED",
                                     "VISIT_REQUESTED",

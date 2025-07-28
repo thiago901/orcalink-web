@@ -30,7 +30,15 @@ type Job = {
   estimate_id:string;
   updated_at:Date
   created_at:Date
+  finished_company_at:Date|null
+  finished_customer_at:Date|null
 };
+
+export type UpdateJobProps={
+  
+  finished_company_at?:Date
+  finished_customer_at?:Date
+}
 
 export const getJobsByCompany = async (companyId: string) => {
   const response = await api.get<ResponseAPI<Job[]>>(`/jobs/company/${companyId}`);
@@ -43,5 +51,9 @@ export const getJobById = async (id: string) => {
 };
 export const updateJobStatus = async (id: string,status:string) => {
   const response = await api.patch<ResponseAPI<Job>>(`/jobs/status/${id}/${status}`);
+  return response.data.result;
+};
+export const updateJob = async (proposal_id:string,data: UpdateJobProps) => {
+  const response = await api.put<ResponseAPI<Job>>(`/jobs/proposal/${proposal_id}`,data);
   return response.data.result;
 };

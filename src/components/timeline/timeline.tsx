@@ -1,19 +1,14 @@
 import React from "react";
 
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { TimelineProps, TimelineStep } from "./time-types";
-import { FaCheck } from "react-icons/fa6";
+
 import { Card, CardBody, Chip } from "@heroui/react";
 import { Text } from "../ui/Text";
-
-
-
 
 export const Timeline: React.FC<TimelineProps> = ({
   steps,
   className = "",
-  showSteps
+  showSteps,
 }) => {
   const getStepStyles = (status: TimelineStep["status"]) => {
     switch (status) {
@@ -26,10 +21,10 @@ export const Timeline: React.FC<TimelineProps> = ({
         };
       case "current":
         return {
-          circle: "bg-primary-500 border-primary-500 text-white animate-pulse",
+          circle: "bg-primary-500 border-primary-500",
           line: "bg-gray-200",
           card: "border-primary-300 bg-primary-50/50 shadow-lg",
-          animation: "animate-pulse",
+          animation: "animate-ping",
         };
       case "pending":
         return {
@@ -43,70 +38,71 @@ export const Timeline: React.FC<TimelineProps> = ({
 
   return (
     <div className={`relative ${className}`}>
-      {steps.filter(item=>!showSteps? true: showSteps.find(s=>s===item.type)).map((step, index) => {
-        const styles = getStepStyles(step.status);
-        const isLast = index === steps.length - 1;
+      {steps
+        .filter((item) =>
+          !showSteps ? true : showSteps.find((s) => s === item.type)
+        )
+        .map((step, index) => {
+          const styles = getStepStyles(step.status);
+          const isLast = index === steps.length - 1;
 
-        return (
-          <div key={step.id} className="relative flex items-start gap-4 pb-8">
-            {/* Timeline Line */}
-            {!isLast && (
-              <div
-                className={`absolute left-3 top-6 w-0.5 h-full ${styles.line} transition-colors duration-300`}
-                style={{ transform: "translateX(-50%)" }}
-              />
-            )}
+          return (
+            <div key={step.id} className="relative flex items-start gap-4 pb-8">
+              {/* Timeline Line */}
+              {!isLast && (
+                <div
+                  className={`absolute left-3 top-6 w-0.5 h-full ${styles.line} transition-colors duration-300`}
+                  style={{ transform: "translateX(-50%)" }}
+                />
+              )}
 
-            {/* Timeline Circle */}
-            <div className="relative z-10 flex-shrink-0">
-              <div
+              <span className="relative z-10 flex-shrink-0">
+                <span
+                  className={`absolute inline-flex h-full w-full ${styles.animation} rounded-full bg-sky-400 opacity-75`}
+                ></span>
+                <span
+                  className={`relative w-6 h-6 rounded-full flex items-center justify-center
+                  ${styles.circle}`}
+                ></span>
+              </span>
+
+              {/* Timeline Card */}
+              <Card
                 className={`
-                  w-6 h-6 rounded-full border-2 flex items-center justify-center
-                  transition-all duration-300 ${styles.circle} ${styles.animation}
-                `}
-              >
-                {step.status === "completed" ? (
-                  <FaCheck />
-                ) : (
-                  <span className="text-lg">{step.icon}</span>
-                )}
-              </div>
-            </div>
-
-            {/* Timeline Card */}
-            <Card
-              className={`
                 flex-1 border transition-all duration-300 hover:shadow-md
                 ${styles.card}
               `}
-            >
-              <CardBody className="p-4">
-                <div className="flex gap-3 flex-col md:items-center md:flex-row">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 ">
-                      <Text weight="semibold">
-                        {step.title}
-                      </Text>
-                      {step.status === "current" && (
-                        <Chip
-                          color="primary"
-                          variant="flat"
-                          size="sm"
-                          className="animate-pulse"
-                        >
-                          Atual
-                        </Chip>
-                      )}
-                    </div>
+              >
+                <CardBody className="p-4">
+                  <div className="flex gap-3 flex-col md:items-center md:flex-row">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 ">
+                        <Text weight="semibold">{step.title}</Text>
+                        {step.status === "current" && (
+                          <Chip
+                            color="primary"
+                            variant="flat"
+                            size="sm"
+                            
+                          >
+                            Atual
+                          </Chip>
+                        )}
+                      </div>
 
-                    <div className="mb-2 mt-1">
-                      {step.description && (
-                      <Text type="caption" weight="light" dangerouslySetInnerHTML={{ __html: step.description }} />
-                      
-                    )}
-                    </div>
+                      <div className="mb-2 mt-1">
+                        {step.description && (
+                          <Text
+                            type="caption"
+                            weight="light"
+                            dangerouslySetInnerHTML={{
+                              __html: step.description,
+                            }}
+                          />
+                        )}
+                      </div>
 
-                    {/* {step.date && (
+                      {/* {step.date && (
                       <div className="flex items-center gap-2 text-xs text-gray-500">
                         <span>📅</span>
                         <span>
@@ -116,20 +112,18 @@ export const Timeline: React.FC<TimelineProps> = ({
                         </span>
                       </div>
                     )} */}
-                  </div>
+                    </div>
 
-                  {/* Actions */}
-                  {/* {!!my_types[step.type] && (
+                    {/* Actions */}
+                    {/* {!!my_types[step.type] && (
                     <div className="flex flex-col gap-2">
                       {my_types[step.type]()}
                     </div>
                   )} */}
-                  {!!step.actions  && (
-                    <div className="flex flex-col gap-2">
-                      {step.actions}
-                    </div>
-                  )}
-                  {/* {step.actions && step.actions.length > 0 && (
+                    {!!step.actions && (
+                      <div className="flex flex-col gap-2">{step.actions}</div>
+                    )}
+                    {/* {step.actions && step.actions.length > 0 && (
                     <div className="flex flex-col gap-2">
                       {step.actions.map((action) => (
                         <Button
@@ -145,12 +139,12 @@ export const Timeline: React.FC<TimelineProps> = ({
                       ))}
                     </div>
                   )} */}
-                </div>
-              </CardBody>
-            </Card>
-          </div>
-        );
-      })}
+                  </div>
+                </CardBody>
+              </Card>
+            </div>
+          );
+        })}
     </div>
   );
 };

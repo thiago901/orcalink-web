@@ -6,9 +6,11 @@ import { confirmVisitById, suggestVisitById, suggestVisitByIdCustomer } from "..
 import { useCallback, useState } from "react";
 type AcceptSuggestedScheduledProps = {
   visit_id: string;
+  is_disabled?:boolean
 };
 export function AcceptSuggestedScheduled({
   visit_id,
+  is_disabled
 }: AcceptSuggestedScheduledProps) {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [scheduledAt, setScheduledAt] = useState<Date | null>();
@@ -40,6 +42,7 @@ export function AcceptSuggestedScheduled({
         isLoading={isPending}
         onPress={() => mutate()}
         className="transition-transform hover:scale-105"
+        isDisabled={is_disabled}
       >
         Aceitar
       </Button>
@@ -50,6 +53,7 @@ export function AcceptSuggestedScheduled({
         onPress={onOpen}
         isLoading={isPendingReschedule}
         className="transition-transform hover:scale-105"
+        isDisabled={is_disabled}
       >
         Recusar/Reagendar
       </Button>
