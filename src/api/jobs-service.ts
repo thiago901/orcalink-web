@@ -49,11 +49,12 @@ export const getJobById = async (id: string) => {
   const response = await api.get<ResponseAPI<Job>>(`/jobs/${id}`);
   return response.data.result;
 };
-export const updateJobStatus = async (id: string,status:string) => {
-  const response = await api.patch<ResponseAPI<Job>>(`/jobs/status/${id}/${status}`);
-  return response.data.result;
-};
+
 export const updateJob = async (proposal_id:string,data: UpdateJobProps) => {
   const response = await api.put<ResponseAPI<Job>>(`/jobs/proposal/${proposal_id}`,data);
+  return response.data.result;
+};
+export const updateJobCompany = async (proposal_id:string,data: UpdateJobProps) => {
+  const response = await api.put<ResponseAPI<Job>>(`/jobs/proposal/${proposal_id}/company`,data);
   return response.data.result;
 };

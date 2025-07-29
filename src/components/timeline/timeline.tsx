@@ -78,7 +78,7 @@ export const Timeline: React.FC<TimelineProps> = ({
                     <div className="flex-1">
                       <div className="flex items-center gap-2 ">
                         <Text weight="semibold">{step.title}</Text>
-                        {step.status === "current" && (
+                        {step.status === "current" &&(
                           <Chip
                             color="primary"
                             variant="flat"
@@ -121,7 +121,7 @@ export const Timeline: React.FC<TimelineProps> = ({
                     </div>
                   )} */}
                     {!!step.actions && (
-                      <div className="flex flex-col gap-2">{step.actions}</div>
+                      <div className="flex flex-col gap-2 min-w-[100px]">{step.actions}</div>
                     )}
                     {/* {step.actions && step.actions.length > 0 && (
                     <div className="flex flex-col gap-2">

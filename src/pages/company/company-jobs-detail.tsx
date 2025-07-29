@@ -13,7 +13,7 @@ import {  useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { useParams } from "react-router-dom";
-import { getJobById, updateJobStatus } from "../../api/jobs-service";
+import { getJobById, updateJob, updateJobCompany } from "../../api/jobs-service";
 import { ProposalDetailModal } from "../../components/proposals/proposal-detail-modal";
 import { MdOutlineOpenInNew } from "react-icons/md";
 import { Text } from "../../components/ui/Text";
@@ -41,7 +41,7 @@ export function CompanyJobDetailPage() {
   },[job])
 
   const { mutate, isPending, isSuccess } = useMutation({
-    mutationFn: () => updateJobStatus(id!, currentStep),
+    mutationFn: (proposal_id:string) =>  updateJobCompany(proposal_id, {finished_company_at:new Date()}),
     onSuccess: () => {
       console.log("Status atualizado com sucesso");
     },
@@ -73,8 +73,9 @@ export function CompanyJobDetailPage() {
           </div>
           <Button
             color="primary"
-            onPress={() => mutate()}
+            onPress={() => job?mutate(job.proposal_id):null}
             isLoading={isPending}
+            isDisabled={!job}
           >
             Salvar
           </Button>

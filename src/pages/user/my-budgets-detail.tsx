@@ -68,7 +68,6 @@ import { visitFinished } from "../../api/visits";
 import { updateJob } from "../../api/jobs-service";
 import { FaBuilding } from "react-icons/fa6";
 
-
 type UseTimelineStepsDataProps = {
   proposal_id: string;
   estimate_request_id: string;
@@ -169,8 +168,8 @@ export function MyBudgetsDetailPage() {
     await visitFinished(visit_id);
   }, []);
   const handleConfirmService = useCallback(async (proposal_id: string) => {
-    await updateJob(proposal_id,{
-      finished_customer_at: new Date()
+    await updateJob(proposal_id, {
+      finished_customer_at: new Date(),
     });
   }, []);
 
@@ -178,8 +177,6 @@ export function MyBudgetsDetailPage() {
     items: ProgressEstimateRequest[],
     data: UseTimelineStepsDataProps
   ): TimelineStep[] => {
-    
-    
     return items
       .sort(
         (a, b) =>
@@ -187,13 +184,14 @@ export function MyBudgetsDetailPage() {
       )
       .map((item, index, arr) => {
         const status: TimelineStep["status"] =
-          index < arr.length - 1 ? "completed" : "current";
+          item.type==='FINISHED'? 'completed':
+          index < arr.length - 1   ? "completed" : "current";
         let action = null;
-        const is_completed = status==='completed'
-        let icon =null
+        const is_completed = status === "completed";
+        let icon = <></>;
         switch (item.type) {
           case "PROPOSALS_WAITING":
-            icon=<MdPending/>
+            icon = <MdPending />;
             action = (
               <Progress
                 isIndeterminate
@@ -207,7 +205,7 @@ export function MyBudgetsDetailPage() {
 
             break;
           case "PROPOSALS_RECEIVED":
-            icon=<MdMarkEmailUnread/>
+            icon = <MdMarkEmailUnread />;
             action = (
               <Button
                 startContent={<MdOutlineOpenInNew size={16} />}
@@ -220,10 +218,10 @@ export function MyBudgetsDetailPage() {
             );
             break;
           case "VISIT_WAITING":
-            icon=<MdWatchLater/>
+            icon = <MdWatchLater />;
             action = (
               <Button
-              size="sm"
+                size="sm"
                 color="primary"
                 onPress={() =>
                   data.handleVisitFinished(item?.proporties?.visit_id)
@@ -236,7 +234,7 @@ export function MyBudgetsDetailPage() {
             break;
 
           case "VISIT_REQUESTED":
-            icon=<MdRequestPage/>
+            icon = <MdRequestPage />;
             action = (
               <ScheduleRequested
                 company_id={data.company_id}
@@ -248,25 +246,49 @@ export function MyBudgetsDetailPage() {
             );
             break;
           case "VISIT_SUGGESTED":
-            icon=<MdLightbulbOutline/>
+            icon = <MdLightbulbOutline />;
             action = (
-              <AcceptSuggestedScheduled visit_id={item?.proporties?.visit_id} is_disabled={is_completed}/>
+              <AcceptSuggestedScheduled
+                visit_id={item?.proporties?.visit_id}
+                is_disabled={is_completed}
+              />
             );
             break;
           case "PAYMENT_REQUESTED":
-            icon=<MdRequestPage/>
-            action = <CheckoutButton proposal_id={data.proposal_id} isDisabled={is_completed} size="sm"/>;
+            icon = <MdRequestPage />;
+            action = (
+              <CheckoutButton
+                proposal_id={data.proposal_id}
+                isDisabled={is_completed}
+                size="sm"
+              />
+            );
             break;
           case "WAITING":
-            icon=<MdHourglassEmpty/>
+            icon = <MdPending />;
+            action = (
+              <Progress
+                isIndeterminate={!is_completed}
+                value={100}
+                label={
+                  is_completed && <Text type="caption" align="center"></Text>
+                }
+                aria-label="Loading..."
+                className="max-w-md "
+                size="sm"
+                showValueLabel
+              />
+            );
+            break;
+          case "IS_JOB_FINISHED":
+            icon = <MdHourglassEmpty />;
             action = (
               <div className="flex flex-col gap-2">
                 <Button
                   variant="solid"
                   color="success"
                   size="sm"
-                  onPress={()=>handleConfirmService(data.proposal_id)}
-                  
+                  onPress={() => handleConfirmService(data.proposal_id)}
                   isDisabled={is_completed}
                 >
                   Confirmar finalização
@@ -274,11 +296,9 @@ export function MyBudgetsDetailPage() {
               </div>
             );
             break;
-            case "FINISHED":
-              icon=<MdFlag/>
-            action = (
-             <Button size="sm">Avaliar prestador</Button>
-            );
+          case "FINISHED":
+            icon = <MdFlag />;
+            action = <Button size="sm">Avaliar prestador</Button>;
             break;
           default:
             action = null;
@@ -520,6 +540,7 @@ export function MyBudgetsDetailPage() {
                                     "PAYMENT_REQUESTED",
                                     "PAYMENT_COMPLETED",
                                     "WAITING",
+                                    "IS_JOB_FINISHED",
                                     "FINISHED",
                                   ]}
                                 />
@@ -551,11 +572,18 @@ export function MyBudgetsDetailPage() {
               <CardBody>
                 {proposals?.map((proposal) => (
                   <>
-                   <Text className="mb-2">Proposta: {proposal.company.name}</Text>
+                    <Text className="mb-2">
+                      Proposta: {proposal.company.name}
+                    </Text>
                     {!!proposal?.progress_estimate_requests && (
                       <Timeline
+                        key={proposal.id}
                         steps={useTimelineSteps(
-                          [proposal.progress_estimate_requests[proposal.progress_estimate_requests.length-1]],
+                          [
+                            proposal.progress_estimate_requests[
+                              proposal.progress_estimate_requests.length - 1
+                            ],
+                          ],
                           {
                             proposal_id: proposal.id,
                             estimate_request_id: request.id,

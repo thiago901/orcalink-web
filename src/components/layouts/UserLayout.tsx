@@ -34,24 +34,46 @@ import { FloatingChat } from "../chat/floating-chat";
 import { MdChevronLeft } from "react-icons/md";
 
 const navbarItems = [
-  { label: "Inicial", href: "/" ,type: "public" },
-  { label: "Quem somos", href: "/about",type: "public"  },
-  { label: "Meus orçamentos", href: "/my-budgets" , type: "logged" },
-  { label: "Encontrar um profissional", href: "/find-partners" ,type: "unlogged" },
+  { label: "Inicial", href: "/", type: "public" },
+  { label: "Quem somos", href: "/about", type: "public" },
+  { label: "Meus orçamentos", href: "/my-budgets", type: "logged" },
+  {
+    label: "Encontrar um profissional",
+    href: "/find-partners",
+    type: "unlogged",
+  },
   { label: "Ser prestador", href: "/become-provider", type: "public" },
+  { label: "Acessar dashboard", href: "/company", type: "logged" ,color:'foreground'},
   // { label: "Parceiros", href: "/partners",key: "partners" },
   // { label: "Para Empresas", href: "/plans" },
 ];
 const mobileNavbarItems = [
   { label: "Quem somos", href: "/about", key: "about", type: "public" },
-  { label: "Meus orçamentos", href: "/my-budgets", key: "budgets",type: 'logged' },
+  {
+    label: "Meus orçamentos",
+    href: "/my-budgets",
+    key: "budgets",
+    type: "logged",
+  },
   {
     label: "Encontrar um profissional",
     href: "/find-partners",
     key: "find-partner",
-    type: 'unlogged'
+    type: "unlogged",
   },
-  { label: "Ser prestador", href: "/become-provider", key: "ecome-provider" ,type: "public" },
+  {
+    label: "Ser prestador",
+    href: "/become-provider",
+    key: "ecome-provider",
+    type: "public",
+  },
+  {
+    label: "Acessar dashboard",
+    href: "/company",
+    type: "logged",
+    key: "company",
+    color:'foreground'
+  },
   // { label: "Parceiros", href: "/partners",key: "partners" },
 ];
 export const UserLayout = () => {
@@ -84,11 +106,10 @@ export const UserLayout = () => {
     },
     [pathname]
   );
-  function shouldHide(url: string,type: "public" | "logged" | "unlogged") {
-    if(type === "logged" && !isAuthenticated){
+  function shouldHide(url: string, type: "public" | "logged" | "unlogged") {
+    if (type === "logged" && !isAuthenticated) {
       return true;
-
-    }else if(type === "unlogged" && isAuthenticated){
+    } else if (type === "unlogged" && isAuthenticated) {
       return true;
     }
     const rules = {
@@ -143,12 +164,14 @@ export const UserLayout = () => {
                     />
                   </Button>
                 </DrawerHeader>
-                <DrawerBody >
-                  {mobileNavbarItems.filter(item=>!shouldHide(item.href,item.type)).map((item) => (
-                    <Link key={item.key} href={item.href} onClick={onClose}>
-                      {item.label}
-                    </Link>
-                  ))}
+                <DrawerBody>
+                  {mobileNavbarItems
+                    .filter((item) => !shouldHide(item.href, item.type))
+                    .map((item) => (
+                      <Link key={item.key} href={item.href} onClick={onClose}>
+                        {item.label}
+                      </Link>
+                    ))}
                 </DrawerBody>
               </DrawerContent>
             </Drawer>
@@ -159,7 +182,7 @@ export const UserLayout = () => {
             <NavbarItem
               key={index}
               isActive={isActive(item.href)}
-              hidden={shouldHide(item.href,item.type)}
+              hidden={shouldHide(item.href, item.type)}
             >
               <Link
                 color={isActive(item.href) ? "primary" : "foreground"}
@@ -178,7 +201,7 @@ export const UserLayout = () => {
               <Button onPress={toggleTheme} isIconOnly={true} variant="light">
                 {theme === "dark" ? <CiSun size={20} /> : <FiMoon size={20} />}
               </Button>
-              <Dropdown placement="bottom-end" >
+              <Dropdown placement="bottom-end">
                 <DropdownTrigger>
                   <Avatar
                     isBordered

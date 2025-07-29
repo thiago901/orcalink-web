@@ -6,7 +6,7 @@ export interface TimelineStep {
   id: string;
   title: string;
   description?: string;
-  icon: string;
+  icon: string | ReactNode;
   status: 'completed' | 'current' | 'pending';
   type: ProgressEstimateRequestType
   date?: Date;

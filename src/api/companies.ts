@@ -21,6 +21,11 @@ export interface CreateCompanyProps {
   email: string | null;
   website: string | null;
   address: Address;
+  categories: {
+    name: string;
+    category_id: string;
+    category_name: string;
+  }[];
 }
 
 export interface Company {

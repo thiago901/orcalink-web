@@ -1,20 +1,21 @@
 import { useCallback, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../stores/authStore";
 import { Title } from "../../components/ui/Title";
 import { Text } from "../../components/ui/Text";
 import { Subtitle } from "../../components/ui/Subtitle";
 import {
-
   Button,
   Card,
   CardBody,
+  CardFooter,
   CardHeader,
   Image,
   Input,
+  Select,
+  SelectItem,
   Textarea,
-  
 } from "@heroui/react";
 import {
   Company,
@@ -24,11 +25,15 @@ import {
   uploadCompanyImage,
 } from "../../api/companies";
 import FileUpload from "../../components/ui/FileUpload";
-import { FiFileText } from "react-icons/fi";
+import { FiFileText, FiPlus, FiTrash } from "react-icons/fi";
 import { CiMapPin, CiSearch } from "react-icons/ci";
 import { searchByZipCode } from "../../utils/search-zip-address";
 import { useNavigate } from "react-router-dom";
 import { useCompanyStore } from "../../stores/companyStore";
+import { CustomTextArea } from "../ui/Textarea";
+import { CustomInput } from "../ui/Input";
+import { getCategories } from "../../api/category";
+import { useQuery } from "@tanstack/react-query";
 
 type CompanyCreateFormProp = {
   company?: Company;
@@ -73,6 +78,11 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
       website: company?.website,
     },
   });
+
+  const { data: categories, isLoading: isLoadingCategories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => getCategories(),
+  });
   const postalCode = watch("address.zip");
   const uploadImage = useCallback(
     async (company_id: string) => {
@@ -104,7 +114,7 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
         if (changedFile) {
           await uploadImage(company.id);
         }
-        
+
         toast.success("Empresa atualizada com sucesso!");
       } else {
         const response = await createCompany(payload);
@@ -115,8 +125,8 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
         }
       }
 
-      if(user){
-        await getCompanies(user.id)
+      if (user) {
+        await getCompanies(user.id);
       }
       navigate("/company");
     } catch (err) {
@@ -132,14 +142,14 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
   const handleSearchZip = useCallback(async () => {
     try {
       const postal_code = getValues("address.zip");
-      if(!postal_code.trim()){
-        toast.error(
-          "Preencha o campo de CEP"
-        );
-        return
+      if (!postal_code.trim()) {
+        toast.error("Preencha o campo de CEP");
+        return;
       }
       setIsLoadingPostalCode(true);
-      const { logradouro, estado, uf } = await searchByZipCode(postal_code.trim());
+      const { logradouro, estado, uf } = await searchByZipCode(
+        postal_code.trim()
+      );
       setValue("address.address", logradouro, {
         shouldDirty: true,
         shouldTouch: true,
@@ -163,7 +173,6 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
       toast.error(
         "Erro ao buscar CEP, verifique se o CEP está correto e tente novamente"
       );
-      
     } finally {
       setIsLoadingPostalCode(false);
     }
@@ -173,9 +182,20 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
     setSelectedFiles(files);
     setChangedFile(true);
   }, []);
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "categories",
+  });
+  const handleAddItem = () => {
+    append({
+      name: "",
+      category_id: "",
+      category_name: "",
+    });
+  };
   return (
     <div className="space-y-6">
-   
       <div>
         <Title>{company ? "Editar Empresa" : "Nova Empresa"}</Title>
         <Text className="text-neutral-600">
@@ -290,6 +310,60 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
             />
           </CardBody>
         </Card>
+        {/* Serviços */}
+        <Card>
+          <CardHeader>
+            <Subtitle>Serviços</Subtitle>
+          </CardHeader>
+          <CardBody className="space-y-4">
+            {fields.map((field, index) => (
+              <div key={field.id} className="flex flex-col gap-2">
+                <div className="flex gap-2 items-center">
+                  <Select
+                    {...register(`categories.${index}.category_id`)}
+                    label="Categoria"
+                    placeholder="Selecione uma categoria"
+                  >
+                    {categories!.map((cat) => (
+                      <SelectItem key={cat.id} onPress={()=>{
+                        setValue(`categories.${index}.category_name`,cat.name)
+                      }}>{cat.name}</SelectItem>
+                      
+                    ))}
+                  </Select>
+                  <CustomInput
+                    label="Serviço"
+                    name={`categories.${index}.name`}
+                    error_message={errors.categories?.[index]?.name?.message}
+                    register={register}
+                    
+                  />
+                 
+                
+
+                  <Button
+                    variant="bordered"
+                    color="danger"
+                    isIconOnly
+                    onPress={() => remove(index)}
+                  >
+                    <FiTrash />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </CardBody>
+          <CardFooter>
+            <Button
+              onPress={handleAddItem}
+              className="self-end"
+              color="secondary"
+            >
+              <FiPlus />
+              <Text type="normal">Adicionar Item</Text>
+            </Button>
+          </CardFooter>
+        </Card>
 
         {/* Endereço */}
         <Card>
@@ -305,7 +379,6 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
                 {...register("address.zip", { required: "Campo obrigatório" })}
                 isInvalid={!!errors.address?.zip}
                 errorMessage={errors.address?.zip?.message}
-                
               />
               <Button
                 onPress={handleSearchZip}
