@@ -1,10 +1,8 @@
-import { ReactNode, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
 
 import {
-  EstimateRequest,
   getEstimateRequestById,
 } from "../../api/estimateRequests";
 import {
@@ -28,13 +26,12 @@ import {
   CardBody,
   CardHeader,
   Chip,
-  Divider,
   Progress,
   ScrollShadow,
 } from "@heroui/react";
 import { Subtitle } from "../../components/ui/Subtitle";
 import ImageGallery from "../../components/image-gallery";
-import { FiFileText, FiLoader } from "react-icons/fi";
+import { FiFileText } from "react-icons/fi";
 import { CiCalendar, CiMail, CiMapPin, CiPhone } from "react-icons/ci";
 
 import { AiFillStar } from "react-icons/ai";
@@ -66,7 +63,7 @@ import { useAuthStore } from "../../stores/authStore";
 import { AcceptSuggestedScheduled } from "../../components/timeline/components/accept-suggested-scheduled";
 import { visitFinished } from "../../api/visits";
 import { updateJob } from "../../api/jobs-service";
-import { FaBuilding, FaCheck } from "react-icons/fa6";
+import { FaCheck } from "react-icons/fa6";
 
 type UseTimelineStepsDataProps = {
   proposal_id: string;
@@ -506,6 +503,7 @@ export function MyBudgetsDetailPage() {
                           </Text>
                           <Text className="mt-2">{proposal.description}</Text>
                         </div>
+                        
                       </div>
 
                       <div className="space-y-2 h-full">
@@ -660,6 +658,7 @@ export function MyBudgetsDetailPage() {
           onClose={() => setEstimateDetail(false)}
           estimate_id={selectedProposal.estimate_id}
           status={renderStatus(selectedProposal)}
+          proposal_id={selectedProposal.id}
           onAccept={
             !!selectedProposal.approved_at || !!selectedProposal.reject_at
               ? null
@@ -670,27 +669,11 @@ export function MyBudgetsDetailPage() {
               ? null
               : () => setIsRejectDialogOpen(true)
           }
+          sender="CLIENT"
         />
       )}
 
-      {selectedProposal && (
-        <ProposalDetailModal
-          isOpen={estimateDetail}
-          onClose={() => setEstimateDetail(false)}
-          estimate_id={selectedProposal.estimate_id}
-          status={renderStatus(selectedProposal)}
-          onAccept={
-            !!selectedProposal.approved_at || !!selectedProposal.reject_at
-              ? null
-              : () => setIsApproveDialogOpen(true)
-          }
-          onReject={
-            !!selectedProposal.approved_at || !!selectedProposal.reject_at
-              ? null
-              : () => setIsRejectDialogOpen(true)
-          }
-        />
-      )}
+    
     </div>
   );
 }

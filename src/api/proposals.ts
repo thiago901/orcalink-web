@@ -21,8 +21,23 @@ export interface CreateProposalProps {
 
   estimate_request_id: string;
   expire_at: Date;
-  is_required_visit:boolean
+  is_required_visit: boolean;
 }
+export type ProposalMessagesProps={
+    company_id: string;
+    company_name: string;
+    content: string;
+    estimate_request_id: string;
+    id: string;
+    proposal_id: string;
+    read: boolean;
+    sender: string;
+    type: string;
+    user_id: string;
+    user_name: string;
+    created_at: Date;
+    updated_at: Date;
+  }
 
 export type Proposal = {
   id: string;
@@ -35,6 +50,7 @@ export type Proposal = {
   updated_at: Date;
   reject_at: Date;
   approved_at: Date;
+  messages: ProposalMessagesProps[];
   estimate_request: {
     id: string;
     footage: string;
@@ -62,6 +78,7 @@ export type Proposal = {
     name: string;
     ratting: number;
   };
+
   progress_estimate_requests: {
     title: string;
     estimate_request_id: string;
@@ -71,7 +88,7 @@ export type Proposal = {
     proposal_id: string;
     proporties: string;
   }[];
-  is_required_visit:boolean
+  is_required_visit: boolean;
 };
 
 // Proposal API functions

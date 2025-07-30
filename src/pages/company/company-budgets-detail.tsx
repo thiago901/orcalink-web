@@ -438,6 +438,9 @@ export function CompanyBudgetsDetailPage() {
           onClose={() => setSelectedProposal(null)}
           estimate_id={selectedProposal.estimate_id}
           status={renderStatus(selectedProposal)}
+          proposal_id={selectedProposal.id}
+          sender="COMPANY"
+
         />
       )}
     </div>

@@ -8,14 +8,18 @@ import { getAllEstimateById } from "../../api/estimate";
 import { ReactNode, useCallback } from "react";
 
 import { Text } from "../ui/Text";
+import { ProposalChatButton } from "../chat/proposal-chat-button";
+
 
 interface ProposalFormProps {
   isOpen: boolean;
   onClose: () => void;
   estimate_id: string;
+  proposal_id: string;
   status?: ReactNode;
   onReject?: (() => void) | null;
   onAccept?: (() => void) | null;
+  sender:'COMPANY'|'CLIENT'
 }
 
 export function ProposalDetailModal({
@@ -24,7 +28,9 @@ export function ProposalDetailModal({
   estimate_id,
   status,
   onAccept,
+  proposal_id,
   onReject,
+  sender
 }: ProposalFormProps) {
   const { data: estimate, isLoading: isLoadingProposals } = useQuery({
     queryKey: ["estimate", estimate_id],
@@ -32,6 +38,8 @@ export function ProposalDetailModal({
     enabled: isOpen,
   });
 
+
+    
   const handleAccept = useCallback(async () => {
     if (onAccept) {
       onAccept();
@@ -64,13 +72,8 @@ export function ProposalDetailModal({
           >
             Recusar
           </Button>}
-          {/* <Button
-            color="primary"
-            // startContent={<FiCheck size={16} />}
-            // onPress={handleAccept}
-          >
-            Negociar
-          </Button> */}
+          {!!proposal_id && <ProposalChatButton proposal_id={proposal_id} sender={sender}/>}
+          
           {!!onAccept && <Button
             color="success"
             startContent={<FiCheck size={16} />}

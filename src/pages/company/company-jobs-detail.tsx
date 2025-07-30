@@ -133,6 +133,8 @@ export function CompanyJobDetailPage() {
           isOpen={selectedProposal}
           onClose={() => setSelectedProposal(false)}
           estimate_id={job.estimate_id}
+          proposal_id={job.proposal_id}
+          sender="COMPANY"
         />
       )}
     </div>

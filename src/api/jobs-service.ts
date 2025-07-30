@@ -1,10 +1,11 @@
 import api, { ResponseAPI } from "./axios";
+import { Proposal } from "./proposals";
 
 type Job = {
   id:string
   company_id:string
   proposal_id:string
-  proposal:string
+  proposal:Proposal
   status:string
   estimate_request: {
     id: string;
