@@ -138,6 +138,18 @@ const RegisterPage = () => {
               })}
             />
             <Input
+              label="CPF/CNPJ"
+              
+              startContent={<CiMail size={18} />}
+              placeholder="444.111.222-22"
+              errorMessage={errors.email?.message}
+              isInvalid={!!errors.document?.message}
+              {...register("document", {
+                required: "Obrigatório",
+           
+              })}
+            />
+            <Input
               label="Telefone"
               type="tel"
               startContent={<FiPhone size={18} />}

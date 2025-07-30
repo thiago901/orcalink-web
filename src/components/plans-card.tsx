@@ -10,7 +10,7 @@ import { useAuthStore } from "../stores/authStore";
 import { Button, Card, CardBody, CardHeader, Chip, Link, useDisclosure } from "@heroui/react";
 import { Text } from "./ui/Text";
 import { format } from "date-fns";
-import { CheckoutButton } from "./payment/checkout-button";
+import { CheckoutButton } from "./payment/subscribe-checkout-button";
 import { WarningChangePlanModal } from "./modals/warning-change-plan-modal";
 
 const icons = {

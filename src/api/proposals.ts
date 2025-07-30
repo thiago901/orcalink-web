@@ -1,7 +1,6 @@
 import api, { ResponseAPI } from "./axios";
 
 export interface CreateProposalProps {
-
   name: string;
   description: string;
   company_id: string;
@@ -18,11 +17,11 @@ export interface CreateProposalProps {
     unit: string;
     price: number;
     quantity: number;
-    
   }[];
 
   estimate_request_id: string;
   expire_at: Date;
+  is_required_visit:boolean
 }
 
 export type Proposal = {
@@ -63,6 +62,16 @@ export type Proposal = {
     name: string;
     ratting: number;
   };
+  progress_estimate_requests: {
+    title: string;
+    estimate_request_id: string;
+    description: string;
+    type: string;
+    created_at: string;
+    proposal_id: string;
+    proporties: string;
+  }[];
+  is_required_visit:boolean
 };
 
 // Proposal API functions

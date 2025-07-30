@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { ReactNode, useCallback, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 
-import { getEstimateRequestById } from "../../api/estimateRequests";
+import {
+  EstimateRequest,
+  getEstimateRequestById,
+} from "../../api/estimateRequests";
 import {
   getProposalsByEstimateId,
   approveProposal,
@@ -15,6 +18,8 @@ import ProposalActionDialog from "../../components/proposals/ProposalActionDialo
 
 import { Text } from "../../components/ui/Text";
 import {
+  Accordion,
+  AccordionItem,
   Avatar,
   BreadcrumbItem,
   Breadcrumbs,
@@ -24,6 +29,8 @@ import {
   CardHeader,
   Chip,
   Divider,
+  Progress,
+  ScrollShadow,
 } from "@heroui/react";
 import { Subtitle } from "../../components/ui/Subtitle";
 import ImageGallery from "../../components/image-gallery";
@@ -31,13 +38,49 @@ import { FiFileText, FiLoader } from "react-icons/fi";
 import { CiCalendar, CiMail, CiMapPin, CiPhone } from "react-icons/ci";
 
 import { AiFillStar } from "react-icons/ai";
-import { getEstimateRequestMessagesGroupedByCompany } from "../../api/estimate-requests-messages";
+
 import { ProposalDetailModal } from "../../components/proposals/proposal-detail-modal";
-import { MdOutlineOpenInNew } from "react-icons/md";
-import { Chats } from "../../components/chat/chats";
+import {
+  MdFlag,
+  MdHourglassEmpty,
+  MdLightbulbOutline,
+  MdMarkEmailUnread,
+  MdOutlineKeyboardDoubleArrowRight,
+  MdOutlineOpenInNew,
+  MdPending,
+  MdRequestPage,
+  MdWatchLater,
+} from "react-icons/md";
+
+import { CheckoutButton } from "../../components/payment/checkout-button";
+import { Timeline, TimelineItem, TimelineWrapper } from "../../components/timeline/timeline";
+
+import {
+  getAllProgressEstimateRequestsByEstimateRequest,
+  ProgressEstimateRequest,
+} from "../../api/progress-estimate-requests";
+import { TimelineStep } from "../../components/timeline/time-types";
+
+import { ScheduleRequested } from "../../components/timeline/components/schedule-requested";
+import { useAuthStore } from "../../stores/authStore";
+import { AcceptSuggestedScheduled } from "../../components/timeline/components/accept-suggested-scheduled";
+import { visitFinished } from "../../api/visits";
+import { updateJob } from "../../api/jobs-service";
+import { FaBuilding, FaCheck } from "react-icons/fa6";
+
+type UseTimelineStepsDataProps = {
+  proposal_id: string;
+  estimate_request_id: string;
+  customer_id: string;
+  company_id: string;
+
+  handleOpenProposalDetail: (proposal_id: string) => void;
+  handleVisitFinished: (visit_id: string) => void;
+};
 
 export function MyBudgetsDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuthStore();
 
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(
     null
@@ -52,9 +95,14 @@ export function MyBudgetsDetailPage() {
     queryFn: () => getEstimateRequestById(id!),
     enabled: !!id,
   });
-  const { data: estimate_request_message } = useQuery({
-    queryKey: ["estimateRequestMessage", id],
-    queryFn: () => getEstimateRequestMessagesGroupedByCompany(id!),
+  // const { data: estimate_request_message } = useQuery({
+  //   queryKey: ["estimateRequestMessage", id],
+  //   queryFn: () => getEstimateRequestMessagesGroupedByCompany(id!),
+  //   enabled: !!id,
+  // });
+  const { data: progress_estimate_requests } = useQuery({
+    queryKey: ["progress_estimate_requests", id],
+    queryFn: () => getAllProgressEstimateRequestsByEstimateRequest(id!),
     enabled: !!id,
   });
 
@@ -106,25 +154,185 @@ export function MyBudgetsDetailPage() {
       setIsActionLoading(false);
     }
   };
+  const handleOpenProposalDetail = useCallback(
+    (proposal_id: string) => {
+      const proposal = proposals?.find((item) => item.id === proposal_id);
+      if (proposal) {
+        setSelectedProposal(proposal);
+        setEstimateDetail(true);
+      }
+    },
+    [proposals]
+  );
+  const handleVisitFinished = useCallback(async (visit_id: string) => {
+    await visitFinished(visit_id);
+  }, []);
+  const handleConfirmService = useCallback(async (proposal_id: string) => {
+    await updateJob(proposal_id, {
+      finished_customer_at: new Date(),
+    });
+  }, []);
 
-  if (isLoadingRequest || isLoadingProposals) {
-    return (
-      <div className="flex justify-center py-8">
-        <FiLoader className="w-8 h-8 animate-spin text-primary-500" />
-      </div>
-    );
-  }
+  const useTimelineSteps = (
+    items: ProgressEstimateRequest[],
+    data: UseTimelineStepsDataProps
+  ): TimelineStep[] => {
+    return items
+      .sort(
+        (a, b) =>
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      )
+      .map((item, index, arr) => {
+        const status: TimelineStep["status"] =
+          item.type === "FINISHED"
+            ? "completed"
+            : index < arr.length - 1
+            ? "completed"
+            : "current";
+        let action = null;
+        const is_completed = status === "completed";
+        let icon = <></>;
+        switch (item.type) {
+          case "PROPOSALS_WAITING":
+            icon = <MdPending />;
+            action = (
+              <Progress
+                isIndeterminate={!is_completed}
+                value={100}
+                label={
+                  is_completed && <Text type="caption" align="center"></Text>
+                }
+                aria-label="Loading..."
+                className="max-w-md "
+                size="sm"
+                showValueLabel
+              />
+            );
 
-  if (!request) {
-    return (
-      <div className="text-center py-8">
-        <h3 className="text-lg font-medium mb-2">Orçamento não encontrado</h3>
-        <p className="text-neutral-600">
-          O orçamento que você está procurando não existe ou foi removido.
-        </p>
-      </div>
-    );
-  }
+            break;
+          case "PROPOSALS_RECEIVED":
+            icon = <MdMarkEmailUnread />;
+            action = (
+              <Button
+                startContent={<MdOutlineOpenInNew size={16} />}
+                color="primary"
+                size="sm"
+                onPress={() => data.handleOpenProposalDetail(data.proposal_id)}
+              >
+                Ver Proposta
+              </Button>
+            );
+            break;
+          case "VISIT_WAITING":
+            icon = <MdWatchLater />;
+            action = (
+              <Button
+                size="sm"
+                color="primary"
+                onPress={() =>
+                  data.handleVisitFinished(item?.proporties?.visit_id)
+                }
+                isDisabled={is_completed}
+              >
+                Confimar Visita
+              </Button>
+            );
+            break;
+
+          case "VISIT_REQUESTED":
+            icon = <MdRequestPage />;
+            action = (
+              <ScheduleRequested
+                company_id={data.company_id}
+                customer_id={data.customer_id}
+                estimate_request_id={data.estimate_request_id}
+                proposal_id={data.proposal_id}
+                is_disabled={is_completed}
+              />
+            );
+            break;
+          case "VISIT_SUGGESTED":
+            icon = <MdLightbulbOutline />;
+            action = (
+              <AcceptSuggestedScheduled
+                visit_id={item?.proporties?.visit_id}
+                is_disabled={is_completed}
+              />
+            );
+            break;
+          case "PAYMENT_REQUESTED":
+            icon = <MdRequestPage />;
+            action = (
+              <CheckoutButton
+                proposal_id={data.proposal_id}
+                isDisabled={is_completed}
+                size="sm"
+              />
+            );
+            break;
+          case "WAITING":
+            icon = <MdPending />;
+            action = (
+              <Progress
+                isIndeterminate={!is_completed}
+                value={100}
+                label={
+                  is_completed && <Text type="caption" align="center"></Text>
+                }
+                aria-label="Loading..."
+                className="max-w-md "
+                size="sm"
+                showValueLabel
+              />
+            );
+            break;
+          case "IS_JOB_FINISHED":
+            icon = <MdHourglassEmpty />;
+            action = (
+              <div className="flex flex-col gap-2">
+                <Button
+                  variant="solid"
+                  color="success"
+                  size="sm"
+                  onPress={() => handleConfirmService(data.proposal_id)}
+                  isDisabled={is_completed}
+                >
+                  Confirmar finalização
+                </Button>
+              </div>
+            );
+            break;
+          case "FINISHED":
+            icon = <MdFlag />;
+            action = <Button size="sm">Avaliar prestador</Button>;
+            break;
+          default:
+            action = null;
+        }
+        return {
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          icon: icon,
+          status,
+          type: item.type,
+          date: new Date(item.created_at),
+          data,
+          actions: action,
+        };
+      });
+  };
+  // const steps = useTimelineSteps(
+  //   progress_estimate_requests ? progress_estimate_requests : [],
+  //   {
+  //     proposals,
+  //     estimate_request: request,
+  //     handleOpenProposalDetail,
+  //     customer_id: user?.customer_id || "",
+  //     progress_estimate_requests,
+  //   },
+  //   my_types
+  // );
 
   function renderStatus(proposal: Proposal, size?: "sm" | "md" | "lg") {
     return (
@@ -146,6 +354,25 @@ export function MyBudgetsDetailPage() {
       </Chip>
     );
   }
+
+  // if (isLoadingRequest || isLoadingProposals) {
+  //   return (
+  //     <div className="flex justify-center py-8">
+  //       <FiLoader className="w-8 h-8 animate-spin text-primary-500" />
+  //     </div>
+  //   );
+  // }
+  if (!request) {
+    return (
+      <div className="text-center py-8">
+        <h3 className="text-lg font-medium mb-2">Orçamento não encontrado</h3>
+        <p className="text-neutral-600">
+          O orçamento que você está procurando não existe ou foi removido.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 fade-in max-w-6xl mx-auto px-4 py-6">
       <Breadcrumbs>
@@ -154,8 +381,8 @@ export function MyBudgetsDetailPage() {
       </Breadcrumbs>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
+        <div className="lg:col-span-2 space-y-6 flex flex-col">
+          <Card className="flex-1">
             <CardHeader>
               <Subtitle>{request.name}</Subtitle>
             </CardHeader>
@@ -280,24 +507,60 @@ export function MyBudgetsDetailPage() {
                           <Text className="mt-2">{proposal.description}</Text>
                         </div>
                       </div>
-                      <div className="flex justify-end">
-                        <Button
-                          startContent={<MdOutlineOpenInNew size={16} />}
-                          color="primary"
-                          onPress={() => {
-                            setSelectedProposal(proposal);
-                            setEstimateDetail(true);
-                          }}
-                        >
-                          Ver detalhes
-                        </Button>
-                      </div>
 
-                      <Divider className="my-4" />
+                      <div className="space-y-2 h-full">
+                        <Accordion variant="bordered">
+                          <AccordionItem
+                            title={<Text>Visualizar Andamento</Text>}
+                            indicator={
+                              <MdOutlineKeyboardDoubleArrowRight size={20} />
+                            }
+                          >
+                            <ScrollShadow
+                              className="max-h-screen"
+                              hideScrollBar
+                            >
+                              {!!proposal?.progress_estimate_requests && (
+                                <Timeline
+                                  steps={useTimelineSteps(
+                                    proposal.progress_estimate_requests,
+                                    {
+                                      proposal_id: proposal.id,
+                                      estimate_request_id: request.id,
+                                      customer_id: user?.customer_id || "",
+                                      company_id: proposal.company_id,
+                                      handleOpenProposalDetail,
+                                      handleVisitFinished,
+                                    }
+                                  )}
+                                  showSteps={[
+                                    "PROPOSALS_RECEIVED",
+                                    "PROPOSALS_WAITING",
+                                    "PROPOSALS_ACCEPTED",
+                                    "VISIT_CREATED",
+                                    "VISIT_REQUESTED",
+                                    "VISIT_SUGGESTED",
+                                    "VISIT_CONFIRMED",
+                                    "VISIT_WAITING",
+                                    "VISIT_COMPLETED",
+                                    "PAYMENT_REQUESTED",
+                                    "PAYMENT_COMPLETED",
+                                    "WAITING",
+                                    "IS_JOB_FINISHED",
+                                    "FINISHED",
+                                  ]}
+                                />
+                              )}
+                              {/* {steps && <CompactTimeline steps={steps}  compact={true}/>} */}
+                            </ScrollShadow>
+                          </AccordionItem>
+                        </Accordion>
+                      </div>
+                      {/* <Divider className="my-4" />
                       <Text type="caption">
                         Enviada em:{" "}
                         {format(proposal.created_at, "dd/MM/yyyy, HH:mm:ss")}
-                      </Text>
+                      </Text> */}
                     </div>
                   ))}
                 </div>
@@ -306,40 +569,70 @@ export function MyBudgetsDetailPage() {
           </Card>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 h-full">
           <Card>
             <CardHeader>
-              <Subtitle>Status</Subtitle>
+              <Subtitle>Ultimas atualizações</Subtitle>
             </CardHeader>
-            <CardBody>
-              <div className="space-y-4">
-                <div>
-                  <div className="text-2xl font-semibold text-neutral-800">
-                    {proposals?.length || 0}
-                  </div>
-                  <div className="text-sm text-neutral-500">
-                    Propostas recebidas
-                  </div>
-                </div>
+            <ScrollShadow className="max-h-screen" hideScrollBar>
+              <CardBody>
+             <TimelineWrapper>
+                {progress_estimate_requests?.filter(f=>!f?.proposal_id).concat([progress_estimate_requests[progress_estimate_requests.length-1]]).map((progress,index,self) => (
+                  <TimelineItem step={{
+                    id:progress.id,
+                    status:'completed',
+                    title:progress.title,
+                    type:progress.type,
+                    icon:<FaCheck/>
 
-                <div className="h-px bg-neutral-200" />
+                  }}
+                  isLast={self.length===index+1} />
+                ))}
+                </TimelineWrapper>
 
-                <div>
-                  <h4 className="font-medium mb-2">Última atualização</h4>
-                  <div className="flex items-center gap-2 text-neutral-600">
-                    <CiCalendar size={18} />
-                    <span>
-                      {new Date(
-                        request.updated_at ?? request.created_at
-                      ).toLocaleDateString("pt-BR")}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </CardBody>
+                {/* {!proposals?.length?
+                  <Timeline
+                    steps={useTimelineSteps(progress_estimate_requests)}
+                  />:proposals?.map((proposal) => (
+                  <>
+                    <Text className="mb-2">
+                      Proposta: {proposal.company.name}
+                    </Text>
+                    {!!progress_estimate_requests && (
+                      <Timeline
+                        key={proposal.id}
+                        steps={useTimelineSteps(
+                          !proposal?.progress_estimate_requests
+                            ? progress_estimate_requests
+                            : progress_estimate_requests.concat([
+                                proposal.progress_estimate_requests[
+                                  proposal.progress_estimate_requests.length - 1
+                                ],
+                              ]),
+
+                          {
+                            proposal_id: proposal.id,
+                            estimate_request_id: request.id,
+                            customer_id: user?.customer_id || "",
+                            company_id: proposal.company_id,
+                            handleOpenProposalDetail,
+                            handleVisitFinished,
+                          }
+                        )}
+                      />
+                    )}
+                  </>
+                ))} */}
+
+                {/* {steps && (
+                  <Timeline
+                    // steps={mockTimelineSteps}
+                    steps={steps}
+                  />
+                )} */}
+              </CardBody>
+            </ScrollShadow>
           </Card>
-
-          
         </div>
       </div>
 
@@ -361,6 +654,25 @@ export function MyBudgetsDetailPage() {
         description="Tem certeza que deseja recusar esta proposta? Esta ação não pode ser desfeita."
         isLoading={isActionLoading}
       />
+      {selectedProposal && (
+        <ProposalDetailModal
+          isOpen={estimateDetail}
+          onClose={() => setEstimateDetail(false)}
+          estimate_id={selectedProposal.estimate_id}
+          status={renderStatus(selectedProposal)}
+          onAccept={
+            !!selectedProposal.approved_at || !!selectedProposal.reject_at
+              ? null
+              : () => setIsApproveDialogOpen(true)
+          }
+          onReject={
+            !!selectedProposal.approved_at || !!selectedProposal.reject_at
+              ? null
+              : () => setIsRejectDialogOpen(true)
+          }
+        />
+      )}
+
       {selectedProposal && (
         <ProposalDetailModal
           isOpen={estimateDetail}

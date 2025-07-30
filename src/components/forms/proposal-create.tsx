@@ -1,6 +1,15 @@
-import { Button, Select, SelectItem, Card, CardBody } from "@heroui/react";
+import {
+  Button,
+  Select,
+  SelectItem,
+  Card,
+  CardBody,
+  Switch,
+  cn,
+  Chip,
+} from "@heroui/react";
 import { FiPlus, FiTrash } from "react-icons/fi";
-import { EstimateCustomer, CreateEstimateProps } from "../../api/estimate";
+import { EstimateCustomer } from "../../api/estimate";
 import { useFieldArray, useForm } from "react-hook-form";
 import { CustomInput } from "../ui/Input";
 import { CustomTextArea } from "../ui/Textarea";
@@ -21,7 +30,6 @@ export function ProposalCreateForm({
 }: EstimateCreateFormProps) {
   const { current_company } = useCompanyStore();
   const createEstimate = async (data: CreateProposalProps) => {
-    
     await createProposal({
       ...data,
       estimate_request_id,
@@ -52,7 +60,6 @@ export function ProposalCreateForm({
       unit: "UNITS",
       price: 0,
       quantity: 0,
-      
     });
   };
   const items = watch("items");
@@ -62,6 +69,8 @@ export function ProposalCreateForm({
       onSubmit={handleSubmit(createEstimate)}
       className="space-y-2 "
       id={form}
+
+      
     >
       <div className="space-y-2">
         <h2 className="font-medium">Informações do Cliente</h2>
@@ -160,7 +169,6 @@ export function ProposalCreateForm({
                         error_message={errors.items?.[index]?.quantity?.message}
                       />
 
-                    
                       <Button
                         variant="bordered"
                         color="danger"
@@ -180,12 +188,12 @@ export function ProposalCreateForm({
                       }
                     />
                   </div>
-                   <div className="flex items-end gap-2 justify-end mt-2">
-                    <Text type="normal" color="muted">Total:</Text>
-                    <Text type="normal">
-                        {formatCurrency(total)}
-                      </Text>
-                   </div>
+                  <div className="flex items-end gap-2 justify-end mt-2">
+                    <Text type="normal" color="muted">
+                      Total:
+                    </Text>
+                    <Text type="normal">{formatCurrency(total)}</Text>
+                  </div>
                 </CardBody>
               </Card>
             );
@@ -196,7 +204,28 @@ export function ProposalCreateForm({
           <Text type="normal">Adicionar Item</Text>
         </Button>
       </div>
-
+      <Card className="">
+        <CardBody>
+          <Switch
+            {...register("is_required_visit")}
+            name="is_required_visit"
+            classNames={{
+              base: cn("inline-flex flex-row-reverse"),
+            }}
+          >
+            <div className="flex flex-col gap-1">
+              <div className="">
+                <Chip color="danger">Atenção</Chip>
+              </div>
+              <p className="text-medium">Visita é necessaria?</p>
+              <p className="text-tiny text-default-400">
+                Habilite quando for necessario ir até a residencia do cliente
+                avaliar o espaço, antes de informar o valor definitivo
+              </p>
+            </div>
+          </Switch>
+        </CardBody>
+      </Card>
       {/* Submit */}
       {!form && (
         <Button type="submit" fullWidth color="primary">

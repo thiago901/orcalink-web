@@ -14,6 +14,7 @@ export interface CreateEstimateRequestProps {
   address_state: string;
   address_street: string;
   category: string;
+  urgency: number;
   lat: string;
   long: string;
 }

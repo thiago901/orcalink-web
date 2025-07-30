@@ -41,6 +41,10 @@ import { AboutPage } from "./pages/about-page";
 import BecomeProviderPage from "./pages/become-provider-page";
 
 import { FindCompanies } from "./pages/user/find-companies-page";
+import { SuggestionsPage } from "./pages/visits/suggestions-page";
+import { ProviderPendingRequests } from "./pages/visits/company/provider-pending-requests";
+import { ClientScheduling } from "./pages/visits/customer/schedule-customer";
+import { ClientSuggestions } from "./pages/visits/customer/customer-suggestion";
 
 
 function App() {
@@ -67,6 +71,10 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/become-provider" element={<BecomeProviderPage />} />
         <Route path="/find-partners" element={<FindCompanies />} />
+        <Route path="/visits" element={<ProviderPendingRequests />} />
+        <Route path="/visits/:id" element={<ClientSuggestions />} />
+        <Route path="/visits/suggestion" element={<SuggestionsPage />} />
+        <Route path="/visits/create" element={<ClientScheduling />} />
         
 
         <Route element={<ProtectedRoute />}>
@@ -113,6 +121,8 @@ function App() {
           <Route path="proposals" element={<CompanyProposalsPage />} />
           <Route path="jobs" element={<CompanyJobsPage />} />
           <Route path="jobs/:id" element={<CompanyJobDetailPage />} />
+
+          <Route path="schedule-visits" element={<ProviderPendingRequests />} />
         </Route>
       </Route>
 

@@ -64,7 +64,13 @@ export function ProposalDetailModal({
           >
             Recusar
           </Button>}
-          
+          {/* <Button
+            color="primary"
+            // startContent={<FiCheck size={16} />}
+            // onPress={handleAccept}
+          >
+            Negociar
+          </Button> */}
           {!!onAccept && <Button
             color="success"
             startContent={<FiCheck size={16} />}

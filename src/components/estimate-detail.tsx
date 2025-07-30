@@ -177,6 +177,7 @@ export function EstimateDetail({ estimate }: EstimateDetailProps) {
         </CardBody>
 
         {/* Condições Gerais */}
+        
         <CardFooter>
           <div className="text-xs text-center w-full">
             Essa é uma proposta comercial. Seu teor, desde que aceito no prazo
