@@ -670,6 +670,11 @@ export function MyBudgetsDetailPage() {
               : () => setIsRejectDialogOpen(true)
           }
           sender="CLIENT"
+          customer={{
+            id:request.user.id,
+            name:request.user.name,
+            avatar:request.user.avatar,
+          }}
         />
       )}
 

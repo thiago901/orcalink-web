@@ -1,5 +1,5 @@
 import {
-  avatar,
+  
   Avatar,
   Button,
   Card,
@@ -19,14 +19,14 @@ import { FiPaperclip, FiSend } from "react-icons/fi";
 import {
   createEstimateRequestMessage,
   EstimateRequestMessage,
-  EstimateRequestMessageGrouped,
+  
 } from "../../api/estimate-requests-messages";
 import { FaArrowLeft } from "react-icons/fa6";
 
 import { useAuthStore } from "../../stores/authStore";
 import { useSocketStore } from "../../stores/useSocketStore";
-import { getProposalById, ProposalMessagesProps } from "../../api/proposals";
-import { useQuery } from "@tanstack/react-query";
+import { ProposalMessagesProps } from "../../api/proposals";
+
 
 type ChatBoxToProps = {
   id: string;
@@ -37,6 +37,11 @@ interface ChatBoxProps {
   proposal_id: string;
   estimate_request_id: string;
   company: ChatBoxToProps;
+  customer: {
+    id: string;
+    name: string;
+    avatar: string;
+  };
   messages: ProposalMessagesProps[];
   sender: "CLIENT" | "COMPANY";
 
@@ -54,6 +59,7 @@ export function ProposalChat({
   onSend,
   estimate_request_id,
   company,
+  customer,
 }: ChatBoxProps) {
   const { connect, on, off, emit } = useSocketStore();
   const { user } = useAuthStore();
@@ -61,21 +67,6 @@ export function ProposalChat({
   const [internalMessages, setInternalMessages] = useState(messages);
   const [isSending, setIsSending] = useState(false);
   const [input, setInput] = useState("");
-  const customer = {
-    id: messages[0].user_id,
-    name: messages[0].user_name,
-    avatar: "",
-  };
-
-  const {
-    data: proposal,
-    isLoading: isLoadingProposal,
-    refetch: refetchProposal,
-  } = useQuery({
-    queryKey: ["proposal", proposal_id],
-    queryFn: () => getProposalById(proposal_id),
-    enabled: !!proposal_id,
-  });
 
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 

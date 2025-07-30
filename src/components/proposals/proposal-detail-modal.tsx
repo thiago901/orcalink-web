@@ -19,7 +19,13 @@ interface ProposalFormProps {
   status?: ReactNode;
   onReject?: (() => void) | null;
   onAccept?: (() => void) | null;
-  sender:'COMPANY'|'CLIENT'
+  sender:'COMPANY'|'CLIENT',
+  customer:{
+    id:string;
+    name:string;
+    avatar:string;
+  }
+
 }
 
 export function ProposalDetailModal({
@@ -30,7 +36,8 @@ export function ProposalDetailModal({
   onAccept,
   proposal_id,
   onReject,
-  sender
+  sender,
+  customer
 }: ProposalFormProps) {
   const { data: estimate, isLoading: isLoadingProposals } = useQuery({
     queryKey: ["estimate", estimate_id],
@@ -72,7 +79,7 @@ export function ProposalDetailModal({
           >
             Recusar
           </Button>}
-          {!!proposal_id && <ProposalChatButton proposal_id={proposal_id} sender={sender}/>}
+          
           
           {!!onAccept && <Button
             color="success"
@@ -81,6 +88,7 @@ export function ProposalDetailModal({
           >
             Aceitar
           </Button>}
+          {!!proposal_id && <ProposalChatButton proposal_id={proposal_id} sender={sender} customer={customer}/>}
         </>
       }
     >

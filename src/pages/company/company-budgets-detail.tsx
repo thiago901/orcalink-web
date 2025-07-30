@@ -440,6 +440,11 @@ export function CompanyBudgetsDetailPage() {
           status={renderStatus(selectedProposal)}
           proposal_id={selectedProposal.id}
           sender="COMPANY"
+          customer={{
+            id:request.user.id,
+            name:request.user.name,
+            avatar:request.user.avatar,
+          }}
 
         />
       )}
