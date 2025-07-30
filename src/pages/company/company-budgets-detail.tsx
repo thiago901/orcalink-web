@@ -260,7 +260,7 @@ export function CompanyBudgetsDetailPage() {
                   setIsProposalFormOpen(true);
                 }}
               >
-                Enviar proposta
+                Preencher proposta
               </Button>
             )}
           </div>

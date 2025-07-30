@@ -21,6 +21,7 @@ export interface CreateProposalProps {
 
   estimate_request_id: string;
   expire_at: Date;
+  is_required_visit:boolean
 }
 
 export type Proposal = {
@@ -70,6 +71,7 @@ export type Proposal = {
     proposal_id: string;
     proporties: string;
   }[];
+  is_required_visit:boolean
 };
 
 // Proposal API functions

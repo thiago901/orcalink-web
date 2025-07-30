@@ -47,6 +47,7 @@ const DialogV2 = ({
       isDismissable={isDismissable}
       isKeyboardDismissDisabled={isKeyboardDismissDisabled}
       aria-label='model-container'
+      scrollBehavior='inside'
      
     >
       <ModalContent aria-label='model-content'>
