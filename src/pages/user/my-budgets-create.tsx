@@ -31,6 +31,25 @@ import { getCategories } from "../../api/category";
 import { useQuery } from "@tanstack/react-query";
 import { getCompaniesByLocation } from "../../api/companies";
 
+const urgencies = [
+  {
+    label: "O mais rápido possível",
+    value: 0,
+  },
+  {
+    label: "Ainda esta semana",
+    value: 1,
+  },
+  {
+    label: "Dentro deste mês",
+    value: 2,
+  },
+  {
+    label: "Sem data definida",
+    value: 3,
+  },
+];
+
 export function MyBudgetsCreatePage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
@@ -154,6 +173,7 @@ export function MyBudgetsCreatePage() {
     //   toast.error('É necessário permitir o acesso à sua localização');
     //   return;
     // }
+
     try {
       const requestData = {
         ...data,
@@ -230,6 +250,19 @@ export function MyBudgetsCreatePage() {
                   ))}
                 </Select>
               )}
+              {urgencies.length && (
+                <Select
+                  {...register("urgency")}
+                  label="Urgencia"
+                  placeholder="Qual a urgencia"
+                  
+                >
+                  {urgencies.map((item) => (
+                    <SelectItem key={item.value}>{item.label}</SelectItem>
+                  ))}
+                </Select>
+              )}
+              
 
               <Textarea
                 label="Descrição"

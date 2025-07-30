@@ -22,6 +22,7 @@ export type ProgressEstimateRequest={
     estimate_request_id: string;
   title: string;
   description: string;
+  proposal_id?: string;
   type: ProgressEstimateRequestType;
   created_at: Date;
 };

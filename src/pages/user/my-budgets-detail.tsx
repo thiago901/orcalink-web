@@ -53,7 +53,7 @@ import {
 } from "react-icons/md";
 
 import { CheckoutButton } from "../../components/payment/checkout-button";
-import { Timeline } from "../../components/timeline/timeline";
+import { Timeline, TimelineItem, TimelineWrapper } from "../../components/timeline/timeline";
 
 import {
   getAllProgressEstimateRequestsByEstimateRequest,
@@ -66,7 +66,7 @@ import { useAuthStore } from "../../stores/authStore";
 import { AcceptSuggestedScheduled } from "../../components/timeline/components/accept-suggested-scheduled";
 import { visitFinished } from "../../api/visits";
 import { updateJob } from "../../api/jobs-service";
-import { FaBuilding } from "react-icons/fa6";
+import { FaBuilding, FaCheck } from "react-icons/fa6";
 
 type UseTimelineStepsDataProps = {
   proposal_id: string;
@@ -184,8 +184,11 @@ export function MyBudgetsDetailPage() {
       )
       .map((item, index, arr) => {
         const status: TimelineStep["status"] =
-          item.type==='FINISHED'? 'completed':
-          index < arr.length - 1   ? "completed" : "current";
+          item.type === "FINISHED"
+            ? "completed"
+            : index < arr.length - 1
+            ? "completed"
+            : "current";
         let action = null;
         const is_completed = status === "completed";
         let icon = <></>;
@@ -194,12 +197,15 @@ export function MyBudgetsDetailPage() {
             icon = <MdPending />;
             action = (
               <Progress
-                isIndeterminate
+                isIndeterminate={!is_completed}
+                value={100}
+                label={
+                  is_completed && <Text type="caption" align="center"></Text>
+                }
                 aria-label="Loading..."
-                className="max-w-md"
+                className="max-w-md "
                 size="sm"
-                isStriped
-                isDisabled
+                showValueLabel
               />
             );
 
@@ -570,20 +576,40 @@ export function MyBudgetsDetailPage() {
             </CardHeader>
             <ScrollShadow className="max-h-screen" hideScrollBar>
               <CardBody>
-                {proposals?.map((proposal) => (
+             <TimelineWrapper>
+                {progress_estimate_requests?.filter(f=>!f?.proposal_id).concat([progress_estimate_requests[progress_estimate_requests.length-1]]).map((progress,index,self) => (
+                  <TimelineItem step={{
+                    id:progress.id,
+                    status:'completed',
+                    title:progress.title,
+                    type:progress.type,
+                    icon:<FaCheck/>
+
+                  }}
+                  isLast={self.length===index+1} />
+                ))}
+                </TimelineWrapper>
+
+                {/* {!proposals?.length?
+                  <Timeline
+                    steps={useTimelineSteps(progress_estimate_requests)}
+                  />:proposals?.map((proposal) => (
                   <>
                     <Text className="mb-2">
                       Proposta: {proposal.company.name}
                     </Text>
-                    {!!proposal?.progress_estimate_requests && (
+                    {!!progress_estimate_requests && (
                       <Timeline
                         key={proposal.id}
                         steps={useTimelineSteps(
-                          [
-                            proposal.progress_estimate_requests[
-                              proposal.progress_estimate_requests.length - 1
-                            ],
-                          ],
+                          !proposal?.progress_estimate_requests
+                            ? progress_estimate_requests
+                            : progress_estimate_requests.concat([
+                                proposal.progress_estimate_requests[
+                                  proposal.progress_estimate_requests.length - 1
+                                ],
+                              ]),
+
                           {
                             proposal_id: proposal.id,
                             estimate_request_id: request.id,
@@ -596,7 +622,7 @@ export function MyBudgetsDetailPage() {
                       />
                     )}
                   </>
-                ))}
+                ))} */}
 
                 {/* {steps && (
                   <Timeline
