@@ -116,6 +116,8 @@ export const UserLayout = () => {
       "/my-budgets": url === "/my-budgets" && !isAuthenticated,
       "/plans":
         url === "/plans" && isAuthenticated && user?.role === "customer",
+      "/company":
+        url === "/company" && isAuthenticated && user?.role === "customer",
     };
 
     return rules[url as keyof typeof rules] || false;
