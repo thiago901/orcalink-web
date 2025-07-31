@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
 import { getEstimateRequestById } from "../../api/estimateRequests";
-import { getProposalsByEstimateId, Proposal } from "../../api/proposals";
+import { getProposalsByEstimateId, getProposalsByEstimateIdAndCompany, Proposal } from "../../api/proposals";
 
 import { Title } from "../../components/ui/Title";
 
@@ -41,8 +41,10 @@ import { format } from "date-fns";
 import { AiFillStar } from "react-icons/ai";
 import { ProposalDetailModal } from "../../components/proposals/proposal-detail-modal";
 import { HiddenText } from "../../components/hidden-text";
+import { findCustomerUserById } from "../../api/customer";
 
 export function CompanyBudgetsDetailPage() {
+  
   const { estimate_request_id } = useParams<{ estimate_request_id: string }>();
   const { current_company } = useCompanyStore();
   const id = current_company.id;
@@ -71,7 +73,7 @@ export function CompanyBudgetsDetailPage() {
     refetch: refetchProposals,
   } = useQuery({
     queryKey: ["proposals", estimate_request_id],
-    queryFn: () => getProposalsByEstimateId(estimate_request_id!),
+    queryFn: () => getProposalsByEstimateIdAndCompany(estimate_request_id!,current_company.id!),
     enabled: !!estimate_request_id,
   });
 
@@ -98,14 +100,18 @@ export function CompanyBudgetsDetailPage() {
   }, [estimate_request_id, id, proposals]);
   const [isProposalFormOpen, setIsProposalFormOpen] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const { data: request, isLoading: isLoadingRequest } = useQuery({
+  const {
+    data: request,
+    isLoading: isLoadingRequest,
+    refetch: estimate_request_refetch,
+  } = useQuery({
     queryKey: ["estimateRequest", estimate_request_id],
     queryFn: () => getEstimateRequestById(estimate_request_id!),
     enabled: !!estimate_request_id,
   });
   const { data: customer } = useQuery({
     queryKey: ["customer", estimate_request_id],
-    queryFn: () => (request ? getUserById(request.user_id) : null),
+    queryFn: () => (request ? findCustomerUserById(request.user_id) : null),
     enabled: !!request && !isLoadingRequest,
   });
 
@@ -414,16 +420,19 @@ export function CompanyBudgetsDetailPage() {
       <CreateProposalModal
         estimate_request_id={request.id}
         isOpen={isProposalFormOpen}
-        onClose={() => setIsProposalFormOpen(false)}
+        onClose={() => {
+          setIsProposalFormOpen(false);
+          estimate_request_refetch();
+        }}
         customer={
           customer
             ? {
-                document: "fake-document",
+                document: customer.document,
                 email: customer.email,
                 id: customer.id,
                 name: customer.name,
                 phone: customer.phone,
-                avatar: customer.avatar,
+                avatar: "",
               }
             : null
         }
@@ -441,11 +450,10 @@ export function CompanyBudgetsDetailPage() {
           proposal_id={selectedProposal.id}
           sender="COMPANY"
           customer={{
-            id:request.user.id,
-            name:request.user.name,
-            avatar:request.user.avatar,
+            id: request.user.id,
+            name: request.user.name,
+            avatar: request.user.avatar,
           }}
-
         />
       )}
     </div>

@@ -116,6 +116,12 @@ export const getProposalsByEstimateId = async (estimateId: string) => {
   );
   return response.data.result;
 };
+export const getProposalsByEstimateIdAndCompany = async (estimate_request_id: string,company_id:string) => {
+  const response = await api.get<ResponseAPI<Proposal[]>>(
+    `/proposals/estimate_request/${estimate_request_id}/company/${company_id}`
+  );
+  return response.data.result;
+};
 
 export const createProposal = async (data: CreateProposalProps) => {
   const response = await api.post("/proposals", data);

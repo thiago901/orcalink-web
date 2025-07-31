@@ -26,7 +26,7 @@ export function CreateProposalModal({
       isOpen={isOpen}
       onClose={onClose}
       size="2xl"
-      title="Criar novo orçamento"
+      title="Proposta"
       isKeyboardDismissDisabled={false}
       isDismissable={false}
       footer={
@@ -44,7 +44,7 @@ export function CreateProposalModal({
         </>
       }
     >
-     <ProposalCreateForm form="company-proposal-create" customer={customer} estimate_request_id={estimate_request_id}/>
+     <ProposalCreateForm form="company-proposal-create" customer={customer} estimate_request_id={estimate_request_id} onClose={onClose}/>
     </DialogV2>
   );
 };
