@@ -58,7 +58,7 @@ export function ScheduleRequested({
         className="transition-transform hover:scale-105"
         isDisabled={is_disabled}
       >
-        Agendar uma visita
+        Agendar
       </Button>
       <ScheduleCustomerCreateModal
         isOpen={isOpen}
