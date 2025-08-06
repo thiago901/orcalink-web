@@ -10,7 +10,8 @@ type ScheduleRequestedProps = {
   estimate_request_id: string;
   proposal_id: string;
   notes?: string;
-  is_disabled?: boolean
+  is_disabled?: boolean;
+  onSuccess?: () => Promise<unknown>;
 };
 export function ScheduleRequested({
   company_id,
@@ -18,7 +19,8 @@ export function ScheduleRequested({
   notes,
   estimate_request_id,
   proposal_id,
-  is_disabled
+  is_disabled,
+  onSuccess,
 }: ScheduleRequestedProps) {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [scheduledAt, setScheduledAt] = useState<Date | null>();
@@ -31,10 +33,15 @@ export function ScheduleRequested({
         scheduled_at: scheduledAt || new Date(),
         notes,
         estimate_request_id,
-        proposal_id
+        proposal_id,
       });
     },
-
+    onSuccess: async () => {
+      onClose();
+      if (onSuccess) {
+        await onSuccess();
+      }
+    },
     onError: (error) => {
       console.error("Erro ao criar usuário:", error);
     },

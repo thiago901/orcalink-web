@@ -2,15 +2,21 @@ import { Button, useDisclosure } from "@heroui/react";
 import { ScheduleCustomerCreateModal } from "../../modals/schedule-customer-create-modal";
 
 import { useMutation } from "@tanstack/react-query";
-import { confirmVisitById, suggestVisitById, suggestVisitByIdCustomer } from "../../../api/visits";
-import { useCallback, useState } from "react";
+import {
+  confirmVisitById,
+  suggestVisitByIdCustomer,
+} from "../../../api/visits";
+import { useState } from "react";
+import toast from "react-hot-toast";
 type AcceptSuggestedScheduledProps = {
   visit_id: string;
-  is_disabled?:boolean
+  is_disabled?: boolean;
+  onSuccess?: () => Promise<unknown>;
 };
 export function AcceptSuggestedScheduled({
   visit_id,
-  is_disabled
+  is_disabled,
+  onSuccess,
 }: AcceptSuggestedScheduledProps) {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [scheduledAt, setScheduledAt] = useState<Date | null>();
@@ -18,18 +24,32 @@ export function AcceptSuggestedScheduled({
     mutationFn: () => {
       return confirmVisitById(visit_id);
     },
+    onSuccess: async () => {
+      onClose();
+      if (onSuccess) {
+        await onSuccess();
+      }
+    },
 
     onError: (error) => {
-      console.error("Erro ao criar usuário:", error);
+      toast.error("Erro ao aceitar visita agendada");
+      console.error("[AcceptSuggestedScheduled][confirmVisitById]", error);
     },
   });
   const { isPending: isPendingReschedule, mutate: reschedule } = useMutation({
     mutationFn: () => {
       return suggestVisitByIdCustomer(visit_id, scheduledAt || new Date());
     },
+    onSuccess: async () => {
+      onClose();
+      if (onSuccess) {
+        await onSuccess();
+      }
+    },
 
     onError: (error) => {
-      console.error("Erro ao criar usuário:", error);
+      toast.error("Erro ao reagendar visita");
+      console.error("[AcceptSuggestedScheduled][reschedule]", error);
     },
   });
 

@@ -6,7 +6,8 @@ import { CustomInput } from "../../components/ui/Input";
 import { CustomTextArea } from "../../components/ui/Textarea";
 import { Text } from "../../components/ui/Text";
 import { useCompanyStore } from "../../stores/companyStore";
-
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 type EstimateCreateFormProps = {
   customer?: EstimateCustomer | null;
@@ -17,9 +18,21 @@ export function EstimateCreateForm({
   form,
 }: EstimateCreateFormProps) {
   const { current_company } = useCompanyStore();
+  const { isPending, mutate } = useMutation({
+    mutationFn: (data: CreateEstimateProps) => {
+      return createEstimate(data);
+    },
+
+    onError: (error) => {
+      toast.error("Erro ao criar orçamento");
+      console.error("[EstimateCreateForm][createEstimate]", error);
+    },
+    onSuccess: () => {
+      toast.success("Orçamento criado com sucesso");
+    },
+  });
   const createEstimate = async (data: CreateEstimateProps) => {
-    
-    await createEstimate(data);
+    mutate(data);
   };
   const {
     register,
@@ -239,7 +252,7 @@ export function EstimateCreateForm({
 
       {/* Submit */}
       {!form && (
-        <Button type="submit" fullWidth color="primary">
+        <Button type="submit" fullWidth color="primary" isLoading={isPending}>
           Criar Orçamento
         </Button>
       )}

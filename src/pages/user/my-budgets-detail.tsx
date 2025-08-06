@@ -1,10 +1,8 @@
-import { useCallback, useState } from "react";
+import { Suspense, useCallback, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
-import {
-  getEstimateRequestById,
-} from "../../api/estimateRequests";
+import { getEstimateRequestById } from "../../api/estimateRequests";
 import {
   getProposalsByEstimateId,
   approveProposal,
@@ -50,7 +48,11 @@ import {
 } from "react-icons/md";
 
 import { CheckoutButton } from "../../components/payment/checkout-button";
-import { Timeline, TimelineItem, TimelineWrapper } from "../../components/timeline/timeline";
+import {
+  Timeline,
+  TimelineItem,
+  TimelineWrapper,
+} from "../../components/timeline/timeline";
 
 import {
   getAllProgressEstimateRequestsByEstimateRequest,
@@ -161,14 +163,22 @@ export function MyBudgetsDetailPage() {
     },
     [proposals]
   );
-  const handleVisitFinished = useCallback(async (visit_id: string) => {
-    await visitFinished(visit_id);
-  }, []);
-  const handleConfirmService = useCallback(async (proposal_id: string) => {
-    await updateJob(proposal_id, {
-      finished_customer_at: new Date(),
-    });
-  }, []);
+  const handleVisitFinished = useCallback(
+    async (visit_id: string) => {
+      await visitFinished(visit_id);
+      await refetchProposals();
+    },
+    [refetchProposals]
+  );
+  const handleConfirmService = useCallback(
+    async (proposal_id: string) => {
+      await updateJob(proposal_id, {
+        finished_customer_at: new Date(),
+      });
+      await refetchProposals();
+    },
+    [refetchProposals]
+  );
 
   const useTimelineSteps = (
     items: ProgressEstimateRequest[],
@@ -245,6 +255,7 @@ export function MyBudgetsDetailPage() {
                 estimate_request_id={data.estimate_request_id}
                 proposal_id={data.proposal_id}
                 is_disabled={is_completed}
+                onSuccess={refetchProposals}
               />
             );
             break;
@@ -254,6 +265,7 @@ export function MyBudgetsDetailPage() {
               <AcceptSuggestedScheduled
                 visit_id={item?.proporties?.visit_id}
                 is_disabled={is_completed}
+                onSuccess={refetchProposals}
               />
             );
             break;
@@ -319,17 +331,6 @@ export function MyBudgetsDetailPage() {
         };
       });
   };
-  // const steps = useTimelineSteps(
-  //   progress_estimate_requests ? progress_estimate_requests : [],
-  //   {
-  //     proposals,
-  //     estimate_request: request,
-  //     handleOpenProposalDetail,
-  //     customer_id: user?.customer_id || "",
-  //     progress_estimate_requests,
-  //   },
-  //   my_types
-  // );
 
   function renderStatus(proposal: Proposal, size?: "sm" | "md" | "lg") {
     return (
@@ -352,13 +353,6 @@ export function MyBudgetsDetailPage() {
     );
   }
 
-  // if (isLoadingRequest || isLoadingProposals) {
-  //   return (
-  //     <div className="flex justify-center py-8">
-  //       <FiLoader className="w-8 h-8 animate-spin text-primary-500" />
-  //     </div>
-  //   );
-  // }
   if (!request) {
     return (
       <div className="text-center py-8">
@@ -503,7 +497,6 @@ export function MyBudgetsDetailPage() {
                           </Text>
                           <Text className="mt-2">{proposal.description}</Text>
                         </div>
-                        
                       </div>
 
                       <div className="space-y-2 h-full">
@@ -574,60 +567,27 @@ export function MyBudgetsDetailPage() {
             </CardHeader>
             <ScrollShadow className="max-h-screen" hideScrollBar>
               <CardBody>
-             <TimelineWrapper>
-                {progress_estimate_requests?.filter(f=>!f?.proposal_id).concat([progress_estimate_requests[progress_estimate_requests.length-1]]).map((progress,index,self) => (
-                  <TimelineItem step={{
-                    id:progress.id,
-                    status:'completed',
-                    title:progress.title,
-                    type:progress.type,
-                    icon:<FaCheck/>
-
-                  }}
-                  isLast={self.length===index+1} />
-                ))}
-                </TimelineWrapper>
-
-                {/* {!proposals?.length?
-                  <Timeline
-                    steps={useTimelineSteps(progress_estimate_requests)}
-                  />:proposals?.map((proposal) => (
-                  <>
-                    <Text className="mb-2">
-                      Proposta: {proposal.company.name}
-                    </Text>
-                    {!!progress_estimate_requests && (
-                      <Timeline
-                        key={proposal.id}
-                        steps={useTimelineSteps(
-                          !proposal?.progress_estimate_requests
-                            ? progress_estimate_requests
-                            : progress_estimate_requests.concat([
-                                proposal.progress_estimate_requests[
-                                  proposal.progress_estimate_requests.length - 1
-                                ],
-                              ]),
-
-                          {
-                            proposal_id: proposal.id,
-                            estimate_request_id: request.id,
-                            customer_id: user?.customer_id || "",
-                            company_id: proposal.company_id,
-                            handleOpenProposalDetail,
-                            handleVisitFinished,
-                          }
-                        )}
+                <TimelineWrapper>
+                  {progress_estimate_requests
+                    ?.filter((f) => !f?.proposal_id)
+                    .concat([
+                      progress_estimate_requests[
+                        progress_estimate_requests.length - 1
+                      ],
+                    ])
+                    .map((progress, index, self) => (
+                      <TimelineItem
+                        step={{
+                          id: progress.id,
+                          status: "completed",
+                          title: progress.title,
+                          type: progress.type,
+                          icon: <FaCheck />,
+                        }}
+                        isLast={self.length === index + 1}
                       />
-                    )}
-                  </>
-                ))} */}
-
-                {/* {steps && (
-                  <Timeline
-                    // steps={mockTimelineSteps}
-                    steps={steps}
-                  />
-                )} */}
+                    ))}
+                </TimelineWrapper>
               </CardBody>
             </ScrollShadow>
           </Card>
@@ -671,14 +631,12 @@ export function MyBudgetsDetailPage() {
           }
           sender="CLIENT"
           customer={{
-            id:request.user.id,
-            name:request.user.name,
-            avatar:request.user.avatar,
+            id: request.user.id,
+            name: request.user.name,
+            avatar: request.user.avatar,
           }}
         />
       )}
-
-    
     </div>
   );
 }

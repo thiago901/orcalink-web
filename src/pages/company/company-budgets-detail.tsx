@@ -3,7 +3,10 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
 import { getEstimateRequestById } from "../../api/estimateRequests";
-import { getProposalsByEstimateId, getProposalsByEstimateIdAndCompany, Proposal } from "../../api/proposals";
+import {
+  getProposalsByEstimateIdAndCompany,
+  Proposal,
+} from "../../api/proposals";
 
 import { Title } from "../../components/ui/Title";
 
@@ -33,8 +36,6 @@ import { Chat } from "../../components/chat/chat";
 import { getEstimateRequestMessagesAndCompany } from "../../api/estimate-requests-messages";
 import { useCompanyStore } from "../../stores/companyStore";
 
-import { getUserById } from "../../api/users";
-
 import { CreateProposalModal } from "../../components/modals/create-proposal-modal";
 import { MdOutlineOpenInNew } from "react-icons/md";
 import { format } from "date-fns";
@@ -44,7 +45,6 @@ import { HiddenText } from "../../components/hidden-text";
 import { findCustomerUserById } from "../../api/customer";
 
 export function CompanyBudgetsDetailPage() {
-  
   const { estimate_request_id } = useParams<{ estimate_request_id: string }>();
   const { current_company } = useCompanyStore();
   const id = current_company.id;
@@ -73,7 +73,11 @@ export function CompanyBudgetsDetailPage() {
     refetch: refetchProposals,
   } = useQuery({
     queryKey: ["proposals", estimate_request_id],
-    queryFn: () => getProposalsByEstimateIdAndCompany(estimate_request_id!,current_company.id!),
+    queryFn: () =>
+      getProposalsByEstimateIdAndCompany(
+        estimate_request_id!,
+        current_company.id!
+      ),
     enabled: !!estimate_request_id,
   });
 

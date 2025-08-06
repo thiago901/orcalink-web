@@ -30,7 +30,6 @@ import { CiMapPin, CiSearch } from "react-icons/ci";
 import { searchByZipCode } from "../../utils/search-zip-address";
 import { useNavigate } from "react-router-dom";
 import { useCompanyStore } from "../../stores/companyStore";
-import { CustomTextArea } from "../ui/Textarea";
 import { CustomInput } from "../ui/Input";
 import { getCategories } from "../../api/category";
 import { useQuery } from "@tanstack/react-query";
@@ -323,12 +322,20 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
                     {...register(`categories.${index}.category_id`)}
                     label="Categoria"
                     placeholder="Selecione uma categoria"
+                    isLoading={isLoadingCategories}
                   >
                     {categories!.map((cat) => (
-                      <SelectItem key={cat.id} onPress={()=>{
-                        setValue(`categories.${index}.category_name`,cat.name)
-                      }}>{cat.name}</SelectItem>
-                      
+                      <SelectItem
+                        key={cat.id}
+                        onPress={() => {
+                          setValue(
+                            `categories.${index}.category_name`,
+                            cat.name
+                          );
+                        }}
+                      >
+                        {cat.name}
+                      </SelectItem>
                     ))}
                   </Select>
                   <CustomInput
@@ -336,10 +343,7 @@ export function CompanyCreateForm({ company }: CompanyCreateFormProp) {
                     name={`categories.${index}.name`}
                     error_message={errors.categories?.[index]?.name?.message}
                     register={register}
-                    
                   />
-                 
-                
 
                   <Button
                     variant="bordered"
