@@ -15,36 +15,32 @@ import { CustomInput } from "../ui/Input";
 import { CustomTextArea } from "../ui/Textarea";
 import { Text } from "../ui/Text";
 import { useCompanyStore } from "../../stores/companyStore";
-import { createProposal, CreateProposalProps } from "../../api/proposals";
+import { CreateProposalProps } from "../../api/proposals";
 import { formatCurrency } from "../../utils/format";
-import toast from "react-hot-toast";
+
 
 type EstimateCreateFormProps = {
   customer?: EstimateCustomer | null;
   form?: string;
   estimate_request_id: string;
   onClose:()=>void
+  onSubmit:(data:CreateProposalProps)=>void
 };
 export function ProposalCreateForm({
   customer,
   form,
   estimate_request_id,
-  onClose
+  onClose,
+  onSubmit
 }: EstimateCreateFormProps) {
   const { current_company } = useCompanyStore();
   const createEstimate = async (data: CreateProposalProps) => {
-    try {
-      await createProposal({
+    onSubmit({
       ...data,
       estimate_request_id,
-    });
-    onClose()
-    toast.success("Proposta enviada com sucesso");
-    } catch (error) {
-      console.log('[ProposalCreateForm][createEstimate]',error);
-      
-      toast.error("Houve um problema ao enviar a proposta, tente novamente mais tarde");
-    }
+    })
+    
+   
   };
   const {
     register,

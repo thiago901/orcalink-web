@@ -109,9 +109,9 @@ export function ProviderPendingRequests() {
   );
 
   return (
-    <div className="p-6 flex gap-8">
+    <div className=" flex flex-col gap-8 md:flex-row">
       <div>
-        <DatePicker />
+        <DatePicker widthFull className="md:min-w-[400px]" />
       </div>
 
       <div className="w-full">
@@ -127,54 +127,63 @@ export function ProviderPendingRequests() {
           {visits &&
             visits.map((visit) => (
               <Card key={visit.id} className="w-full">
-                <CardBody className="p-6">
-                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-lg font-semibold">Meu Cliente</h3>
-                        <Chip
-                          color={behaviorByStatus[visit.status].color}
-                          variant={behaviorByStatus[visit.status].type}
-                          size="sm"
-                        >
-                          {behaviorByStatus[visit.status].label}
-                        </Chip>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <p className="text-gray-600">
-                            Data e horário solicitado:
-                          </p>
-                          <p className="font-medium">
-                            {format(
-                              visit.scheduled_at,
-                              "dd/MM/yyyy 'às' HH:mm",
-                              {
-                                locale: ptBR,
-                              }
-                            )}
-                          </p>
+                <CardBody className="">
+                  <div className="flex flex-col md:items-center md:flex-row">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 flex-1">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="text-lg font-semibold">
+                            {visit.customer.name}
+                          </h3>
+                          <Chip
+                            color={behaviorByStatus[visit.status].color}
+                            variant={behaviorByStatus[visit.status].type}
+                            size="sm"
+                          >
+                            {behaviorByStatus[visit.status].label}
+                          </Chip>
                         </div>
 
-                        <div>
-                          <p className="text-gray-600">Contato:</p>
-                          <p className="font-medium">Meu TELEFONE</p>
-                          <p className="text-sm text-gray-500">MEU email</p>
-                        </div>
-                      </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <p className="text-gray-600">
+                              Data e horário solicitado:
+                            </p>
+                            <p className="font-medium">
+                              {format(
+                                visit.scheduled_at,
+                                "dd/MM/yyyy 'às' HH:mm",
+                                {
+                                  locale: ptBR,
+                                }
+                              )}
+                            </p>
+                          </div>
 
-                      <div className="mt-2">
-                        <p className="text-gray-600 text-sm">Solicitado em:</p>
-                        <p className="text-sm">
-                          {format(visit.created_at, "dd/MM/yyyy 'às' HH:mm", {
-                            locale: ptBR,
-                          })}
-                        </p>
+                          <div>
+                            <p className="text-gray-600">Contato:</p>
+                            <p className="font-medium">
+                              {visit.customer.phone}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              {visit.customer.email}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="mt-2">
+                          <p className="text-gray-600 text-sm">
+                            Solicitado em:
+                          </p>
+                          <p className="text-sm">
+                            {format(visit.created_at, "dd/MM/yyyy 'às' HH:mm", {
+                              locale: ptBR,
+                            })}
+                          </p>
+                        </div>
                       </div>
                     </div>
-
-                    <div className="flex flex-col sm:flex-row gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2 mt-2">
                       <Button
                         color="success"
                         variant="solid"

@@ -1,5 +1,5 @@
 // src/api/visits.ts
-import api, { ResponseAPI } from './axios';
+import api, { ResponseAPI } from "./axios";
 
 // Types
 export interface CreateVisitProps {
@@ -10,13 +10,13 @@ export interface CreateVisitProps {
   scheduled_at: Date;
   notes?: string;
 }
-export type VisitStatus = 
-    | 'PENDING'
-    | 'CONFIRMED'
-    | 'SUGGESTED'
-    | 'RESCHEDULED'
-    | 'CANCELED'
-    | 'COMPLETED';
+export type VisitStatus =
+  | "PENDING"
+  | "CONFIRMED"
+  | "SUGGESTED"
+  | "RESCHEDULED"
+  | "CANCELED"
+  | "COMPLETED";
 export interface UpdateVisitProps {
   id: string;
   status?: VisitStatus;
@@ -33,11 +33,20 @@ export interface Visit {
   suggested_at?: string;
   created_at: string;
   notes?: string;
+  customer: {
+    document: string;
+    email: string;
+    name: string;
+    phone: string;
+    user_id: string;
+    created_at: Date;
+    updated_at: Date;
+  };
 }
 
 // API functions
 export const createVisit = async (data: CreateVisitProps) => {
-  const response = await api.post('/scheduled-visits', data);
+  const response = await api.post("/scheduled-visits", data);
   return response.data.result as Visit;
 };
 
@@ -57,35 +66,48 @@ export const deleteVisit = async (id: string) => {
 };
 
 export const listPendingVisitsByCompany = async (companyId: string) => {
-  const response = await api.get(`/scheduled-visits/company/${companyId}/pending`);
+  const response = await api.get(
+    `/scheduled-visits/company/${companyId}/pending`
+  );
   return response.data.result as Visit[];
 };
 
 export const listSuggestedVisitsByCustomer = async (customerId: string) => {
-  const response = await api.get(`/scheduled-visits/customer/${customerId}/suggested`);
+  const response = await api.get(
+    `/scheduled-visits/customer/${customerId}/suggested`
+  );
   return response.data.result as Visit[];
 };
 
 export const getAllVisitByCompany = async (company_id: string) => {
-  const response = await api.get<ResponseAPI<Visit[]>>(`/scheduled-visits/company/${company_id}`);
+  const response = await api.get<ResponseAPI<Visit[]>>(
+    `/scheduled-visits/company/${company_id}`
+  );
   return response.data.result;
 };
 export const confirmVisitById = async (id: string) => {
-  const response = await api.patch<ResponseAPI<Visit[]>>(`/scheduled-visits/${id}/confirm`);
+  const response = await api.patch<ResponseAPI<Visit[]>>(
+    `/scheduled-visits/${id}/confirm`
+  );
   return response.data.result;
 };
-export const suggestVisitById = async (id: string,date:Date) => {
+export const suggestVisitById = async (id: string, date: Date) => {
   const timestamp = date.toISOString();
-  const response = await api.patch<ResponseAPI<Visit[]>>(`/scheduled-visits/${id}/suggest-new-date/${timestamp}`);
+  const response = await api.patch<ResponseAPI<Visit[]>>(
+    `/scheduled-visits/${id}/suggest-new-date/${timestamp}`
+  );
   return response.data.result;
 };
-export const suggestVisitByIdCustomer = async (id: string,date:Date) => {
+export const suggestVisitByIdCustomer = async (id: string, date: Date) => {
   const timestamp = date.toISOString();
-  const response = await api.patch<ResponseAPI<Visit[]>>(`/scheduled-visits/${id}/suggest-new-date/${timestamp}/customer`);
+  const response = await api.patch<ResponseAPI<Visit[]>>(
+    `/scheduled-visits/${id}/suggest-new-date/${timestamp}/customer`
+  );
   return response.data.result;
 };
-export const visitFinished= async (id: string) => {
-  
-  const response = await api.post<ResponseAPI<Visit[]>>(`/scheduled-visits/${id}/complete`);
+export const visitFinished = async (id: string) => {
+  const response = await api.post<ResponseAPI<Visit[]>>(
+    `/scheduled-visits/${id}/complete`
+  );
   return response.data.result;
 };

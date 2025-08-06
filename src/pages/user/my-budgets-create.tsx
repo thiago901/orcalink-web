@@ -169,10 +169,8 @@ export function MyBudgetsCreatePage() {
     setIsCompaniesError(false);
   };
   const onSubmit = async (data: CreateEstimateRequestProps) => {
-    // if (!position) {
-    //   toast.error('É necessário permitir o acesso à sua localização');
-    //   return;
-    // }
+    
+    setIsLoading(true)
 
     try {
       const requestData = {

@@ -1,6 +1,6 @@
 import { Suspense, useCallback, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { getEstimateRequestById } from "../../api/estimateRequests";
 import {
@@ -66,6 +66,7 @@ import { AcceptSuggestedScheduled } from "../../components/timeline/components/a
 import { visitFinished } from "../../api/visits";
 import { updateJob } from "../../api/jobs-service";
 import { FaCheck } from "react-icons/fa6";
+import toast from "react-hot-toast";
 
 type UseTimelineStepsDataProps = {
   proposal_id: string;
@@ -114,25 +115,31 @@ export function MyBudgetsDetailPage() {
     queryFn: () => getProposalsByEstimateId(id!),
     enabled: !!id,
   });
+   const { isPending:approveProposalIsPending, mutate:approveProposalMutate } = useMutation({
+    mutationFn: (id: string) => {
+      return approveProposal(id);
+    },
 
-  const handleApprove = async () => {
-    if (!selectedProposal) return;
-
-    setIsActionLoading(true);
-    try {
-      await approveProposal(selectedProposal.id);
-
+    onError: (error) => {
+      toast.error("Erro ao aceitar proposta");
+      console.error("[MyBudgetsDetailPage][approveProposal]", error);
+    },
+    onSuccess: async () => {
+      toast.success("Proposta aceita com sucesso");
       setIsApproveDialogOpen(false);
       setSelectedProposal((old) =>
         old ? { ...old, approved_at: new Date() } : null
       );
       await refetchProposals();
-    } catch (error) {
-      console.error("Error approving proposal:", error);
-      console.log("error", error);
-    } finally {
-      setIsActionLoading(false);
-    }
+    },
+  });
+
+  const handleApprove = async () => {
+    if (!selectedProposal) return;
+
+    
+    approveProposalMutate(selectedProposal.id)
+  
   };
 
   const handleReject = async () => {
@@ -241,7 +248,7 @@ export function MyBudgetsDetailPage() {
                 }
                 isDisabled={is_completed}
               >
-                Confimar Visita
+                Confirmar Visita
               </Button>
             );
             break;
@@ -601,7 +608,7 @@ export function MyBudgetsDetailPage() {
         onConfirm={handleApprove}
         title="Aceitar Proposta"
         description="Tem certeza que deseja aceitar esta proposta? Esta ação não pode ser desfeita."
-        isLoading={isActionLoading}
+        isLoading={approveProposalIsPending}
       />
 
       <ProposalActionDialog

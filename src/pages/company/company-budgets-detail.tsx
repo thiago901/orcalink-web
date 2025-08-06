@@ -43,6 +43,7 @@ import { AiFillStar } from "react-icons/ai";
 import { ProposalDetailModal } from "../../components/proposals/proposal-detail-modal";
 import { HiddenText } from "../../components/hidden-text";
 import { findCustomerUserById } from "../../api/customer";
+import { ProposalChat } from "../../components/chat/proposal-chat";
 
 export function CompanyBudgetsDetailPage() {
   const { estimate_request_id } = useParams<{ estimate_request_id: string }>();
@@ -277,63 +278,7 @@ export function CompanyBudgetsDetailPage() {
         </div>
 
         <div className="space-y-2">
-          <div className="">
-            <Button
-              onPress={onOpen}
-              fullWidth
-              radius="full"
-              size="lg"
-              color="primary"
-            >
-              <FiMessageCircle size={24} />
-              <Text>Falar com o cliente</Text>
-            </Button>
-            <Drawer isOpen={isOpen} onOpenChange={onOpenChange}>
-              <DrawerContent>
-                {() => (
-                  <>
-                    <DrawerHeader className="flex flex-col gap-1">
-                      Chats
-                    </DrawerHeader>
-                    <DrawerBody className="p-0">
-                      {messages && (
-                        <Chat
-                          contact={messages}
-                          onSend={() => console.log("")}
-                          onUpload={() => console.log("")}
-                          onBack={() => null}
-                          sender="COMPANY"
-                        />
-                      )}
-                      {!messages && (
-                        <Chat
-                          contact={{
-                            company: {
-                              id: current_company.id,
-                              name: current_company.name,
-                            },
-                            estimate_request: {
-                              id: request.id,
-                            },
-                            messages: [],
-                            unread_amount: 0,
-                            user: {
-                              id: request.user.id,
-                              name: request.user.name,
-                            },
-                          }}
-                          onSend={() => console.log("")}
-                          onUpload={() => console.log("")}
-                          onBack={() => null}
-                          sender="COMPANY"
-                        />
-                      )}
-                    </DrawerBody>
-                  </>
-                )}
-              </DrawerContent>
-            </Drawer>
-          </div>
+     
           <Card>
             <CardHeader>
               <Subtitle>Última atualização</Subtitle>
@@ -400,7 +345,7 @@ export function CompanyBudgetsDetailPage() {
                           color="primary"
                           onPress={() => {
                             setSelectedProposal(proposal);
-                            // setEstimateDetail(true);
+                            
                           }}
                         >
                           Ver detalhes
@@ -442,6 +387,7 @@ export function CompanyBudgetsDetailPage() {
         }
         onSuccess={() => {
           refetchProposals();
+          estimate_request_refetch();
         }}
       />
 
